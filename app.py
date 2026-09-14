@@ -157,7 +157,7 @@ if st.button(
                 """
 
                 respuesta = cliente.models.generate_content(
-                    model="gemini-2.5-flash", contents=prompt_sistema
+                    model="gemini-2.6-flash", contents=prompt_sistema
                 )
 
                 st.success("✅ Informe completado satisfactoriamente.")
