@@ -30,13 +30,14 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### Taxonomía de Rigor Operativo")
     st.caption(
-        "• **🟢 Datos Observados:** Cifras directas de la empresa.\n"
-        "• **🔵 Benchmarks Sectoriales:** Estadísticas oficiales del país.\n"
-        "• **🟠 Derivaciones Matemáticas:** Fórmulas financieras explícitas.\n"
-        "• **🔴 Proyecciones:** Modelado de sensibilidad y escenarios."
+        "• **🟢 Dato Observado:** Cifras reales aportadas por la empresa.\n"
+        "• **🔵 Fuente Externa:** Benchmarks oficiales y contrastados.\n"
+        "• **🟠 Derivación Matemática:** Fórmulas financieras explícitas.\n"
+        "• **🟡 Supuesto:** Hipótesis de trabajo de partida.\n"
+        "• **🔴 Proyección:** Modelado condicional de escenarios."
     )
 
-# --- RECOGIDA DE DATOS TÉCNICOS INTEGRAL (4 PESTAÑAS) ---
+# --- RECOGIDA DE DATOS CONTABLES Y OPERATIVOS REALES ---
 st.subheader("📋 Formulario de Auditoría y Parámetros Contables Reales")
 
 tab_fin, tab_ops, tab_mkt, tab_vision = st.tabs([
@@ -58,7 +59,7 @@ with tab_fin:
             step=5000,
         )
         coste_personal = st.number_input(
-            "Gasto anual en personal (Bruto + Seg. Social) (€):",
+            "Gasto anual en personal (Nóminas + Seg. Social) (€):",
             min_value=5000,
             max_value=30000000,
             value=84000,
@@ -73,7 +74,7 @@ with tab_fin:
             step=2000,
         )
         gastos_fijos = st.number_input(
-            "Gastos fijos anuales (Alquiler, suministros, seguros, gestoría) (€):",
+            "Gastos fijos anuales (Alquiler, suministros, seguros) (€):",
             min_value=1000,
             max_value=10000000,
             value=28000,
@@ -124,7 +125,7 @@ with tab_ops:
             step=1,
         )
         horas_perdidas_dia = st.number_input(
-            "Horas dedicadas al día a llamadas, presupuestos no aceptados y citas:",
+            "Horas dedicadas al día a llamadas, presupuestos y citas:",
             min_value=0.0,
             max_value=16.0,
             value=2.5,
@@ -344,134 +345,145 @@ if st.button(
                 cliente = genai.Client(api_key=api_key_usuario)
 
                 prompt_completo = f"""
-Eres un Socio Director de Consultoría de Operaciones y Strategic Foresight de élite (estándar Roland Berger, McKinsey, ITONICS).
-Dispones de los DATOS CONTABLES Y OPERATIVOS REALES Y EXACTOS aportados por la empresa. 
+Eres un Socio Director de Consultoría Estratégica y Strategic Foresight de élite (estándar Roland Berger, McKinsey, ITONICS).
+Dispones de los DATOS CONTABLES Y OPERATIVOS REALES aportados por la empresa.
 
 ======================================================================
-DATOS AUDITADOS DE LA EMPRESA (PROHIBIDO ASUMIR O INVENTAR NÚMEROS):
+DATOS AUDITADOS DE LA EMPRESA (BASELINE DECLARADO):
 ======================================================================
 - Facturación anual real: 🟢 {facturacion_anual:,} €
 - Coste salarial total anual (personal + seguridad social): 🟢 {coste_personal:,} €
 - Gasto en recambios / compras / COGS anual: 🟢 {coste_compras_recambios:,} €
 - Gastos fijos operativos anuales: 🟢 {gastos_fijos:,} €
-- Beneficio neto / EBITDA aproximado declarado: 🟢 {margen_ebitda_declarado:,} €
-- Ticket medio por factura/cliente: 🟢 {ticket_medio_operacion} €
-- Plantilla total: 🟢 {tamano_equipo} personas
-- Operarios productivos directos: 🟢 {operarios_directos} personas
+- Beneficio neto declarado: 🟢 {margen_ebitda_declarado:,} €
+- Ticket medio real por factura: 🟢 {ticket_medio_operacion} €
+- Plantilla total: 🟢 {tamano_equipo} personas (Operarios directos: 🟢 {operarios_directos})
 - Tarifa cobrada por hora de taller: 🟢 {precio_hora_mano_obra} €/hora (sin IVA)
-- Horas diarias perdidas al teléfono / presupuestos no cerrados: 🟢 {horas_perdidas_dia} horas/día
+- Horas diarias perdidas al teléfono / presupuestos no cerrados: 🟢 {horas_perdidas_dia} h/día
 - Días laborables computables: 🟢 220 días/año
-- Tasa real de aceptación de presupuestos: 🟢 {tasa_conversion_presupuestos}%
+- Tasa de aceptación de presupuestos: 🟢 {tasa_conversion_presupuestos}%
 - Stack tecnológico actual: 🟢 {stack_tecnologico}
 - Cuello de botella operacional: 🟢 {friccion_operativa}
-- Ubicación / País / Región: 🟢 {pais_region}
-- Mix de facturación: 🟢 {porcentaje_b2c}% B2C (Particulares) / {porcentaje_b2b}% B2B (Empresas/Flotas)
+- Ubicación / Marco geográfico: 🟢 {pais_region}
+- Mix de clientes: 🟢 {porcentaje_b2c}% Particulares (B2C) / {porcentaje_b2b}% Empresas (B2B)
 - Competidor / Amenaza declarada: 🟢 {competidor_referencia}
 - Moat / Ventaja declarada: 🟢 {ventaja_competitiva}
-- Presupuesto de inversión disponible (12 meses): 🟢 {presupuesto_disponible:,} €
+- Presupuesto disponible en 12 meses: 🟢 {presupuesto_disponible:,} €
 - Horizonte temporal de análisis: 🟢 {horizonte} años
 
 ======================================================================
-REGLAS ESTRICTAS DE CÁLCULO Y PROTOCOLO EDITORIAL:
+REGLAS OBLIGATORIAS DE RIGOR Y PROTOCOLO EDITORIAL:
 ======================================================================
 1. LEYENDA TIPOGRÁFICA OBLIGATORIA:
+   Cada métrica, cifra o afirmación relevante del informe DEBE ir precedida de uno de estos símbolos:
    🟢 [DATO OBSERVADO]: Cifras reales facilitadas por la empresa arriba indicadas.
-   🔵 [DATO FUENTE EXTERNA]: Benchmarks oficiales (cita: Fuente | Año | Ámbito).
+   🔵 [DATO FUENTE EXTERNA]: Citas oficiales (especifica: Fuente | Año | Ámbito geográfico).
    🟠 [DERIVACIÓN MATEMÁTICA]: Cálculos exactos derivados de los datos reales del cliente.
-   🔴 [PROYECCIÓN / ESCENARIO]: Simulación condicional basada en escenarios.
-   (Queda PROHIBIDO el uso de 🟡 Supuestos para datos ya aportados).
+   🟡 [SUPUESTO OPERATIVO]: Hipótesis de trabajo de partida (abierta a contraste con el cliente).
+   🔴 [PROYECCIÓN / ESCENARIO]: Simulación condicional ("bajo este escenario..."), NUNCA certeza o forecast causal.
 
-2. CÁLCULO FINANCIERO Y DE ROI SIN SESGOS:
-   - Horas anuales perdidas = 🟢 {horas_perdidas_dia} h/día x 220 días = 🟠 [{horas_perdidas_dia * 220:.0f} horas/año].
-   - Coste hora salarial real = 🟢 {coste_personal} € / (🟢 {tamano_equipo} empleados x 1.760 h laborables año) = 🟠 X €/h.
-   - Pérdida salarial directa en tareas administrativas = Horas anuales perdidas x Coste hora salarial.
-   - Coste de oportunidad (Facturación cesante máxima teórica) = Horas anuales perdidas x 🟢 {precio_hora_mano_obra} €/h.
-   - Margen de contribución real de taller = 1 - (🟢 {coste_compras_recambios} / 🟢 {facturacion_anual}).
-   - Margen incremental neto = Horas recuperadas facturadas x 🟢 {precio_hora_mano_obra} €/h x Margen de contribución.
-   - Beneficio Neto Incremental = Margen incremental - (Coste amortizado software + licencias anuales).
-   - ROI = (Beneficio Neto Incremental / 🟢 {presupuesto_disponible} €) x 100.
-   - ANÁLISIS DE SENSIBILIDAD: Calcula obligatoriamente el retorno en 3 escenarios de éxito: Recuperando solo el 25%, el 50% y el 75% de las horas perdidas.
+2. PROHIBICIÓN RADICAL DE INVENTAR DATOS DEL CLIENTE:
+   - Prohibido asumir o inventar datos financieros o de clientes. Si un dato no fue facilitado, clasifícalo como: "🟡 [SUPUESTO OPERATIVO]: Pendiente de validación contable por el cliente" y añade la fórmula para calcularlo.
 
-3. TABLAS DE BENCHMARKING:
-   - La columna de la empresa debe contener ÚNICAMENTE los datos auditados o sus derivados matemáticos directos (Facturación por empleado = 🟢 {facturacion_anual} / 🟢 {tamano_equipo}).
-   - Compara contra "Media Sectorial {pais_region}" y "Frontera de Desempeño Digital" indicando la fuente externa o método de contraste.
+3. CORRECCIÓN FINANCIERA ESTRICTA (ROI Y COSTE DE INACCIÓN):
+   - NUNCA uses "Facturación Recuperada" como beneficio. Facturación ≠ Beneficio.
+   - Fórmula de Margen Incremental = Horas Recuperadas Facturables x Tarifa Horaria x Margen de Contribución Real.
+   - Beneficio Neto = Margen Incremental - (CAPEX amortizado + OPEX recurrente).
+   - ROI (%) = (Beneficio Neto / Inversión Neta Total) x 100.
+   - Presenta un análisis de sensibilidad con 3 niveles: Captura del 25%, 50% y 75% de las horas liberadas.
+   - Separa nítidamente Pérdida Operativa Real de Coste de Oportunidad Teórico y de Riesgo Sancionador.
 
-4. FORMATO DE SALIDA:
-   - Comienza obligatoriamente con el bloque ```json ... ``` delimitando los datos para Plotly:
+4. ESCENARIOS Y LENGUAJE:
+   - Elimina afirmaciones categóricas como "quiebra inminente", "va a suceder" o "Top 10% indiscutible".
+   - Usa "sugiere", "podría indicar", "bajo este escenario".
+   - Sustituye "Top 10%" por "Frontera de Desempeño / Benchmark Aspiracional Digital".
+
+5. FORMATO DE SALIDA:
+   - Inicia obligatoriamente con el bloque ```json ... ``` delimitando los datos para los radares Plotly:
      {{
        "trends": [
          {{"name": "...", "quadrant": "Tecnología"|"Operaciones"|"Modelo de Negocio"|"Mercado / Cliente", "horizon": "Act"|"Prepare"|"Watch", "impact": 1-10, "description": "..."}}
        ],
        "gap_analysis": {{
-         "pyme": [números 1-10 auditados],
+         "pyme": [números 1-10],
          "media_nacional": [números 1-10],
          "frontera_global": [números 1-10]
        }}
      }}
-     Orden exacto de gap_analysis: [Madurez Digital, Eficiencia Operativa, Retención de Margen, Diversificación B2B, Agilidad Estratégica].
-   - Tras el JSON, redacta el informe en Markdown riguroso respetando los 15 apartados numerados.
+     Orden del gap_analysis: [Madurez Digital, Eficiencia Operativa, Retención de Margen, Diversificación B2B, Agilidad Estratégica].
+   - Tras el JSON, redacta el informe en Markdown respetando la estructura indicada.
 
 ======================================================================
-ESTRUCTURA DEL INFORME (15 MÓDULOS DE ALTO RIGOR):
+ESTRUCTURA DEL INFORME (METODOLOGÍA + RESUMEN + 15 MÓDULOS):
 ======================================================================
 
 # INFORME DE AUDITORÍA INDUSTRIAL, STRATEGIC FORESIGHT Y BENCHMARKING
-(Ficha Metodológica de entrada: Parámetros del cliente auditados, Fecha de corte, Criterios de scoring 0-10 y Limitaciones del análisis).
+
+## FICHA METODOLÓGICA Y LIMITACIONES DEL ESTUDIO
+- Objetivo y alcance temporal/geográfico.
+- Fecha de corte de la información.
+- Baseline del cliente auditado.
+- Metodología de Scoring (0 a 10): Define los 5 niveles (0=Inexistente, 2=Inicial/Manual, 4=Básico reactivo, 6=Desarrollado, 8=Avanzado, 10=Frontera).
+- Definición formal de "Frontera de Desempeño".
+- Limitaciones metodológicas del estudio.
 
 ## RESUMEN EJECUTIVO & DECISIONES CLAVE
-- Tabla de Decisiones Innegociables para Gerencia (Decisión | Plazo de ejecución | Coste Neto Estimado | Impacto en Margen).
-- 5 Conclusiones cuantitativas del diagnóstico.
+- Tabla: Decisiones Innegociables que debe tomar el Gerente (Decisión | Cuándo / Plazo | Coste Neto Estimado | Impacto Esperado).
+- 5 Conclusiones ejecutivas directas del diagnóstico.
 
 ## 1. Auditoría Operativa & Unit Economics Reales
 - Desglose contable real: Facturación (🟢 {facturacion_anual:,} €), COGS (🟢 {coste_compras_recambios:,} €), Personal (🟢 {coste_personal:,} €), Gastos Fijos (🟢 {gastos_fijos:,} €) y Margen Neto resultante.
-- Cálculo de horas hombre perdidas al año (🟠 {horas_perdidas_dia * 220:.0f} horas) y cuantificación de la pérdida directa de nómina vs. facturación cesante con la tarifa real de 🟢 {precio_hora_mano_obra} €/h.
+- Horas anuales perdidas (🟠 {horas_perdidas_dia * 220:.0f} horas) y cuantificación de la pérdida directa de nómina vs. facturación cesante con la tarifa real de 🟢 {precio_hora_mano_obra} €/h.
 
-## 2. Contexto Macroeconómico, Demográfico y Regulatorio ({pais_region})
-- 🔵 Regulaciones vigentes: Veri*factu (RD 1007/2023), Facturación Electrónica B2B (Ley Crea y Crece). Requisitos técnicos obligatorios y sanciones reales.
-- 🔵 Datos de mercado y convenios colectivos del sector aplicables a su plantilla.
+## 2. Contexto Macroeconómico, Demografía y Presión Regulatoria ({pais_region})
+- 🔵 Normativas vigentes y en despliegue técnico: Veri*factu (RD 1007/2023), Ley Crea y Crece (facturación electrónica B2B). Requisitos técnicos obligatorios y sanciones reales.
+- 🔵 Datos del mercado y convenios laborales de aplicación.
 
-## 3. Benchmarking Sectorial Cuantitativo: Empresa vs. Media vs. Frontera Digital
-- Tabla comparativa con datos reales del cliente: Facturación por empleado (🟢 {facturacion_anual / tamano_equipo:,.0f} €), Ticket medio (🟢 {ticket_medio_operacion} €), % B2B (🟢 {porcentaje_b2b}%), Tasa de conversión de presupuestos (🟢 {tasa_conversion_presupuestos}%).
-- Comparativa contra Media Nacional y Frontera de Desempeño.
+## 3. Benchmarking Sectorial: Empresa vs. Media País vs. Frontera de Desempeño
+- Tabla comparativa estricta con datos del cliente: Facturación por empleado (🟢 {facturacion_anual / tamano_equipo:,.0f} €), Ticket medio (🟢 {ticket_medio_operacion} €), % B2B (🟢 {porcentaje_b2b}%), Tasa de conversión (🟢 {tasa_conversion_presupuestos}%).
+- Comparativa frente a Media Sectorial y Frontera de Desempeño con fuentes documentadas.
 
-## 4. Frontera de Innovación Internacional (Casos Reales con Nombre Comercial)
-- Mínimo 2 casos de estudio reales (Alemania, EE. UU., etc.). Empresa, contexto, solución técnica adoptada y métricas de transferencia aplicables a escala de esta pyme.
+## 4. Frontera de Innovación Internacional (Casos Reales de Estudio)
+- Mínimo 2 casos de estudio reales con nombre comercial (Alemania, EE. UU., etc.). Empresa, contexto, solución técnica adoptada y qué parte es transferible a escala de esta pyme.
 
 ## 5. Taxonomía de Tendencias: Macro, Micro & Señales Débiles (Weak Signals)
 - Clasificación de tendencias: Evidencia -> Impacto -> Incertidumbre -> Implicación para esta empresa con su estructura de costes.
 
-## 6. Scoring Multidimensional de Tendencias
-- Matriz con: Tendencia | Cuadrante | Horizonte (Act/Prepare/Watch) | Impacto (1-10) | Madurez | Grado de Incertidumbre.
+## 6. Scoring Multidimensional de Tendencias y Matriz Impacto × Incertidumbre
+- Matriz detallada: Tendencia | Cuadrante | Horizonte (Act/Prepare/Watch) | Impacto (1-10) | Madurez | Grado de Incertidumbre.
+- Matriz de 4 cuadrantes: Alto impacto/Baja incertidumbre (Actuar), Alto impacto/Alta incertidumbre (Preparar escenarios), Bajo impacto/Baja incertidumbre (Monitorizar), Bajo impacto/Alta incertidumbre (Vigilar).
 
 ## 7. Análisis de Brecha (Gap Analysis) y Conexión con la Acción
 - Justificación matemática de las puntuaciones (0 a 10) otorgadas a la empresa a partir de sus datos reales.
-- Tabla: Dimensión -> Situación Auditada -> Benchmark -> Gap -> Impacto Económico -> Acción Concreta.
+- Tabla: Dimensión -> Situación Auditada -> Benchmark -> Gap -> Impacto Económico -> Acción Vinculada.
 
 ## 8. Modelado de 4 Escenarios Plausibles (2x2 Matrix)
 - Cruce de las 2 incertidumbres sectoriales críticas en {pais_region}.
-- Matriz con Plausibilidad, Impacto en Margen y Señales tempranas observables de confirmación.
+- Matriz con Plausibilidad (Alta/Media/Baja), Impacto en Margen y Señales tempranas observables de confirmación para cada cuadrante.
 
 ## 9. Backcasting Inverso (Ingeniería Inversa a {horizonte} Años)
-- Definición del estado de éxito objetivo a {horizonte} años y condiciones necesarias hacia atrás (Año 2 y Año 1).
+- Año 3: Definición del estado de éxito objetivo.
+- Año 2: Hitos intermedios y capacidades técnicas que deben estar operativas.
+- Año 1: Fundamentos y eliminación de fricciones operativas prioritarias.
 
 ## 10. Matriz de Decisión Tecnológica: Build / Buy / Partner / Kill
 - Clasificación estricta de procesos y herramientas (Desarrollo interno, Compra SaaS, Alianza, Eliminación inmediata).
 
 ## 11. Sistema de Disparadores y Alertas Tempranas (Early Warning Triggers)
-- Umbrales objetivos y eventos observables del entorno que forzarán la activación de medidas correctoras.
+- Indicadores objetivos observables del entorno (regulatorios, comerciales o de costes) y la acción inmediata a activar.
 
 ## 12. Matriz de Coste de Inacción Desagregada
 - Desglose riguroso a 12, 24 y 36 meses separando Fuga de Margen Demostrada, Coste de Oportunidad y Exposición Sancionadora.
 
-## 13. Financiación Pública y Optimización Fiscal ({pais_region})
-- Vías de financiación vigentes, programas autonómicos y bonificaciones de formación continua (ej. FUNDAE).
+## 13. Vías de Financiación Pública y Optimización Fiscal ({pais_region})
+- Identificación de líneas de ayuda reales y vigentes, programas autonómicos y bonificaciones de formación continua (ej. FUNDAE).
 
-## 14. Matriz de Fricción Cultural y Gestión del Cambio
+## 14. Matriz de Fricción Cultural y Adopción del Cambio
 - Resistencias por perfil (Operarios de taller, Gerente, Cliente B2C tradicional) y protocolo de mitigación e incentivos.
 
 ## 15. Hoja de Ruta Ejecutiva: Playbook 30 - 90 - 180 Días
-- Fases de despliegue con: Tarea, Responsable, Dependencia técnica previa, KPIs de control y Presupuesto (CAPEX vs. OPEX) acotado estrictamente a los 🟢 {presupuesto_disponible:,} € disponibles.
-- Análisis de sensibilidad del ROI neto (escenarios al 25%, 50% y 75% de éxito de recuperación horaria).
+- Fases de despliegue con: Tarea, Responsable directo, Dependencias previas, KPIs de control (Baseline -> Objetivo) y Presupuesto desglosado en CAPEX vs. OPEX acotado a los 🟢 {presupuesto_disponible:,} € disponibles.
+- Análisis de sensibilidad del ROI financiero neto (escenarios al 25%, 50% y 75% de recuperación horaria).
 """
 
                 respuesta = cliente.models.generate_content(
