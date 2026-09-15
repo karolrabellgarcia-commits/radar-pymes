@@ -8,14 +8,14 @@ import streamlit as st
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
-    page_title="Strategic Foresight & Trend Radar",
+    page_title="Strategic Foresight & Industrial Audit",
     page_icon="🧭",
     layout="wide",
 )
 
-st.title("🧭 Radar Estratégico de Tendencias e Innovación")
+st.title("🧭 Radar Estratégico & Auditoría de Competitividad PYME")
 st.markdown(
-    "Plataforma de **Strategic Foresight y Benchmarking de Mercado** para PYMES y empresas en crecimiento (Estándar TRENDONE / ITONICS)."
+    "Plataforma de **Auditoría Cuantitativa, Benchmarking Sectorial y Strategic Foresight** (Estándar Roland Berger / ITONICS)."
 )
 st.markdown("---")
 
@@ -28,118 +28,171 @@ with st.sidebar:
         help="Introduce tu clave personal de Google AI Studio.",
     )
     st.markdown("---")
-    st.markdown("### Taxonomía de Foresight")
+    st.markdown("### Taxonomía de Rigor Operativo")
     st.caption(
-        "• **Act (0-6m):** Adopción inmediata para proteger margen.\n"
-        "• **Prepare (6-18m):** Pruebas de concepto y pilotos.\n"
-        "• **Watch (18m+):** Vigilancia tecnológica y regulatoria."
+        "• **🟢 Datos Observados:** Cifras directas de la empresa.\n"
+        "• **🔵 Benchmarks Sectoriales:** Estadísticas oficiales del país.\n"
+        "• **🟠 Derivaciones Matemáticas:** Fórmulas financieras explícitas.\n"
+        "• **🔴 Proyecciones:** Modelado de sensibilidad y escenarios."
     )
 
-# --- ENTRADA DE DATOS GUIADA EN PESTAÑAS ---
-st.subheader("📋 Recogida de Datos de la Empresa")
+# --- RECOGIDA DE DATOS TÉCNICOS INTEGRAL (4 PESTAÑAS) ---
+st.subheader("📋 Formulario de Auditoría y Parámetros Contables Reales")
 
-tab_ops, tab_mkt, tab_vision = st.tabs([
-    "1. Radiografía Operativa & Finanzas",
-    "2. Mercado, Competencia & País",
-    "3. Objetivos & Restricciones",
+tab_fin, tab_ops, tab_mkt, tab_vision = st.tabs([
+    "1. Datos Financieros & Costes Reales",
+    "2. Operaciones & Cuello de Botella",
+    "3. Mercado, Competencia & País",
+    "4. Capacidad de Inversión & Horizonte",
 ])
 
+with tab_fin:
+    st.markdown("#### Balance y Estructura de Costes (Cifras Anuales)")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        facturacion_anual = st.number_input(
+            "Facturación anual exacta (€):",
+            min_value=10000,
+            max_value=50000000,
+            value=210000,
+            step=5000,
+        )
+        coste_personal = st.number_input(
+            "Gasto anual en personal (Bruto + Seg. Social) (€):",
+            min_value=5000,
+            max_value=30000000,
+            value=84000,
+            step=2000,
+        )
+    with c2:
+        coste_compras_recambios = st.number_input(
+            "Gasto anual en consumibles / compras / recambios (€):",
+            min_value=0,
+            max_value=30000000,
+            value=78000,
+            step=2000,
+        )
+        gastos_fijos = st.number_input(
+            "Gastos fijos anuales (Alquiler, suministros, seguros, gestoría) (€):",
+            min_value=1000,
+            max_value=10000000,
+            value=28000,
+            step=1000,
+        )
+    with c3:
+        margen_ebitda_declarado = st.number_input(
+            "Beneficio neto antes de impuestos aproximado (€):",
+            min_value=-500000,
+            max_value=10000000,
+            value=20000,
+            step=1000,
+        )
+        ticket_medio_operacion = st.number_input(
+            "Ticket medio real por cliente / factura (€):",
+            min_value=10,
+            max_value=50000,
+            value=220,
+            step=10,
+        )
+
 with tab_ops:
-    col1, col2 = st.columns(2)
-    with col1:
+    st.markdown("#### Capacidad Operativa y Fricción Diaria")
+    c4, c5, c6 = st.columns(3)
+    with c4:
         sector = st.text_input(
-            "Sector y nicho específico:",
-            placeholder="Ej: Taller mecánico multimarca y mantenimiento de flotas ligeras",
+            "Sector y nicho de actividad:",
+            value="Taller mecánico multimarca y mecánica rápida",
         )
-        modelo_ingresos = st.selectbox(
-            "Modelo principal de ingresos:",
-            [
-                "Servicios profesionales por horas o proyectos",
-                "Venta B2B / Distribución mayorista",
-                "Comercio minorista / Venta en tienda física",
-                "Comercio electrónico (B2C)",
-                "Suscripción / Mantenimiento recurrente",
-                "Mixto (Servicios + Venta de producto)",
-            ],
+        tamano_equipo = st.number_input(
+            "Número total de empleados en plantilla:",
+            min_value=1,
+            max_value=500,
+            value=3,
         )
-        rango_facturacion = st.selectbox(
-            "Facturación anual actual:",
-            [
-                "Menos de 100.000 €",
-                "100.000 € - 300.000 €",
-                "300.000 € - 1.000.000 €",
-                "1.000.000 € - 3.000.000 €",
-                "Más de 3.000.000 €",
-            ],
+        operarios_directos = st.number_input(
+            "De ellos, ¿cuántos producen directamente (técnicos/operarios)?:",
+            min_value=1,
+            max_value=500,
+            value=2,
         )
-    with col2:
-        tamano_equipo = st.selectbox(
-            "Tamaño del equipo de trabajo:",
-            [
-                "1 persona (Fundador solo)",
-                "2 a 5 personas",
-                "6 a 15 personas",
-                "Más de 15 personas",
-            ],
+    with c5:
+        precio_hora_mano_obra = st.number_input(
+            "Tarifa oficial cobrada por hora de mano de obra (€/hora sin IVA):",
+            min_value=15,
+            max_value=300,
+            value=48,
+            step=1,
         )
+        horas_perdidas_dia = st.number_input(
+            "Horas dedicadas al día a llamadas, presupuestos no aceptados y citas:",
+            min_value=0.0,
+            max_value=16.0,
+            value=2.5,
+            step=0.5,
+        )
+        tasa_conversion_presupuestos = st.slider(
+            "% de presupuestos emitidos que el cliente acaba aceptando:",
+            min_value=5,
+            max_value=100,
+            value=40,
+        )
+    with c6:
         stack_tecnologico = st.selectbox(
-            "Nivel actual de madurez tecnológica:",
+            "Stack tecnológico actual:",
             [
-                "Bajo: Procesos manuales, papel o libretas",
-                "Medio-Bajo: Hojas de cálculo (Excel/Sheets) y comunicación por teléfono",
-                "Medio: Software de gestión local o no conectado",
-                "Avanzado: Herramientas SaaS en la nube y conectadas por API",
+                "Hojas de cálculo (Excel/Sheets) y papel físico",
+                "Software de gestión local antiguo (no conectado/no web)",
+                "Software cloud básico sin automatizaciones",
+                "ERP/CRM moderno integrado por APIs",
             ],
         )
         friccion_operativa = st.text_area(
-            "Cuello de botella principal y fugas de tiempo/margen:",
-            placeholder="Ej: Mucho tiempo al teléfono atendiendo citas y presupuestos, falta de mecánicos cualificados y dificultad para retenerlos.",
+            "Descripción detallada del cuello de botella principal:",
+            value="Interrupciones continuas al teléfono de clientes pidiendo presupuesto o consultando estado de su vehículo. Los operarios paran de trabajar para responder llamadas. Dificultad para retener mecánicos cualificados.",
             height=100,
         )
 
 with tab_mkt:
-    col3, col4 = st.columns(2)
-    with col3:
+    st.markdown("#### Mercado, Geografía y Base de Clientes")
+    c7, c8 = st.columns(2)
+    with c7:
         pais_region = st.text_input(
-            "País y región de operación:",
-            placeholder="Ej: España (Comunidad de Madrid)",
-            value="España",
+            "País y región operativa:", value="España (Comunidad de Madrid)"
         )
-        tipo_cliente = st.selectbox(
-            "Composición de la base de clientes:",
-            [
-                "100% Particulares (B2C)",
-                "Mayoría Particulares (70% B2C / 30% B2B)",
-                "Equilibrado (50% B2C / 50% B2B)",
-                "Mayoría Empresas (30% B2C / 70% B2B)",
-                "100% Empresas (B2B)",
-            ],
+        porcentaje_b2c = st.slider(
+            "% de facturación que proviene de Particulares (B2C):",
+            min_value=0,
+            max_value=100,
+            value=75,
         )
-    with col4:
+        porcentaje_b2b = 100 - porcentaje_b2c
+        st.caption(
+            f"Facturación a Empresas / Flotas (B2B): **{porcentaje_b2b}%**"
+        )
+    with c8:
         competidor_referencia = st.text_input(
-            "Competidor de referencia o mayor amenaza en tu zona/sector:",
-            placeholder="Ej: Grandes cadenas (Norauto, Midas) y talleres oficiales con apps móviles",
+            "Competidor de referencia o mayor amenaza directa:",
+            value="Redes de mecánica rápida (Norauto, Midas, FeuVert) y talleres de concesionario oficial",
         )
         ventaja_competitiva = st.text_input(
-            "¿Por qué compran los clientes actuales? (Moat declarado):",
-            placeholder="Ej: Confianza personal de muchos años, cercanía física y trato directo",
+            "Motivo real por el que el cliente actual os elige (Moat):",
+            value="Confianza de más de 12 años, trato personal directo y honestidad en el diagnóstico",
         )
 
 with tab_vision:
-    col5, col6 = st.columns(2)
-    with col5:
-        presupuesto = st.selectbox(
-            "Capacidad de inversión en innovación (próximos 12 meses):",
-            [
-                "Mínima (< 1.000 € / solo software gratuito o de muy bajo coste)",
-                "Moderada (1.000 € - 5.000 €)",
-                "Media (5.000 € - 20.000 €)",
-                "Alta (> 20.000 €)",
-            ],
+    st.markdown("#### Restricciones de Inversión y Alcance")
+    c9, c10 = st.columns(2)
+    with c9:
+        presupuesto_disponible = st.number_input(
+            "Presupuesto real máximo para inversión tecnológica/procesos en 12 meses (€):",
+            min_value=0,
+            max_value=500000,
+            value=3500,
+            step=500,
         )
-    with col6:
+    with c10:
         horizonte = st.slider(
-            "Horizonte temporal de prospectiva (años):",
+            "Horizonte temporal de prospección (años):",
             min_value=1,
             max_value=5,
             value=3,
@@ -148,7 +201,7 @@ with tab_vision:
 st.markdown("---")
 
 
-# --- FUNCIONES AUXILIARES PARA GRÁFICOS INTERACTIVOS (PLOTLY) ---
+# --- FUNCIONES DE VISUALIZACIÓN INTERACTIVA (PLOTLY) ---
 def render_trend_radar(trends_data):
     horizon_map = {"Act": 1, "Prepare": 2, "Watch": 3}
     quadrant_angle = {
@@ -164,7 +217,6 @@ def render_trend_radar(trends_data):
         base_theta = quadrant_angle.get(t.get("quadrant", "Tecnología"), 45)
         impact = t.get("impact", 5)
 
-        # Variación ligera para evitar superposición perfecta
         r_jitter = base_r + (impact - 5) * 0.05
         theta_jitter = (base_theta + (hash(t.get("name", "")) % 40) - 20) % 360
 
@@ -179,7 +231,6 @@ def render_trend_radar(trends_data):
         })
 
     df = pd.DataFrame(plot_rows)
-
     fig = go.Figure()
 
     for q_name, angle in quadrant_angle.items():
@@ -246,7 +297,7 @@ def render_gap_radar(gap_data):
             r=pyme_scores,
             theta=categories,
             fill="toself",
-            name="Tu Empresa (Actual)",
+            name="Tu Empresa (Auditada)",
         )
     )
     fig.add_trace(
@@ -262,14 +313,14 @@ def render_gap_radar(gap_data):
             r=lideres_scores,
             theta=categories,
             fill="toself",
-            name="Líderes de Frontera",
+            name="Frontera de Desempeño",
         )
     )
 
     fig.update_layout(
         polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
         showlegend=True,
-        title="Matriz de Brecha Competitiva (Gap Analysis)",
+        title="Matriz de Brecha Competitiva (Gap Analysis Cuantitativo)",
         height=450,
     )
     return fig
@@ -277,7 +328,7 @@ def render_gap_radar(gap_data):
 
 # --- PROCESAMIENTO ANALÍTICO ---
 if st.button(
-    "🚀 Generar Análisis de Strategic Foresight & Trend Radar",
+    "🚀 Ejecutar Auditoría Industrial & Generar Informe de Strategic Foresight",
     type="primary",
     use_container_width=True,
 ):
@@ -285,92 +336,143 @@ if st.button(
         st.error(
             "⚠️ Es obligatorio introducir tu API Key de Gemini en la barra lateral izquierda."
         )
-    elif not sector or not friccion_operativa:
-        st.warning(
-            "⚠️ Por favor, introduce al menos el Sector y el Cuello de botella principal para procesar el análisis."
-        )
     else:
         with st.spinner(
-            "Ejecutando motor de Strategic Foresight, calculando taxonomía de tendencias y benchmarking de mercado..."
+            "Procesando balance contable, calculando unit economics exactos y proyectando radar de prospectiva..."
         ):
             try:
                 cliente = genai.Client(api_key=api_key_usuario)
 
                 prompt_completo = f"""
-                Eres un socio director de Strategic Foresight y Prospectiva Tecnológica de élite (estándar TRENDONE, ITONICS y Roland Berger).
-                Realiza un análisis prospectivo y de benchmarking exhaustivo, ultraespecífico y cuantitativo para esta empresa:
+Eres un Socio Director de Consultoría de Operaciones y Strategic Foresight de élite (estándar Roland Berger, McKinsey, ITONICS).
+Dispones de los DATOS CONTABLES Y OPERATIVOS REALES Y EXACTOS aportados por la empresa. 
 
-                DATOS DEL CLIENTE:
-                - Sector y nicho: {sector}
-                - Modelo de ingresos: {modelo_ingresos}
-                - Facturación anual: {rango_facturacion}
-                - Tamaño del equipo: {tamano_equipo}
-                - Madurez tecnológica actual: {stack_tecnologico}
-                - Fricción operativa / Cuello de botella: {friccion_operativa}
-                - País y mercado geográfico: {pais_region}
-                - Perfil de clientes: {tipo_cliente}
-                - Competidor / Amenaza declarada: {competidor_referencia}
-                - Ventaja competitiva declarada: {ventaja_competitiva}
-                - Presupuesto disponible en 12 meses: {presupuesto}
-                - Horizonte temporal: {horizonte} años
+======================================================================
+DATOS AUDITADOS DE LA EMPRESA (PROHIBIDO ASUMIR O INVENTAR NÚMEROS):
+======================================================================
+- Facturación anual real: 🟢 {facturacion_anual:,} €
+- Coste salarial total anual (personal + seguridad social): 🟢 {coste_personal:,} €
+- Gasto en recambios / compras / COGS anual: 🟢 {coste_compras_recambios:,} €
+- Gastos fijos operativos anuales: 🟢 {gastos_fijos:,} €
+- Beneficio neto / EBITDA aproximado declarado: 🟢 {margen_ebitda_declarado:,} €
+- Ticket medio por factura/cliente: 🟢 {ticket_medio_operacion} €
+- Plantilla total: 🟢 {tamano_equipo} personas
+- Operarios productivos directos: 🟢 {operarios_directos} personas
+- Tarifa cobrada por hora de taller: 🟢 {precio_hora_mano_obra} €/hora (sin IVA)
+- Horas diarias perdidas al teléfono / presupuestos no cerrados: 🟢 {horas_perdidas_dia} horas/día
+- Días laborables computables: 🟢 220 días/año
+- Tasa real de aceptación de presupuestos: 🟢 {tasa_conversion_presupuestos}%
+- Stack tecnológico actual: 🟢 {stack_tecnologico}
+- Cuello de botella operacional: 🟢 {friccion_operativa}
+- Ubicación / País / Región: 🟢 {pais_region}
+- Mix de facturación: 🟢 {porcentaje_b2c}% B2C (Particulares) / {porcentaje_b2b}% B2B (Empresas/Flotas)
+- Competidor / Amenaza declarada: 🟢 {competidor_referencia}
+- Moat / Ventaja declarada: 🟢 {ventaja_competitiva}
+- Presupuesto de inversión disponible (12 meses): 🟢 {presupuesto_disponible:,} €
+- Horizonte temporal de análisis: 🟢 {horizonte} años
 
-                REGLAS METODOLÓGICAS:
-                1. Al principio de tu respuesta debes incluir un bloque de código JSON con delimitadores ```json ... ``` que contenga:
-                   - "trends": Una lista de 6 a 8 tendencias evaluadas. Cada una debe ser un objeto con:
-                     {{"name": "Nombre breve", "quadrant": "Tecnología"|"Operaciones"|"Modelo de Negocio"|"Mercado / Cliente", "horizon": "Act"|"Prepare"|"Watch", "impact": 1-10, "description": "Breve descripción"}}
-                   - "gap_analysis": Un objeto con:
-                     {{"pyme": [5 números de 1 a 10], "media_nacional": [5 números de 1 a 10], "frontera_global": [5 números de 1 a 10]}}
-                     en el orden exacto: [Madurez Digital, Eficiencia Operativa, Retención de Margen, Diversificación B2B, Agilidad Estratégica].
+======================================================================
+REGLAS ESTRICTAS DE CÁLCULO Y PROTOCOLO EDITORIAL:
+======================================================================
+1. LEYENDA TIPOGRÁFICA OBLIGATORIA:
+   🟢 [DATO OBSERVADO]: Cifras reales facilitadas por la empresa arriba indicadas.
+   🔵 [DATO FUENTE EXTERNA]: Benchmarks oficiales (cita: Fuente | Año | Ámbito).
+   🟠 [DERIVACIÓN MATEMÁTICA]: Cálculos exactos derivados de los datos reales del cliente.
+   🔴 [PROYECCIÓN / ESCENARIO]: Simulación condicional basada en escenarios.
+   (Queda PROHIBIDO el uso de 🟡 Supuestos para datos ya aportados).
 
-                2. A continuación del bloque JSON, desarrolla el informe exhaustivo en Markdown estructurado rigurosamente en los siguientes 15 MÓDULOS DE ALTO IMPACTO:
+2. CÁLCULO FINANCIERO Y DE ROI SIN SESGOS:
+   - Horas anuales perdidas = 🟢 {horas_perdidas_dia} h/día x 220 días = 🟠 [{horas_perdidas_dia * 220:.0f} horas/año].
+   - Coste hora salarial real = 🟢 {coste_personal} € / (🟢 {tamano_equipo} empleados x 1.760 h laborables año) = 🟠 X €/h.
+   - Pérdida salarial directa en tareas administrativas = Horas anuales perdidas x Coste hora salarial.
+   - Coste de oportunidad (Facturación cesante máxima teórica) = Horas anuales perdidas x 🟢 {precio_hora_mano_obra} €/h.
+   - Margen de contribución real de taller = 1 - (🟢 {coste_compras_recambios} / 🟢 {facturacion_anual}).
+   - Margen incremental neto = Horas recuperadas facturadas x 🟢 {precio_hora_mano_obra} €/h x Margen de contribución.
+   - Beneficio Neto Incremental = Margen incremental - (Coste amortizado software + licencias anuales).
+   - ROI = (Beneficio Neto Incremental / 🟢 {presupuesto_disponible} €) x 100.
+   - ANÁLISIS DE SENSIBILIDAD: Calcula obligatoriamente el retorno en 3 escenarios de éxito: Recuperando solo el 25%, el 50% y el 75% de las horas perdidas.
 
-                # INFORME ESTRATÉGICO DE FORESIGHT Y BENCHMARKING SECTORIAL
+3. TABLAS DE BENCHMARKING:
+   - La columna de la empresa debe contener ÚNICAMENTE los datos auditados o sus derivados matemáticos directos (Facturación por empleado = 🟢 {facturacion_anual} / 🟢 {tamano_equipo}).
+   - Compara contra "Media Sectorial {pais_region}" y "Frontera de Desempeño Digital" indicando la fuente externa o método de contraste.
 
-                ## 1. Auditoría Operativa & Unit Economics
-                (Cálculo explícito en euros de horas perdidas, fugas de margen por fricción y vulnerabilidad operativa).
+4. FORMATO DE SALIDA:
+   - Comienza obligatoriamente con el bloque ```json ... ``` delimitando los datos para Plotly:
+     {{
+       "trends": [
+         {{"name": "...", "quadrant": "Tecnología"|"Operaciones"|"Modelo de Negocio"|"Mercado / Cliente", "horizon": "Act"|"Prepare"|"Watch", "impact": 1-10, "description": "..."}}
+       ],
+       "gap_analysis": {{
+         "pyme": [números 1-10 auditados],
+         "media_nacional": [números 1-10],
+         "frontera_global": [números 1-10]
+       }}
+     }}
+     Orden exacto de gap_analysis: [Madurez Digital, Eficiencia Operativa, Retención de Margen, Diversificación B2B, Agilidad Estratégica].
+   - Tras el JSON, redacta el informe en Markdown riguroso respetando los 15 apartados numerados.
 
-                ## 2. Macroeconomía, Demografía y Presión Regulatoria ({pais_region})
-                (Leyes laborales, directivas ambientales, facturación electrónica, convenios colectivos y demografía del consumidor en su país).
+======================================================================
+ESTRUCTURA DEL INFORME (15 MÓDULOS DE ALTO RIGOR):
+======================================================================
 
-                ## 3. Benchmarking Competitivo Nacional
-                (Ratios operativos clave: Facturación por empleado del cliente vs. media nacional vs. top 10% del sector en {pais_region}).
+# INFORME DE AUDITORÍA INDUSTRIAL, STRATEGIC FORESIGHT Y BENCHMARKING
+(Ficha Metodológica de entrada: Parámetros del cliente auditados, Fecha de corte, Criterios de scoring 0-10 y Limitaciones del análisis).
 
-                ## 4. Frontera de Innovación Global (Best Practices Internacionales)
-                (Cita al menos 2 casos de estudio reales con nombre comercial de startups o pymes en Alemania, EE. UU. o Países Nórdicos que hayan solucionado este problema).
+## RESUMEN EJECUTIVO & DECISIONES CLAVE
+- Tabla de Decisiones Innegociables para Gerencia (Decisión | Plazo de ejecución | Coste Neto Estimado | Impacto en Margen).
+- 5 Conclusiones cuantitativas del diagnóstico.
 
-                ## 5. Taxonomía de Tendencias: Macro, Micro & Weak Signals
-                (Desglose analítico de las tendencias mapeadas en el Radar de Prospectiva).
+## 1. Auditoría Operativa & Unit Economics Reales
+- Desglose contable real: Facturación (🟢 {facturacion_anual:,} €), COGS (🟢 {coste_compras_recambios:,} €), Personal (🟢 {coste_personal:,} €), Gastos Fijos (🟢 {gastos_fijos:,} €) y Margen Neto resultante.
+- Cálculo de horas hombre perdidas al año (🟠 {horas_perdidas_dia * 220:.0f} horas) y cuantificación de la pérdida directa de nómina vs. facturación cesante con la tarifa real de 🟢 {precio_hora_mano_obra} €/h.
 
-                ## 6. Scoring Multidimensional de Tendencias
-                (Tabla Markdown con columnas: Tendencia | Cuadrante | Horizonte | Impacto (1-10) | Madurez | Ajuste Estratégico).
+## 2. Contexto Macroeconómico, Demográfico y Regulatorio ({pais_region})
+- 🔵 Regulaciones vigentes: Veri*factu (RD 1007/2023), Facturación Electrónica B2B (Ley Crea y Crece). Requisitos técnicos obligatorios y sanciones reales.
+- 🔵 Datos de mercado y convenios colectivos del sector aplicables a su plantilla.
 
-                ## 7. Análisis de Brecha Competitiva (Gap Analysis)
-                (Explicación de las 5 dimensiones comparativas de competitividad).
+## 3. Benchmarking Sectorial Cuantitativo: Empresa vs. Media vs. Frontera Digital
+- Tabla comparativa con datos reales del cliente: Facturación por empleado (🟢 {facturacion_anual / tamano_equipo:,.0f} €), Ticket medio (🟢 {ticket_medio_operacion} €), % B2B (🟢 {porcentaje_b2b}%), Tasa de conversión de presupuestos (🟢 {tasa_conversion_presupuestos}%).
+- Comparativa contra Media Nacional y Frontera de Desempeño.
 
-                ## 8. Modelado de 4 Escenarios Plausibles (2x2 Matrix)
-                (Cruce de las dos mayores incertidumbres del sector en {pais_region} proyectando 4 cuadrantes de futuro a {horizonte} años).
+## 4. Frontera de Innovación Internacional (Casos Reales con Nombre Comercial)
+- Mínimo 2 casos de estudio reales (Alemania, EE. UU., etc.). Empresa, contexto, solución técnica adoptada y métricas de transferencia aplicables a escala de esta pyme.
 
-                ## 9. Backcasting Inverso (Ingeniería Inversa del Futuro a {horizonte} Años)
-                (Definición del estado de éxito futuro y qué condiciones obligatorias deben construirse en el Año 2 y Año 1).
+## 5. Taxonomía de Tendencias: Macro, Micro & Señales Débiles (Weak Signals)
+- Clasificación de tendencias: Evidencia -> Impacto -> Incertidumbre -> Implicación para esta empresa con su estructura de costes.
 
-                ## 10. Matriz de Decisión: Build / Buy / Partner / Kill
-                (Clasificación explícita de qué tecnologías o procesos debe Desarrollar, Comprar SaaS, Subcontratar o Eliminar).
+## 6. Scoring Multidimensional de Tendencias
+- Matriz con: Tendencia | Cuadrante | Horizonte (Act/Prepare/Watch) | Impacto (1-10) | Madurez | Grado de Incertidumbre.
 
-                ## 11. Sistema de Disparadores y Alertas Tempranas (Early Warning Triggers)
-                (Eventos observables regulatorios o de mercado que obligan a actuar antes de tiempo).
+## 7. Análisis de Brecha (Gap Analysis) y Conexión con la Acción
+- Justificación matemática de las puntuaciones (0 a 10) otorgadas a la empresa a partir de sus datos reales.
+- Tabla: Dimensión -> Situación Auditada -> Benchmark -> Gap -> Impacto Económico -> Acción Concreta.
 
-                ## 12. Matriz de Coste de Inacción (Cost of Inaction)
-                (Proyección económica en euros de pérdida de caja y clientes a 12, 24 y 36 meses si la empresa no ejecuta cambios).
+## 8. Modelado de 4 Escenarios Plausibles (2x2 Matrix)
+- Cruce de las 2 incertidumbres sectoriales críticas en {pais_region}.
+- Matriz con Plausibilidad, Impacto en Margen y Señales tempranas observables de confirmación.
 
-                ## 13. Mecanismos de Financiación Pública y Subvenciones ({pais_region})
-                (Programas de ayuda a la digitalización, incentivos o deducciones fiscales aplicables a su territorio).
+## 9. Backcasting Inverso (Ingeniería Inversa a {horizonte} Años)
+- Definición del estado de éxito objetivo a {horizonte} años y condiciones necesarias hacia atrás (Año 2 y Año 1).
 
-                ## 14. Matriz de Fricción Cultural y Adopción del Cambio
-                (Diagnóstico de resistencias del personal, plan de formación y gestión del rechazo del cliente tradicional).
+## 10. Matriz de Decisión Tecnológica: Build / Buy / Partner / Kill
+- Clasificación estricta de procesos y herramientas (Desarrollo interno, Compra SaaS, Alianza, Eliminación inmediata).
 
-                ## 15. Hoja de Ruta Ejecutiva: Playbook 30 - 90 - 180 Días
-                (Plan de choque inmediato, fase de implantación tecnológica y consolidación comercial con presupuesto acotado a {presupuesto}).
-                """
+## 11. Sistema de Disparadores y Alertas Tempranas (Early Warning Triggers)
+- Umbrales objetivos y eventos observables del entorno que forzarán la activación de medidas correctoras.
+
+## 12. Matriz de Coste de Inacción Desagregada
+- Desglose riguroso a 12, 24 y 36 meses separando Fuga de Margen Demostrada, Coste de Oportunidad y Exposición Sancionadora.
+
+## 13. Financiación Pública y Optimización Fiscal ({pais_region})
+- Vías de financiación vigentes, programas autonómicos y bonificaciones de formación continua (ej. FUNDAE).
+
+## 14. Matriz de Fricción Cultural y Gestión del Cambio
+- Resistencias por perfil (Operarios de taller, Gerente, Cliente B2C tradicional) y protocolo de mitigación e incentivos.
+
+## 15. Hoja de Ruta Ejecutiva: Playbook 30 - 90 - 180 Días
+- Fases de despliegue con: Tarea, Responsable, Dependencia técnica previa, KPIs de control y Presupuesto (CAPEX vs. OPEX) acotado estrictamente a los 🟢 {presupuesto_disponible:,} € disponibles.
+- Análisis de sensibilidad del ROI neto (escenarios al 25%, 50% y 75% de éxito de recuperación horaria).
+"""
 
                 respuesta = cliente.models.generate_content(
                     model="gemini-3.6-flash", contents=prompt_completo
@@ -408,14 +510,12 @@ if st.button(
 
                     st.markdown("---")
 
-                    # Limpiar el bloque JSON del texto para presentar el informe en Markdown limpio
                     informe_markdown = re.sub(
                         patron_json, "", texto_salida, flags=re.DOTALL
                     ).strip()
                     st.markdown(informe_markdown)
 
                 else:
-                    # En caso de que el modelo devuelva el texto sin delimitar el JSON
                     st.markdown(texto_salida)
 
             except Exception as e:
