@@ -373,7 +373,7 @@ if st.button(
                 """
 
                 respuesta = cliente.models.generate_content(
-                    model="gemini-2.0-flash", contents=prompt_completo
+                    model="gemini-3.6-flash", contents=prompt_completo
                 )
 
                 texto_salida = respuesta.text
