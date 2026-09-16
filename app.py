@@ -9,7 +9,7 @@ import streamlit as st
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
-    page_title="Auditoría Operativa y Plan Estratégico",
+    page_title="Diagnóstico Operativo y Plan de Acción Estratégico",
     page_icon="📋",
     layout="wide",
 )
@@ -44,7 +44,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Auditoría Operativa, Diagnóstico de Capacidad y Plan Estratégico")
+st.title("Diagnóstico Operativo, Capacidad Productiva y Plan Estratégico")
 st.markdown(
     "Herramienta cuantitativa de evaluación de capacidad productiva, análisis comparativo y prioridades de gestión para pymes."
 )
@@ -59,14 +59,15 @@ with st.sidebar:
         help="Introduce tu clave personal de acceso a la API de Google AI Studio.",
     )
     st.markdown("---")
-    st.markdown("### Marco de Evidencia Documental")
+    st.markdown("### Marco de Trazabilidad Documental")
     st.caption(
         """
-        • **[DR] Dato Real:** Aportado formalmente por la empresa o extraído de balances.\n
-        • **[FE] Fuente Externa:** Normativa legal oficial (BOE) o estadísticas contrastadas.\n
-        • **[ES] Estimación de Trabajo:** Cálculo derivado sobre las variables del modelo.\n
-        • **[HC] Hipótesis Operativa:** Supuesto de gestión sujeto a comprobación en campo.\n
-        • **[OD] Objetivo de Dirección:** Meta fijada formalmente en el plan de trabajo.
+        • **[DR] Dato Reportado:** Información facilitada por la empresa en el test.\n
+        • **[C] Cálculo:** Resultado matemático exacto derivado de datos reportados.\n
+        • **[FE] Fuente Externa:** Normativa legal oficial (BOE) o fuentes acreditadas.\n
+        • **[ES] Estimación:** Valor aproximado ante ausencia de medición directa.\n
+        • **[HC] Hipótesis de Cálculo:** Supuesto de gestión para modelar escenarios.\n
+        • **[OD] Objetivo Directivo:** Meta fijada formalmente en el plan de trabajo.
         """
     )
 
@@ -216,7 +217,7 @@ with tab_fin:
             step=2000,
         )
         margen_ebitda_declarado = st.number_input(
-            "Beneficio de explotación (EBIT) declarado (€):",
+            "Beneficio de explotación (EBIT) reportado (€):",
             min_value=-500000,
             max_value=10000000,
             value=62000,
@@ -231,15 +232,15 @@ with tab_fin:
 
     st.markdown("##### Ratios Derivados de Explotación")
     cf1, cf2, cf3 = st.columns(3)
-    cf1.metric("Facturación por Empleado", f"{facturacion_por_empleado:,.0f} €/año")
-    cf2.metric("Margen de Contribución s/ Materiales", f"{margen_bruto_pct:.2f} %")
-    cf3.metric("Resultado Teórico Calculado", f"{resultado_teorico:,.0f} €")
+    cf1.metric("Facturación por Empleado [C]", f"{facturacion_por_empleado:,.0f} €/año")
+    cf2.metric("Margen de Contribución s/ Materiales [C]", f"{margen_bruto_pct:.2f} %")
+    cf3.metric("Resultado Contable Calculado [C]", f"{resultado_teorico:,.0f} €")
 
     if discrepancia_contable > 5000:
         st.markdown(
             f"""
             <div class="callout-legal">
-            <b>Nota sobre información económica:</b> La diferencia entre ingresos declarados ({facturacion_anual:,.0f} €) y gastos totales ({costes_totales:,.0f} €) refleja un resultado de {resultado_teorico:,.0f} €, distinto del beneficio indicado ({margen_ebitda_declarado:,.0f} €). El informe tomará como referencia la capacidad horaria productiva hasta la verificación de la cuenta de pérdidas y ganancias.
+            <b>Nota sobre información económica:</b> La resta de ingresos reportados ({facturacion_anual:,.0f} €) y gastos totales ({costes_totales:,.0f} €) arroja un resultado calculado de {resultado_teorico:,.0f} €, distinto del beneficio reportado ({margen_ebitda_declarado:,.0f} €). El informe tomará como referencia la capacidad horaria productiva hasta la verificación de la cuenta de pérdidas y ganancias definitiva.
             </div>
             """,
             unsafe_allow_html=True,
@@ -385,7 +386,7 @@ with tab_vision:
     v1, v2 = st.columns(2)
     with v1:
         presupuesto_disponible = st.number_input(
-            "Presupuesto máximo asignable declarado para modernización operativa en 12 meses (€):",
+            "Presupuesto máximo asignable reportado para modernización operativa en 12 meses (€):",
             min_value=0,
             max_value=500000,
             value=6500,
@@ -505,7 +506,7 @@ def render_gap_bars(gap_data):
             y=categories,
             x=ref_scores,
             mode="markers",
-            name="Rango de Referencia de Trabajo [ES]",
+            name="Rango de Referencia [ES]",
             marker=dict(color="#94a3b8", size=11, symbol="line-ns", line=dict(width=3, color="#64748b")),
         )
     )
@@ -550,30 +551,30 @@ if st.button(
                 cliente = genai.Client(api_key=api_key_usuario)
 
                 # CÁLCULOS MATEMÁTICOS AUDITADOS EN PYTHON
-                horas_totales_no_fac = horas_perdidas_dia * 220 # 770 h
-                coste_hora_medio_plantilla = coste_personal / (tamano_equipo * 1800) # 18.06 €/h
-                coste_salarial_improductivo = horas_totales_no_fac * coste_hora_medio_plantilla # 13.906 €
+                horas_totales_no_fac = horas_perdidas_dia * 220  # 770 h
+                coste_hora_medio_plantilla = coste_personal / (tamano_equipo * 1800)  # 18.06 €/h
+                coste_salarial_improductivo = horas_totales_no_fac * coste_hora_medio_plantilla  # 13.906 €
                 
                 # Margen de contribución directo sobre mano de obra
-                margen_por_hora_calc = precio_hora_mano_obra * (margen_bruto_pct / 100) # 27.56 €/h
+                margen_por_hora_calc = precio_hora_mano_obra * (margen_bruto_pct / 100)  # 27.56 €/h
                 
                 # Desglose de inversión: CAPEX vs OPEX
                 capex_inicial = 4000
                 opex_anual_saas = 2500
-                inversion_total_ano1 = capex_inicial + opex_anual_saas # 6.500 €
+                inversion_total_ano1 = capex_inicial + opex_anual_saas  # 6.500 €
                 
                 # Escenarios de sensibilidad de recuperación sobre margen de contribución
-                h_recup_25 = horas_totales_no_fac * 0.25 # 192.5 h
-                margen_inc_25 = h_recup_25 * margen_por_hora_calc # 5.305 €
-                payback_meses_25 = (inversion_total_ano1 / margen_inc_25) * 12 # 14.7 meses
+                h_recup_25 = horas_totales_no_fac * 0.25  # 192.5 h
+                margen_inc_25 = h_recup_25 * margen_por_hora_calc  # 5.305 €
+                payback_meses_25 = (inversion_total_ano1 / margen_inc_25) * 12  # 14.7 meses
 
-                h_recup_50 = horas_totales_no_fac * 0.50 # 385.0 h
-                margen_inc_50 = h_recup_50 * margen_por_hora_calc # 10.611 €
-                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12 # 7.3 meses
+                h_recup_50 = horas_totales_no_fac * 0.50  # 385.0 h
+                margen_inc_50 = h_recup_50 * margen_por_hora_calc  # 10.611 €
+                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12  # 7.3 meses
 
-                h_recup_75 = horas_totales_no_fac * 0.75 # 577.5 h
-                margen_inc_75 = h_recup_75 * margen_por_hora_calc # 15.916 €
-                payback_meses_75 = (inversion_total_ano1 / margen_inc_75) * 12 # 4.9 meses
+                h_recup_75 = horas_totales_no_fac * 0.75  # 577.5 h
+                margen_inc_75 = h_recup_75 * margen_por_hora_calc  # 15.916 €
+                payback_meses_75 = (inversion_total_ano1 / margen_inc_75) * 12  # 4.9 meses
 
                 prompt_completo = f"""
 Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial para pymes.
@@ -584,65 +585,80 @@ BASE DE DATOS AUDITADA (CÁLCULOS MATEMÁTICOS DE EXACTITUD OBLIGATORIA):
 - Actividad / Especialidad: [DR] {sector} | {subsector}
 - Ámbito territorial: [DR] {pais_region}
 - Plantilla total: [DR] {tamano_equipo} personas (4 técnicos de campo, 1 soporte admin, 1 gerencia/comercial)
-- Facturación anual: [DR] {facturacion_anual:,} € | Coste personal: [DR] {coste_personal:,} € | Compras: [DR] {coste_compras_recambios:,} € | Gastos fijos: [DR] {gastos_fijos:,} € | EBIT actual: [DR] {margen_ebitda_declarado:,} € ({margen_ebitda_declarado/facturacion_anual*100:.2f}%)
-- Facturación por empleado: [ES] {facturacion_por_empleado:,.0f} €/año
-- Margen bruto de contribución global: [ES] {margen_bruto_pct:.2f}%
-- Coste horario medio de la plantilla (1.800 h/año convenio): [ES] {coste_hora_medio_plantilla:.2f} €/h ({coste_personal:,} € / 6 empleados / 1.800 h).
+- Facturación anual: [DR] {facturacion_anual:,} € | Coste personal: [DR] {coste_personal:,} € | Compras: [DR] {coste_compras_recambios:,} € | Gastos fijos: [DR] {gastos_fijos:,} € | EBIT actual reportado: [DR] {margen_ebitda_declarado:,} € ({margen_ebitda_declarado/facturacion_anual*100:.2f}%)
+- Facturación por empleado: [C] {facturacion_por_empleado:,.0f} €/año
+- Margen bruto de contribución global: [C] {margen_bruto_pct:.2f}%
+- Coste horario medio de la plantilla (1.800 h/año convenio): [C] {coste_hora_medio_plantilla:.2f} €/h ({coste_personal:,} € / 6 empleados / 1.800 h).
   * OBLIGATORIO: El coste horario medio es EXACTAMENTE {coste_hora_medio_plantilla:.2f} €/h (PROHIBIDO escribir 14,77 €/h).
-- Horas de gestión no facturable: [DR] {horas_perdidas_dia} h/día agregadas en la empresa x 220 días = [ES] {horas_totales_no_fac:.0f} h/año.
-- Coste salarial directo absorbido en gestión no facturable: [ES] {coste_salarial_improductivo:,.0f} €/año ({horas_totales_no_fac:.0f} h x {coste_hora_medio_plantilla:.2f} €/h).
-- Capacidad teórica de facturación liberable: [ES] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año ({horas_totales_no_fac:.0f} h x {precio_hora_mano_obra} €/h).
+- Horas de gestión no facturable: [DR] {horas_perdidas_dia} h/día agregadas en la empresa x 220 días = [C] {horas_totales_no_fac:.0f} h/año.
+- Coste salarial directo absorbido en gestión no facturable: [C] {coste_salarial_improductivo:,.0f} €/año ({horas_totales_no_fac:.0f} h x {coste_hora_medio_plantilla:.2f} €/h).
+- Capacidad teórica de facturación liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año ({horas_totales_no_fac:.0f} h x {precio_hora_mano_obra} €/h).
   * OBLIGATORIO: Denominar como 'Capacidad teórica liberable', NO como 'facturación no ejecutada ni facturación segura'.
-- Margen de contribución directo sobre mano de obra: [ES] {margen_por_hora_calc:.2f} €/h ({precio_hora_mano_obra} €/h x {margen_bruto_pct:.2f}%).
+- Margen de contribución directo sobre mano de obra: [C] {margen_por_hora_calc:.2f} €/h ({precio_hora_mano_obra} €/h x {margen_bruto_pct:.2f}%).
 - Inversión Año 1: Presupuesto máximo declarado disponible [DR] {presupuesto_disponible:,} €.
   * Desglose: CAPEX inicial de implantación y hardware [ES] {capex_inicial:,} € + OPEX anual licencias SaaS [ES] {opex_anual_saas:,} €/año. Inversión total prevista Año 1: [ES] {inversion_total_ano1:,} €.
   * OBLIGATORIO: PROHIBIDO escribir 'Inversión Total Ejecutada [DR]'. Escribir 'Inversión Prevista [ES]'.
 - Métricas auditadas de sensibilidad (calculadas sobre margen de contribución de {margen_por_hora_calc:.2f} €/h y NO sobre facturación bruta):
-  * Escenario Conservador (25% captura = {h_recup_25:.1f} h): Margen incremental = {margen_inc_25:,.0f} €/año. Payback económico = {payback_meses_25:.1f} meses.
-  * Escenario Base (50% captura = {h_recup_50:.1f} h): Margen incremental = {margen_inc_50:,.0f} €/año. Payback económico = {payback_meses_50:.1f} meses.
-  * Escenario Favorable (75% captura = {h_recup_75:.1f} h): Margen incremental = {margen_inc_75:,.0f} €/año. Payback económico = {payback_meses_75:.1f} meses.
+  * Escenario Conservador ([HC] 25% captura = {h_recup_25:.1f} h): Margen incremental = [C] {margen_inc_25:,.0f} €/año. Payback económico = [C] {payback_meses_25:.1f} meses.
+  * Escenario Base ([HC] 50% captura = {h_recup_50:.1f} h): Margen incremental = [C] {margen_inc_50:,.0f} €/año. Payback económico = [C] {payback_meses_50:.1f} meses.
+  * Escenario Favorable ([HC] 75% captura = {h_recup_75:.1f} h): Margen incremental = [C] {margen_inc_75:,.0f} €/año. Payback económico = [C] {payback_meses_75:.1f} meses.
 
 ======================================================================
 REGLAS EDITORIALES Y DE RIGOR OBLIGATORIAS:
 ======================================================================
-1. TABLA OBLIGATORIA DE DESGLOSE DE LAS 770 HORAS:
-   Presenta una tabla que aclare que las 3,5 h/día son la suma agregada de la empresa:
-   - 4 Técnicos en campo: 0,5 h/día cada uno (partes manuales, albaranes, llamadas) = 2,0 h/día (440 h/año).
-   - 1 Dirección / Comercial: Presupuestos a medida no convertidos = 1,0 h/día (220 h/año).
-   - 1 Administración: Pasar partes de papel a contabilidad y reclamación de albaranes = 0,5 h/día (110 h/año).
-   - Total Empresa: 3,5 h/día = 770 h/año.
+1. NOTA METODOLÓGICA Y CLASIFICACIÓN DE TRAZABILIDAD (OBLIGATORIA AL INICIO):
+   Inserta literalmente la siguiente nota metodológica adaptada:
+   "El presente informe se ha elaborado a partir de la información facilitada directamente por la empresa mediante un test de diagnóstico estructurado, diseñado para recopilar los datos económicos, operativos, comerciales y organizativos necesarios para el análisis.
+   Los datos internos utilizados como punto de partida proceden, por tanto, de la información declarada y facilitada por la propia organización. A partir de dichos datos se han realizado los cálculos, estimaciones y proyecciones incluidos en el informe.
+   Con el objetivo de garantizar la trazabilidad y diferenciar claramente información objetiva de hipótesis de gestión, el informe emplea la siguiente clasificación:
+   - [DR] Dato reportado: información facilitada directamente por la empresa.
+   - [C] Cálculo: resultado matemático exacto obtenido a partir de datos reportados.
+   - [FE] Fuente externa: información procedente de normativa legal oficial (BOE) o fuentes acreditadas.
+   - [ES] Estimación: valor aproximado utilizado cuando no se dispone de una medición directa.
+   - [HC] Hipótesis de cálculo: supuesto necesario para proyectar escenarios o evoluciones futuras.
+   - [OD] Objetivo directivo: meta propuesta para la evolución futura de la empresa.
+   Las conclusiones económicas futuras, incluyendo la evolución estimada del EBIT, recuperación de horas y periodos de retorno, deben interpretarse como proyecciones condicionadas a los supuestos establecidos, y no como resultados garantizados."
 
-2. RIGOR NORMATIVO Y FECHAS BOE (VIGENCIA REAL A SEPTIEMBRE DE 2026):
-   - Citar Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Exponer las fechas oficiales vigentes: 1 de enero de 2027 para personas jurídicas (Sociedades) y 1 de julio de 2027 para personas físicas (autónomos). PROHIBIDO citar 2025 como plazo vinculante general.
-   - Citar Facturación Electrónica B2B (Ley 18/2022 Crea y Crece): Calendario legal de 12 meses tras el desarrollo reglamentario para empresas >8M€ y 24 meses para el resto de pymes y profesionales.
+2. TABLA OBLIGATORIA DE DESGLOSE DE LAS 770 HORAS:
+   Presenta una tabla que aclare que las 3,5 h/día son la suma agregada de la empresa:
+   - 4 Técnicos en campo: 0,5 h/día cada uno (partes manuales, albaranes, llamadas) = 2,0 h/día (440 h/año) [DR].
+   - 1 Dirección / Comercial: Presupuestos a medida no convertidos = 1,0 h/día (220 h/año) [DR].
+   - 1 Administración: Pasar partes de papel a contabilidad y reclamación de albaranes = 0,5 h/día (110 h/año) [DR].
+   - Total Empresa: 3,5 h/día = 770 h/año [C].
+
+3. FASE DE VALIDACIÓN OPERATIVA (30 DÍAS) EN LUGAR DE "BASELINE VACÍO":
+   - Presenta la fase inicial de 30 días como una 'Fase de Validación Operativa': su objetivo no es descubrir si el problema existe (ya diagnosticado en el test), sino medir los tiempos reales en campo para validar la tasa de captura [HC] y ajustar la proyección definitiva.
+
+4. RIGOR NORMATIVO Y FECHAS BOE (VIGENCIA REAL A SEPTIEMBRE DE 2026):
+   - Citar Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Exponer las fechas oficiales vigentes: 1 de enero de 2027 para personas jurídicas (Sociedades) y 1 de julio de 2027 para personas físicas (autónomos) [FE]. PROHIBIDO citar 2025 como plazo vinculante general.
+   - Citar Facturación Electrónica B2B (Ley 18/2022 Crea y Crece): Calendario legal de 12 meses tras el desarrollo reglamentario para empresas >8M€ y 24 meses para el resto de pymes y profesionales [FE].
    - Diferenciar taxativamente lo que es obligación legal estricta de lo que es recomendación de gestión SAT. Tratar contingencias como 'riesgo de inspección tributaria', evitando términos absolutos como 'mitigación total' o 'garantía'.
 
-3. BENCHMARKS CONCRETOS ([ES] DE TRABAJO, NO [FE] FICTICIOS):
+5. BENCHMARKS CONCRETOS ([ES] DE TRABAJO, NO [FE] FICTICIOS):
    - Reserva [FE] únicamente para normativa legal o fuentes oficiales contrastadas.
    - Los rangos comparativos sectoriales (conversión 45-55%, recurrencia 30-40%, etc.) deben etiquetarse formalmente como: '[ES] Rango de Referencia de Trabajo Interno', explicando que es una referencia de diseño del modelo y no un censo estadístico oficial.
    - En la matriz de brechas, califica 'Control de Margen' como BRECHA MEDIA.
 
-4. CERO CERTEZAS ABSOLUTAS Y LENGUAJE MODERADO:
+6. CERO CERTEZAS ABSOLUTAS Y LENGUAJE MODERADO:
    - PROHIBIDO prometer 'eliminación de horas' o 'eliminación de segundas visitas'. Usa: 'Reducción estimada de X h/día [ES]' y 'Reducción de segundas visitas por falta de stock en vehículo [ES]'.
    - Sustituir adulaciones hacia el gerente por: 'La estimación de la dirección es coherente con las proyecciones del modelo en un escenario de inacción operativa'.
    - Redondea las cifras proyectadas a centenas o millares para evitar falsa precisión (ej. 13.900 € y 21.200 €, PROHIBIDO poner decimales en estimaciones proyectadas).
 
-5. CUENTA DE RESULTADOS PROFORMA A 36 MESES Y JUSTIFICACIÓN DEL MARGEN >18%:
+7. CUENTA DE RESULTADOS PROFORMA A 36 MESES Y JUSTIFICACIÓN DEL MARGEN >18%:
    - Incluye una tabla comparativa de Cuenta de Pérdidas y Ganancias (Actual | Año 1 | Año 2 | Año 3).
    - Justifica de forma explícita de dónde proceden los 24.400 € de mejora de EBIT necesarios para pasar de 62.000 € (12,9%) a 86.400 € (18,0%) sobre los 480.000 €:
-     * +10.600 € por monetización neta de 385 h liberadas (escenario base).
+     * +10.600 € por monetización neta de 385 h liberadas (escenario base [HC]).
      * +8.500 € por mejora de conversión en presupuestos con catálogo paramétrico.
      * +4.800 € por reducción de compras de urgencia y segundas visitas no imputadas.
      * +3.000 € por incorporación de contratos de mantenimiento preventivo B2B.
-     * -2.500 € de coste recurrente del software (OPEX anual en estructura).
-     * Total incremento neto: +24.400 € -> Nuevo EBIT: 86.400 € (18,0% sobre ventas).
+     * -2.500 € de coste recurrente del software (OPEX anual en estructura [ES]).
+     * Total incremento neto: +24.400 € [C] -> Nuevo EBIT objetivo: 86.400 € (18,0% sobre ventas) [OD].
 
-6. PLAN PREVIO DE 30 DÍAS (BASELINE) Y PLIEGO DE 10 REQUISITOS TÉCNICOS:
-   - Antes de contratar software, incluir una fase de 30 días de medición de tiempos reales (Baseline de control).
-   - Listar los 10 requisitos técnicos obligatorios para pedir 3 ofertas comerciales comparables.
-   - Incluir una Matriz de 5 Riesgos Operativos (Resistencia del equipo, adopción de la app, costes ocultos, desajustes de stock e inercia comercial) con probabilidad, impacto y mitigación.
+8. PLIEGO DE 10 REQUISITOS TÉCNICOS Y MATRIZ DE RIESGOS:
+   - Listar los 10 requisitos técnicos obligatorios para pedir 3 ofertas comerciales comparables de software SAT/FSM.
+   - Incluir una Matriz de 5 Riesgos Operativos (Resistencia del equipo, adopción de la app, costes ocultos, desajuste de stock e inercia comercial) con probabilidad, impacto y mitigación.
 
-7. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
+9. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
    - Inicia obligatoriamente con el bloque ```json ... ```:
      {{
        "trends": [
@@ -661,19 +677,19 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 ======================================================================
 # INFORME DE AUDITORÍA OPERATIVA, DIAGNÓSTICO DE CAPACIDAD Y PLAN ESTRATÉGICO
 
-## 0. Marco Metodológico y Ficha Técnica de Validación
-(Definición de códigos [DR], [FE], [ES], [HC], [OD]. Nivel de confianza metodológica: Medio-Alto. Criterios de validación documental).
+## 0. Marco Metodológico y Trazabilidad de la Información
+(Nota metodológica formal sobre fuente de datos, clasificación de etiquetas [DR], [C], [FE], [ES], [HC], [OD] y límites del estudio).
 
 ## Resumen Ejecutivo: Decisiones Prioritarias y Cuadro de Mando
 (Tabla: Decisión directiva | Plazo | Responsable | Coste previsto | Impacto esperado en rentabilidad).
 (Contraste sobrio con las prioridades manifestadas por la dirección).
 
 ## 1. Diagnóstico de Eficiencia, Costes Salariales y Capacidad Productiva
-(Estructura analítica de costes. Coste medio horario de la plantilla: [ES] {coste_hora_medio_plantilla:.2f} €/h).
-(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [ES] {coste_salarial_improductivo:,.0f} €/año y capacidad teórica liberable: [ES] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año).
+(Estructura analítica de costes. Coste medio horario de la plantilla: [C] {coste_hora_medio_plantilla:.2f} €/h).
+(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,.0f} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año).
 
 ## 2. Marco Normativo y Adaptación Técnica (Septiembre 2026)
-(Calendario oficial de Veri*factu RD 1007/2023 modificado y Facturación Electrónica B2B en sus plazos reales para sociedades y autónomos).
+(Calendario oficial de Veri*factu RD 1007/2023 modificado [FE] y Facturación Electrónica B2B [FE] en sus plazos reales para sociedades y autónomos).
 
 ## 3. Comparativa Operativa y Rangos de Referencia Internos
 (Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia de Trabajo [ES] | Objetivo de Dirección [OD] | Nivel de Confianza).
@@ -699,23 +715,23 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 ## 10. Pliego Técnico y Selección de Soluciones: Build / Buy / Partner
 (Pliego de 10 requisitos técnicos obligatorios para pedir 3 ofertas comerciales comparables de software SAT/FSM).
 
-## 11. Medición Previa de Baseline (Fase 0: Días 1 a 30)
-(Protocolo de medición previa durante 30 días para registrar tiempos reales antes de adquirir herramientas).
+## 11. Fase de Validación Operativa (Días 1 a 30)
+(Protocolo de medición de tiempos reales en campo para calibrar la tasa de captura [HC] sobre las 770 h diagnosticadas).
 
 ## 12. Matriz de Riesgos Operativos y Mitigación
 (Tabla de 5 riesgos: resistencia al cambio, adopción de la app móvil, costes ocultos, desajuste de stock e inercia comercial con probabilidad, impacto y plan de contingencia).
 
 ## 13. Cuenta de Resultados Proforma a 36 Meses y Desglose del Margen >18%
 (Tabla Proforma: Actual | Año 1 | Año 2 | Año 3).
-(Desglose cuantitativo exacto de los +24.400 € requeridos para alcanzar el 18,0% de margen EBIT).
+(Desglose cuantitativo exacto de los +24.400 € [C] requeridos para alcanzar el 18,0% de margen EBIT [OD]).
 
 ## 14. Vías de Financiación y Optimización de Costes ({pais_region})
-(Líneas de ayuda y bonificaciones FUNDAE, con salvaguarda sobre convocatorias vigentes y bases reguladoras).
+(Líneas de ayuda y bonificaciones FUNDAE [FE], con salvaguarda sobre convocatorias vigentes y bases reguladoras).
 
 ## 15. Plan de Acción, Presupuesto CAPEX/OPEX y Retorno de la Inversión (Playbook 30-90-180 Días)
 (Cronograma con acciones, responsables asignados, dependencias técnicas y progresión de indicadores).
-(Presupuesto desglosado: CAPEX inicial de {capex_inicial:,} € + OPEX anual de {opex_anual_saas:,} €/año, totalizando {inversion_total_ano1:,} € en el Año 1 [ES] frente a los {presupuesto_disponible:,} € disponibles [DR]).
-(Tabla rigurosa de sensibilidad del Payback calculada sobre margen de contribución de {margen_por_hora_calc:.2f} €/h al 25%, 50% y 75% de recuperación horaria).
+(Presupuesto desglosado: CAPEX inicial de {capex_inicial:,} € [ES] + OPEX anual de {opex_anual_saas:,} €/año [ES], totalizando {inversion_total_ano1:,} € en el Año 1 [ES] frente a los {presupuesto_disponible:,} € disponibles reportados [DR]).
+(Tabla rigurosa de sensibilidad del Payback calculada sobre margen de contribución de {margen_por_hora_calc:.2f} €/h al 25%, 50% y 75% de recuperación horaria [HC]).
 """
 
                 partes_contenido = []
@@ -824,8 +840,8 @@ if st.session_state.get("informe_generado"):
     with col_b2:
         if st.button("¿Cuál es el principal problema hoy?", use_container_width=True):
             pregunta_inmediata = "A partir de mis números reales, ¿cuál es exactamente el mayor problema y cuello de botella que tiene hoy mi empresa?"
-        if st.button("¿Qué debería hacer en los primeros 30 días?", use_container_width=True):
-            pregunta_inmediata = "Explícame en qué consiste la fase de Baseline de los primeros 30 días antes de comprar ningún software."
+        if st.button("¿Qué se hace en la validación operativa?", use_container_width=True):
+            pregunta_inmediata = "Explícame en qué consiste la fase de Validación Operativa de los primeros 30 días y por qué es necesaria antes de implantar software."
 
     with col_b3:
         if st.button("¿Por qué digitalizar primero los partes?", use_container_width=True):
@@ -858,9 +874,10 @@ Tu objetivo es responder al dueño de la empresa con total claridad, sensatez, c
 
 REGLAS DE RESPUESTA:
 1. Responde a la pregunta basándote EXCLUSIVAMENTE en los datos, cifras contables y conclusiones de este informe.
-2. Cita las cifras reales y calculadas: facturación (480.000 €), 3,5 h/día agregadas (770 h/año), coste horario medio (18,06 €/h), coste improductivo (13.900 €), inversión Año 1 (6.500 € desglosada en 4.000 € CAPEX y 2.500 € OPEX SaaS recurrente).
-3. Si te preguntan sobre el payback, explica que se calcula sobre el margen de contribución directo (27,56 €/h) y no sobre ventas: en el escenario base del 50% (385 h recuperadas) genera 10.611 €/año de margen, logrando un payback financiero de 7,3 meses.
-4. No inventes datos que no figuren en el informe y mantén un lenguaje accesible y pedagógico.
+2. Cita las cifras reales y calculadas: facturación ([DR] 480.000 €), 3,5 h/día agregadas ([DR]/[C] 770 h/año), coste horario medio ([C] 18,06 €/h), coste improductivo ([C] 13.900 €), inversión Año 1 ([ES] 6.500 € desglosada en [ES] 4.000 € CAPEX y [ES] 2.500 € OPEX SaaS recurrente).
+3. Si te preguntan sobre el payback, explica que se calcula sobre el margen de contribución directo ([C] 27,56 €/h) y no sobre ventas: en el escenario base del 50% ([HC] 385 h recuperadas) genera [C] 10.611 €/año de margen, logrando un payback financiero de [C] 7,3 meses.
+4. Explica la diferencia entre dato reportado [DR], cálculo exacto [C] e hipótesis de cálculo [HC].
+5. No inventes datos que no figuren en el informe y mantén un lenguaje accesible y pedagógico.
 
 INFORME COMPLETO DE LA EMPRESA:
 {st.session_state['datos_contexto']}
