@@ -1,11 +1,14 @@
+import io
 import json
 import re
 import time
 from google import genai
 from google.genai import types
+import markdown
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from xhtml2pdf import pisa
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -49,6 +52,206 @@ st.markdown(
     "Herramienta cuantitativa de evaluación de capacidad productiva, análisis comparativo y prioridades de gestión para pymes."
 )
 st.markdown("---")
+
+# --- MOTOR DE MAQUETACIÓN PDF EDITORIAL (ESTILO FIRMA DE CONSULTORÍA) ---
+def generar_pdf_editorial(markdown_texto, empresa_nombre, sector_nombre):
+    html_cuerpo = markdown.markdown(markdown_texto, extensions=["tables", "fenced_code"])
+    
+    # CSS para diseño editorial suizo sobrio
+    plantilla_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="utf-8">
+    <style>
+        @page {{
+            size: a4 portrait;
+            margin: 20mm 15mm 20mm 15mm;
+            @top-left {{
+                content: "INFORME DE DIRECCIÓN — CONFIDENCIAL";
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                color: #64748b;
+                border-bottom: 0.5pt solid #cbd5e1;
+                padding-bottom: 4px;
+            }}
+            @top-right {{
+                content: "{empresa_nombre}";
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                color: #64748b;
+                border-bottom: 0.5pt solid #cbd5e1;
+                padding-bottom: 4px;
+            }}
+            @bottom-right {{
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                color: #64748b;
+            }}
+            @bottom-left {{
+                content: "Diagnóstico de Capacidad y Plan Estratégico (Septiembre 2026)";
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 7.5pt;
+                color: #64748b;
+            }}
+        }}
+
+        body {{
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            line-height: 1.5;
+            color: #1e293b;
+        }}
+
+        /* Portada Editorial */
+        .portada {{
+            page-break-after: always;
+            padding-top: 60mm;
+            text-align: left;
+        }}
+        .portada-subtitulo-sup {{
+            font-size: 10pt;
+            font-weight: bold;
+            color: #1e40af;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }}
+        .portada-titulo {{
+            font-size: 26pt;
+            font-weight: bold;
+            color: #0f172a;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }}
+        .portada-bajada {{
+            font-size: 11pt;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 60mm;
+        }}
+        .portada-meta {{
+            border-top: 1.5pt solid #0f172a;
+            padding-top: 15px;
+            font-size: 8.5pt;
+            color: #334155;
+            line-height: 1.8;
+        }}
+
+        /* Encabezados y Jerarquía */
+        h1 {{
+            font-size: 15pt;
+            color: #0f172a;
+            border-bottom: 1.5pt solid #0f172a;
+            padding-bottom: 4px;
+            margin-top: 22px;
+            margin-bottom: 12px;
+            page-break-before: always;
+        }}
+        h2 {{
+            font-size: 12pt;
+            color: #1e3a8a;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            border-bottom: 0.5pt solid #cbd5e1;
+            padding-bottom: 3px;
+            page-break-after: avoid;
+        }}
+        h3 {{
+            font-size: 10pt;
+            color: #0f172a;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            page-break-after: avoid;
+        }}
+
+        p {{
+            margin-bottom: 8px;
+            text-align: justify;
+        }}
+
+        /* Tablas Contables Maquetadas */
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+            font-size: 8pt;
+        }}
+        th {{
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: bold;
+            text-align: left;
+            padding: 6px 8px;
+            border-top: 1pt solid #0f172a;
+            border-bottom: 1pt solid #cbd5e1;
+        }}
+        td {{
+            padding: 5px 8px;
+            border-bottom: 0.5pt solid #e2e8f0;
+            color: #334155;
+        }}
+        tr:nth-child(even) td {{
+            background-color: #f8fafc;
+        }}
+
+        /* Citas y Callouts */
+        blockquote {{
+            background-color: #f8fafc;
+            border-left: 3pt solid #1e40af;
+            margin: 10px 0;
+            padding: 8px 12px;
+            font-size: 8.5pt;
+            color: #334155;
+        }}
+
+        /* Listas */
+        ul, ol {{
+            margin-top: 4px;
+            margin-bottom: 10px;
+            padding-left: 18px;
+        }}
+        li {{
+            margin-bottom: 4px;
+        }}
+
+        /* Etiquetas de Trazabilidad */
+        b {{
+            color: #0f172a;
+        }}
+    </style>
+    </head>
+    <body>
+        <!-- PORTADA -->
+        <div class="portada">
+            <div class="portada-subtitulo-sup">Memorándum Estratégico de Operaciones</div>
+            <div class="portada-titulo">Plan de Eficiencia Operativa y Desbloqueo de Capacidad</div>
+            <div class="portada-bajada">
+                Auditoría cuantitativa de tiempos no facturables, cuenta de explotación proforma y hoja de ruta tecnológica para la optimización de márgenes directos.
+            </div>
+            <div class="portada-meta">
+                <b>Entidad evaluada:</b> {empresa_nombre}<br>
+                <b>Especialidad operativa:</b> {sector_nombre}<br>
+                <b>Fecha de emisión:</b> Septiembre de 2026<br>
+                <b>Carácter:</b> Confidencial — Reservado para Dirección General y Comité Estratégico
+            </div>
+        </div>
+
+        <!-- CONTENIDO DEL INFORME -->
+        {html_cuerpo}
+    </body>
+    </html>
+    """
+    
+    pdf_buffer = io.BytesIO()
+    pisa_status = pisa.CreatePDF(plantilla_html, dest=pdf_buffer)
+    if pisa_status.err:
+        return None
+    pdf_buffer.seek(0)
+    return pdf_buffer
 
 # --- BARRA LATERAL ---
 with st.sidebar:
@@ -96,6 +299,7 @@ with tab_gen:
     st.markdown("#### Identificación Corporativa y Capacidad Humana")
     g1, g2, g3 = st.columns(3)
     with g1:
+        empresa_razon = st.text_input("Razón Social o Nombre de la Empresa:", value="ClimaServ Levantina S.L.")
         sector = st.text_input(
             "Actividad o sector principal:",
             value="Instalación y mantenimiento de climatización y aerotermia",
@@ -104,11 +308,11 @@ with tab_gen:
             "Especialidad operativa:",
             value="Frío comercial para hostelería y climatización residencial de alta gama",
         )
+    with g2:
         pais_region = st.text_input(
             "Ámbito territorial de actuación:",
             value="España (Comunidad Valenciana)",
         )
-    with g2:
         ano_creacion = st.number_input(
             "Año de constitución (opcional):",
             min_value=1950,
@@ -121,13 +325,13 @@ with tab_gen:
             max_value=500,
             value=6,
         )
+    with g3:
         operarios_directos = st.number_input(
             "Técnicos directos en campo/obra/taller:",
             min_value=1,
             max_value=500,
             value=4,
         )
-    with g3:
         personal_admin = st.number_input(
             "Personal de soporte administrativo:",
             min_value=0,
@@ -779,13 +983,9 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
                     # FILTRADO ESTRICTO DE ANCLAS TÉCNICAS Y ENLACES RESIDUALES
                     # =====================================================
                     informe_limpio = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
-                    # 1. Elimina cualquier ancla tipo [svg](https://...) o [svg](...)
                     informe_limpio = re.sub(r"\[svg\]\(.*?\)", "", informe_limpio, flags=re.IGNORECASE)
-                    # 2. Elimina posibles anclajes markdown de encabezados [#...]
                     informe_limpio = re.sub(r"\[#.*?\]", "", informe_limpio)
-                    # 3. Elimina etiquetas html invisibles tipo <a name="..."></a>
                     informe_limpio = re.sub(r"<a\s+name=[\"'].*?[\"']\s*></a>", "", informe_limpio, flags=re.IGNORECASE)
-                    # 4. Limpia espacios o tabulaciones sobrantes al final de línea
                     informe_limpio = re.sub(r"[ \t]+$", "", informe_limpio, flags=re.MULTILINE)
 
                     st.session_state["datos_contexto"] = texto_salida
@@ -824,7 +1024,27 @@ if st.session_state.get("informe_generado"):
             fig_gap = render_gap_bars(datos_graficos["gap_analysis"])
             st.plotly_chart(fig_gap, use_container_width=True)
 
+    # --- BOTÓN DE DESCARGA EDITORIAL PDF DE DIRECCIÓN ---
     st.markdown("---")
+    c_pdf1, c_pdf2 = st.columns([3, 1])
+    with c_pdf1:
+        st.markdown("#### Informe Técnico y Plan de Acción")
+        st.caption("Documento completo de diagnóstico operativo, cuenta de explotación proforma y playbook de ejecución.")
+    with c_pdf2:
+        pdf_bytes = generar_pdf_editorial(
+            st.session_state["informe_generado"],
+            empresa_nombre=empresa_razon if 'empresa_razon' in locals() else "Empresa Auditada",
+            sector_nombre=subsector if 'subsector' in locals() else "Servicios Técnicos",
+        )
+        if pdf_bytes:
+            st.download_button(
+                label="📥 Descargar Dossier PDF de Dirección",
+                data=pdf_bytes,
+                file_name=f"Informe_Estrategico_Direccion_{empresa_razon.replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+            )
+
     st.markdown(st.session_state["informe_generado"])
 
     # CAPA DE INTERPRETACIÓN DIRECTIVA
