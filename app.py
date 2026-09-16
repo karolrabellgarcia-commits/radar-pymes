@@ -14,7 +14,6 @@ st.set_page_config(
     layout="wide",
 )
 
-# Estilos CSS de sobriedad editorial de dirección
 st.markdown(
     """
     <style>
@@ -64,20 +63,24 @@ with st.sidebar:
     st.caption(
         """
         • **[DR] Dato Real:** Aportado por la empresa o extraído de estados contables.\n
-        • **[FE] Fuente Externa:** Estadísticas públicas y anuarios contrastados.\n
-        • **[ES] Estimación:** Cálculo derivado a partir de los datos aportados.\n
+        • **[FE] Fuente Externa:** Estadísticas públicas y legislación contrastada.\n
+        • **[ES] Estimación:** Cálculo derivado a partir de las variables aportadas.\n
         • **[HC] Hipótesis:** Supuesto operativo sujeto a validación en campo.\n
         • **[OD] Objetivo:** Meta establecida en el plan de trabajo.
         """
     )
 
-# Variables de sesión para el Asistente Interactivo
+# Memoria de sesión
 if "informe_generado" not in st.session_state:
     st.session_state["informe_generado"] = None
 if "datos_contexto" not in st.session_state:
     st.session_state["datos_contexto"] = ""
-if "chat_history" not in st.session_state:
-    st.session_state["chat_history"] = []
+if "datos_graficos" not in st.session_state:
+    st.session_state["datos_graficos"] = {}
+if "ultima_pregunta" not in st.session_state:
+    st.session_state["ultima_pregunta"] = None
+if "ultima_respuesta" not in st.session_state:
+    st.session_state["ultima_respuesta"] = None
 
 # --- FORMULARIO ESTRUCTURADO EN 5 FASES ---
 tab_gen, tab_fin, tab_ops, tab_mkt, tab_vision = st.tabs([
@@ -421,7 +424,6 @@ with tab_vision:
 # FUNCIONES GRÁFICAS EJECUTIVAS
 # =====================================================================
 def render_trend_matrix(trends_data):
-    """Renderiza un mapa cartesiano 2x2 sobrio (Impacto vs. Certidumbre/Horizonte)."""
     horiz_scores = {
         "Prioridad inmediata (0-6 meses)": 1.5,
         "Preparación (6-18 meses)": 5.0,
@@ -436,11 +438,10 @@ def render_trend_matrix(trends_data):
         nombres.append(t.get("name", "Tendencia"))
         x_vals.append(h_score)
         y_vals.append(impact)
-        descripciones.append(f"Área: {t.get('quadrant', 'Operaciones')}<br>Impacto estimado: {impact}/10<br>Plazo: {h_str}")
+        descripciones.append(f"Área: {t.get('quadrant', 'Operaciones')}<br>Impacto: {impact}/10<br>Plazo: {h_str}")
 
     fig = go.Figure()
 
-    # Puntos de las tendencias
     fig.add_trace(
         go.Scatter(
             x=x_vals,
@@ -455,11 +456,9 @@ def render_trend_matrix(trends_data):
         )
     )
 
-    # Líneas divisorias de cuadrantes
     fig.add_hline(y=5.5, line_dash="dot", line_color="#cbd5e1", line_width=1.5)
     fig.add_vline(x=5.0, line_dash="dot", line_color="#cbd5e1", line_width=1.5)
 
-    # Anotaciones de cuadrantes ejecutivos
     fig.add_annotation(x=2.5, y=9.5, text="ACTUACIÓN INMEDIATA<br>(Alto impacto / Corto plazo)", showarrow=False, font=dict(size=10, color="#475569"))
     fig.add_annotation(x=7.5, y=9.5, text="PREPARACIÓN ESTRATÉGICA<br>(Alto impacto / Medio-largo plazo)", showarrow=False, font=dict(size=10, color="#475569"))
     fig.add_annotation(x=2.5, y=1.5, text="OPTIMIZACIÓN TÁCTICA<br>(Impacto moderado / Corto plazo)", showarrow=False, font=dict(size=10, color="#475569"))
@@ -478,7 +477,6 @@ def render_trend_matrix(trends_data):
 
 
 def render_gap_bars(gap_data):
-    """Renderiza una gráfica horizontal comparativa limpia sin escalas ASCII."""
     categories = [
         "Digitalización",
         "Eficiencia Operativa",
@@ -492,7 +490,6 @@ def render_gap_bars(gap_data):
 
     fig = go.Figure()
 
-    # Situación actual [DR]
     fig.add_trace(
         go.Bar(
             y=categories,
@@ -503,23 +500,21 @@ def render_gap_bars(gap_data):
             width=0.25,
         )
     )
-    # Referencia sectorial [ES]
     fig.add_trace(
         go.Scatter(
             y=categories,
             x=ref_scores,
             mode="markers",
-            name="Referencia Orientativa [ES]",
+            name="Rango de Referencia [ES]",
             marker=dict(color="#94a3b8", size=11, symbol="line-ns", line=dict(width=3, color="#64748b")),
         )
     )
-    # Referencia de mejora [OD]
     fig.add_trace(
         go.Scatter(
             y=categories,
             x=target_scores,
             mode="markers",
-            name="Referencia de Mejora [OD]",
+            name="Objetivo de Trabajo [OD]",
             marker=dict(color="#1d4ed8", size=10, symbol="diamond"),
         )
     )
@@ -550,7 +545,7 @@ if st.button(
     if not api_key_usuario:
         st.error("Es obligatorio introducir la clave de API en la barra lateral izquierda.")
     else:
-        with st.spinner("Procesando parámetros operativos, evaluando capacidad horaria y redactando informe de dirección..."):
+        with st.spinner("Procesando parámetros operativos, contrastando marco normativo y elaborando informe..."):
             try:
                 cliente = genai.Client(api_key=api_key_usuario)
 
@@ -593,29 +588,34 @@ BASE DE DATOS AUDITADA:
 ======================================================================
 REGLAS EDITORIALES Y DE RIGOR METODOLÓGICO (ESTRICTAS):
 ======================================================================
-1. LENGUAJE CLARO PARA PYMES SIN JERGA ARTIFICIAL:
-   - Prohibido el uso de términos innecesarios como 'unit economics', 'SaaS/CAPEX', 'triage' o 'absorción de capacidad'.
-   - Sustituir por conceptos claros: 'eficiencia de mano de obra', 'coste de implantación de herramientas', 'coste mensual recurrente', 'clasificación de prioridades', 'horas recuperadas dedicadas a facturación directa'.
+1. LENGUAJE DIRECTO Y RIGUROSO (CERO JERGA DE PLANTILLA):
+   - Prohibido el uso de términos artificiosos como 'unit economics', 'triage', 'SaaS/CAPEX' o 'absorción de capacidad'.
+   - Sustituir por conceptos transparentes: 'eficiencia del personal técnico', 'coste de implantación de herramientas', 'coste recurrente de software', 'clasificación de prioridades', 'dedicación de horas liberadas a trabajos facturables'.
    - Prohibidos terminantemente los emoticonos o círculos de colores.
-   - Utilizar exclusivamente los códigos discretos: [DR], [FE], [ES], [HC], [OD].
+   - Utilizar sistemáticamente los códigos: [DR], [FE], [ES], [HC], [OD].
 
-2. ELIMINACIÓN DE PORCENTAJES PSEUDOCIENTÍFICOS:
-   - Prohibido utilizar '72% de precisión' o porcentajes ficticios similares. Emplear: 'Nivel de confianza metodológica: Medio-Alto, sujeto a verificación contable en los primeros 30 días'.
+2. GRADO DE VALIDACIÓN METODOLÓGICA (CERO PORCENTAJES PSEUDOCIENTÍFICOS):
+   - Prohibido utilizar expresiones como '72% de precisión'. Emplear: 'Nivel de confianza metodológica: Medio-Alto, fundamentado en datos contables aportados y sujeto a comprobación en los primeros 30 días'.
 
-3. CAPACIDAD PRODUCTIVA Y HORAS NO FACTURABLES:
-   - Definir con precisión: 3,5 h/día equivalen a 770 h/año [DR] dedicadas a gestión no facturable.
-   - Denominar los 32.340 € teóricos como: 'Capacidad productiva máxima teórica [ES] (magnitud indicativa no acumulable a caja sin absorción comercial efectiva)'.
-   - Prohibido sumar en una sola cifra nómina, capacidad potencial y contingencias normativas. Presentar tabla desagregada señalando que son conceptos contables de naturaleza distinta.
+3. CAPACIDAD PRODUCTIVA Y HORAS DE GESTIÓN (770 HORAS):
+   - Identificar con precisión: 3,5 h/día equivalen a 770 h/año [DR] dedicadas a gestión no facturable.
+   - Denominar los 32.340 € teóricos como: 'Capacidad productiva máxima teórica [ES] (magnitud analítica no acumulable a caja de forma directa sin demanda comercial efectiva)'.
+   - Prohibido sumar en una cifra global nóminas pagadas, capacidad potencial y contingencias normativas. Presentar tabla desagregada con la nota formal de no sumabilidad.
 
-4. PRECISIÓN REGULATORIA (FECHAS REALES Y LENGUAJE DEFENDIBLE):
-   - Exponer Veri*factu (RD 1007/2023) y Facturación Electrónica B2B en sus plazos normativos reales en España para pymes de este tramo.
-   - Prohibido afirmar 'obligatoriedad general en 2025', 'mitigación total de sanciones' o 'cumplimiento garantizado'. Expresar como 'reducción significativa de la exposición a contingencias tributarias mediante sistemas conformes con los requisitos de inalterabilidad y registro'.
+4. EXACTITUD NORMATIVA REAL (FECHAS BOE ACTUALIZADAS):
+   - Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Explicar el calendario oficial: obligatoriedad fijada para el 1 de enero de 2027 para contribuyentes del Impuesto sobre Sociedades y 1 de julio de 2027 para personas físicas/autónomos. Prohibido afirmar 'obligatoriedad en 2025'.
+   - Facturación Electrónica B2B (Ley 18/2022 Crea y Crece): Exponer el plazo legal: 12 meses tras el desarrollo reglamentario para empresas con facturación superior a 8 M€ y 24 meses para el resto de pymes y autónomos.
+   - Tratar las sanciones como 'exposición a contingencias e inspección tributaria', evitando términos como 'mitigación total' o 'garantía absoluta'.
 
-5. ESCENARIOS Y CONCLUSIONES CONDICIONADAS (SIN CERTEZAS ABSOLUTAS):
-   - Prohibido afirmar que 'el plan garantizará un 18% de margen'.
-   - Redactar conclusiones como condiciones operativas necesarias: 'El plan de acción establece las bases para avanzar hacia un margen superior al 18% en un plazo de 36 meses, condicionado al cumplimiento de las hipótesis de digitalización de partes, contención de consumos y conversión de horas liberadas'.
+5. CASOS PRÁCTICOS DE TRANSFERENCIA OPERATIVA:
+   - Prohibido inventar nombres o datos pretendidamente exactos de empresas ficticias.
+   - Catalogar el apartado como: 'Modelos de Transferencia Operativa y Buenas Prácticas Sectoriales', describiendo soluciones tipo contrastadas en el sector (ej. estandarización de van-stock e integración de partes móviles) y explicando qué parte concreta es transferible a esta empresa.
 
-6. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
+6. METAS Y CONCLUSIONES CONDICIONADAS:
+   - Prohibido afirmar que 'el plan asegurará un margen superior al 18%'.
+   - Redactar como condiciones operativas necesarias: 'El plan de trabajo establece las condiciones de productividad requeridas para orientar la rentabilidad hacia un margen superior al 18% en un plazo de 36 meses, condicionado al cumplimiento estricto de las hipótesis de digitalización de partes, contención de consumos y conversión comercial efectiva'.
+
+7. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
    - Inicia obligatoriamente con el bloque ```json ... ```:
      {{
        "trends": [
@@ -646,13 +646,13 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 (Tiempo de gestión no facturable: [ES] {horas_perdidas_dia * 220:.0f} horas/año, diferenciando coste laboral de la capacidad productiva teórica).
 
 ## 2. Marco Normativo y Adaptación Técnica ({pais_region})
-(Requisitos técnicos y calendario de adaptación a Veri*factu RD 1007/2023 y Facturación Electrónica B2B en sus plazos reales para este tramo de empresa).
+(Requisitos técnicos y calendario de adaptación a Veri*factu RD 1007/2023 modificado y Facturación Electrónica B2B en sus plazos oficiales).
 
 ## 3. Comparativa Sectorial y Referencias de Posición
-(Tabla: Variable analizada | Situación de la empresa [DR] | Referencia orientativa [ES] | Referencia de mejora [OD] | Grado de confianza).
+(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia [ES] | Objetivo de Trabajo [OD] | Grado de confianza).
 
-## 4. Referencias Prácticas de Transferencia Operativa
-(Dos casos reales de empresas de servicios técnicos en mercados homologables: qué cambios aplicaron y qué elementos son transferibles).
+## 4. Modelos de Transferencia Operativa y Buenas Prácticas Sectoriales
+(Dos modelos de referencia técnica en servicios e instalaciones: soluciones incorporadas y elementos aplicables a esta estructura).
 
 ## 5. Dinámicas del Entorno y Repercusión en el Negocio
 (Tendencias sectoriales relevantes y consecuencias prácticas para la organización del trabajo).
@@ -731,7 +731,6 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                     json_str = match.group(1)
                     datos_graficos = json.loads(json_str)
 
-                    # Guardar en sesión para la capa interactiva
                     st.session_state["datos_contexto"] = texto_salida
                     st.session_state["informe_generado"] = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
                     st.session_state["datos_graficos"] = datos_graficos
@@ -746,7 +745,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                 st.error(f"Error durante el procesamiento: {e}")
 
 # =====================================================================
-# RENDERIZADO DEL INFORME Y GRÁFICOS EJECUTIVOS
+# RENDERIZADO DEL INFORME Y ASISTENTE DIRECTIVO (1 CLIC CON MEMORIA)
 # =====================================================================
 if st.session_state.get("informe_generado"):
     datos_graficos = st.session_state.get("datos_graficos", {})
@@ -767,9 +766,7 @@ if st.session_state.get("informe_generado"):
     st.markdown("---")
     st.markdown(st.session_state["informe_generado"])
 
-    # =====================================================================
-    # CAPA DE INTERPRETACIÓN DIRECTIVA (ASISTENTE CONTEXTUAL)
-    # =====================================================================
+    # CAPA DE INTERPRETACIÓN DIRECTIVA
     st.markdown("---")
     st.markdown(
         """
@@ -783,62 +780,90 @@ if st.session_state.get("informe_generado"):
         unsafe_allow_html=True,
     )
 
-    # Botones de consulta rápida
+    # Botones rápidos de un solo clic
     col_b1, col_b2, col_b3 = st.columns(3)
-    pregunta_rapida = None
+    pregunta_inmediata = None
 
     with col_b1:
-        if st.button("Explicación en lenguaje directo"):
-            pregunta_rapida = "Explícame de forma muy sencilla y clara los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, sin tecnicismos."
+        if st.button("Explicación en lenguaje directo", use_container_width=True):
+            pregunta_inmediata = "Explícame de forma muy sencilla y clara los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, con mis datos reales y sin tecnicismos."
     with col_b2:
-        if st.button("¿Por qué el cuello de botella en presupuestos?"):
-            pregunta_rapida = "¿Por qué habéis llegado a la conclusión de que los presupuestos y partes son mi mayor fuga de rentabilidad? Explícamelo con mis datos exactos."
+        if st.button("¿Por qué el cuello de botella en presupuestos?", use_container_width=True):
+            pregunta_inmediata = "¿Por qué habéis llegado a la conclusión de que los presupuestos y partes son mi mayor fuga de rentabilidad? Explícamelo con mis datos exactos de horas y conversión."
     with col_b3:
-        if st.button("¿Qué hago en los primeros 15 días?"):
-            pregunta_rapida = "Dime exactamente qué dos o tres acciones concretas debería poner en marcha en los próximos 15 días y quién debería ejecutarlas."
+        if st.button("¿Qué hago en los primeros 15 días?", use_container_width=True):
+            pregunta_inmediata = "Dime exactamente qué dos o tres acciones concretas debería poner en marcha en los próximos 15 días, quién debería ejecutarlas y con qué presupuesto."
 
-    # Campo de pregunta abierta
-    pregunta_usuario = st.text_input(
-        "Haz una pregunta específica sobre tu informe:",
-        value=pregunta_rapida if pregunta_rapida else "",
+    # Campo de consulta personalizada
+    pregunta_abierta = st.text_input(
+        "O escribe tu propia pregunta sobre el informe:",
         placeholder="Ej: ¿Cuánto me costará implantar el software móvil y qué gano con ello?",
     )
+    btn_enviar_abierta = st.button("Consultar al Asistente", type="secondary")
 
-    if st.button("Consultar al Asistente") and pregunta_usuario:
+    pregunta_a_procesar = None
+    if pregunta_inmediata:
+        pregunta_a_procesar = pregunta_inmediata
+    elif btn_enviar_abierta and pregunta_abierta:
+        pregunta_a_procesar = pregunta_abierta
+
+    # Procesamiento y almacenamiento en memoria
+    if pregunta_a_procesar:
         if not api_key_usuario:
             st.error("Introduce tu clave de API en la barra lateral para consultar al asistente.")
         else:
-            with st.spinner("Consultando el informe y preparando explicación..."):
+            with st.spinner("Analizando tu informe para preparar la respuesta..."):
                 try:
                     cliente = genai.Client(api_key=api_key_usuario)
                     prompt_asistente = f"""
-Eres el Asistente Directivo de Interpretación de este informe de consultoría.
-Tu objetivo es explicar los resultados al dueño de la empresa con claridad, cercanía, rigor y pedagogía, sin jerga innecesaria.
+Eres el Asistente Directivo de Interpretación de este informe de consultoría para una pyme.
+Tu objetivo es responder al dueño de la empresa con total claridad, sensatez, cercanía y rigor analítico.
 
 REGLAS DE RESPUESTA:
-1. Responde a la pregunta planteada basándote ESTRICTAMENTE en los datos, cálculos y conclusiones de este informe.
-2. Utiliza las cifras exactas aportadas por el cliente (facturación, horas, plantilla, márgenes) para fundamentar tu explicación.
-3. No inventes datos ni contradigas las recomendaciones del informe.
-4. Explica los conceptos financieros de manera intuitiva (ej. "ganas X euros de cada 100").
-5. Mantén un tono profesional, constructivo, directo y honesto.
+1. Responde a la pregunta basándote EXCLUSIVAMENTE en los datos, cifras contables y conclusiones de este informe.
+2. Cita las cifras reales aportadas por la empresa (facturación, 3,5 h/día de gestión no facturable, coste hora, empleados, presupuesto disponible).
+3. No utilices jerga innecesaria. Habla con naturalidad y precisión pedagógica.
+4. Si te preguntan qué hacer primero, sé muy pragmático: medidas de coste bajo, responsables claros y plazos de 15 días.
+5. No inventes datos que no figuren en el informe.
 
 INFORME COMPLETO DE LA EMPRESA:
 {st.session_state['datos_contexto']}
 
 PREGUNTA DEL CLIENTE:
-{pregunta_usuario}
+{pregunta_a_procesar}
 """
-                    res_asistente = cliente.models.generate_content(
-                        model="gemini-3.6-flash", contents=prompt_asistente
-                    )
-                    st.markdown(
-                        f"""
-                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 10px;">
-                        <b>Respuesta del Asistente:</b><br><br>
-                        {res_asistente.text}
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
+                    modelos_asistente = ["gemini-3.6-flash", "gemini-2.5-flash"]
+                    res_asistente = None
+
+                    for mod in modelos_asistente:
+                        try:
+                            res_asistente = cliente.models.generate_content(
+                                model=mod, contents=prompt_asistente
+                            )
+                            if res_asistente and res_asistente.text:
+                                break
+                        except Exception:
+                            continue
+
+                    if res_asistente and res_asistente.text:
+                        st.session_state["ultima_pregunta"] = pregunta_a_procesar
+                        st.session_state["ultima_respuesta"] = res_asistente.text
+                    else:
+                        st.error("Los servidores de IA están temporalmente saturados. Por favor, vuelve a pulsar el botón.")
+
                 except Exception as e:
-                    st.error(f"Error al consultar al asistente: {e}")
+                    st.error(f"Error al procesar la consulta: {e}")
+
+    # Caja fija de respuesta
+    if st.session_state.get("ultima_respuesta"):
+        st.markdown(
+            f"""
+            <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-left: 4px solid #15803d; border-radius: 6px; padding: 18px; margin-top: 14px;">
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 6px; font-weight: bold;">CONSULTA: {st.session_state.get('ultima_pregunta', '')}</p>
+            <div style="font-size: 0.95rem; color: #1e293b; line-height: 1.6;">
+            {st.session_state['ultima_respuesta']}
+            </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
