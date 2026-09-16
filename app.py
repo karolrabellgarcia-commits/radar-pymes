@@ -36,8 +36,8 @@ st.markdown(
         background-color: #f0fdf4;
         border: 1px solid #bbf7d0;
         border-radius: 6px;
-        padding: 16px;
-        margin-top: 20px;
+        padding: 18px;
+        margin-top: 24px;
     }
     </style>
     """,
@@ -62,11 +62,11 @@ with st.sidebar:
     st.markdown("### Marco de Evidencia Documental")
     st.caption(
         """
-        • **[DR] Dato Real:** Aportado por la empresa o extraído de estados contables.\n
-        • **[FE] Fuente Externa:** Estadísticas públicas y legislación contrastada.\n
-        • **[ES] Estimación:** Cálculo derivado a partir de las variables aportadas.\n
-        • **[HC] Hipótesis:** Supuesto operativo sujeto a validación en campo.\n
-        • **[OD] Objetivo:** Meta establecida en el plan de trabajo.
+        • **[DR] Dato Real:** Aportado formalmente por la empresa o extraído de estados contables.\n
+        • **[FE] Fuente Externa:** Normativa legal oficial (BOE) o estadísticas públicas acreditadas.\n
+        • **[ES] Estimación de Trabajo:** Cálculo derivado sobre las variables del modelo o benchmark interno.\n
+        • **[HC] Hipótesis Operativa:** Supuesto de gestión sujeto a comprobación en campo.\n
+        • **[OD] Objetivo de Dirección:** Meta fijada formalmente en el plan de trabajo.
         """
     )
 
@@ -385,7 +385,7 @@ with tab_vision:
     v1, v2 = st.columns(2)
     with v1:
         presupuesto_disponible = st.number_input(
-            "Presupuesto máximo asignable a modernización operativa en 12 meses (€):",
+            "Presupuesto máximo asignable declarado para modernización operativa en 12 meses (€):",
             min_value=0,
             max_value=500000,
             value=6500,
@@ -505,7 +505,7 @@ def render_gap_bars(gap_data):
             y=categories,
             x=ref_scores,
             mode="markers",
-            name="Rango de Referencia [ES]",
+            name="Rango de Referencia de Trabajo [ES]",
             marker=dict(color="#94a3b8", size=11, symbol="line-ns", line=dict(width=3, color="#64748b")),
         )
     )
@@ -514,7 +514,7 @@ def render_gap_bars(gap_data):
             y=categories,
             x=target_scores,
             mode="markers",
-            name="Objetivo de Trabajo [OD]",
+            name="Objetivo de Dirección [OD]",
             marker=dict(color="#1d4ed8", size=10, symbol="diamond"),
         )
     )
@@ -545,13 +545,15 @@ if st.button(
     if not api_key_usuario:
         st.error("Es obligatorio introducir la clave de API en la barra lateral izquierda.")
     else:
-        with st.spinner("Procesando parámetros operativos, contrastando marco normativo y elaborando informe..."):
+        with st.spinner("Procesando parámetros operativos, auditando cálculos de payback y contrastando normativa..."):
             try:
                 cliente = genai.Client(api_key=api_key_usuario)
 
+                margen_por_hora_calc = precio_hora_mano_obra * (margen_bruto_pct / 100)
+
                 prompt_completo = f"""
 Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial para pymes.
-Dispones de los datos cuantitativos facilitados por la empresa. Debes elaborar un informe técnico, sobrio, exhaustivo y defendible ante un comité directivo.
+Dispones de los datos cuantitativos facilitados por la empresa. Debes elaborar un informe técnico, sobrio, exhaustivo y matemáticamente exacto para ser defendido ante un comité de dirección.
 
 BASE DE DATOS AUDITADA:
 - Actividad / Especialidad: [DR] {sector} | {subsector}
@@ -570,7 +572,7 @@ BASE DE DATOS AUDITADA:
 - Emisión mensual de presupuestos: [DR] {presupuestos_mes} unidades (Aceptación declarada: [DR] {tasa_conversion_presupuestos}%)
 - Tiempo diario de gestión no facturable: [DR] {horas_perdidas_dia} horas/día (presupuestos no aceptados, partes en papel y llamadas)
 - Tarifa horaria facturada mano de obra: [DR] {precio_hora_mano_obra} €/h (sin IVA)
-- Margen de contribución sobre tarifa: [ES] {precio_hora_mano_obra * (margen_bruto_pct/100):.2f} €/h
+- Margen de contribución sobre tarifa horaria: [ES] {margen_por_hora_calc:.2f} €/h ({precio_hora_mano_obra} €/h x {margen_bruto_pct:.2f}%)
 - Plazo de cierre de partes a facturación: [DR] {tiempo_cierre_factura}
 - Canal principal de captación: [DR] {origen_clientes}
 - Nivel de digitalización: [DR] {stack_tecnologico}
@@ -579,7 +581,7 @@ BASE DE DATOS AUDITADA:
 - Ingresos bajo cuota periódica: [DR] {ingresos_recurrentes_pct}%
 - Competidor de referencia: [DR] {competidor_referencia}
 - Factor diferencial actual: [DR] {ventaja_competitiva}
-- Presupuesto de modernización (12 meses): [DR] {presupuesto_disponible:,} €
+- Presupuesto máximo asignable declarado para modernización: [DR] {presupuesto_disponible:,} €
 - Periodo de planificación: [DR] {horizonte} años
 - Prioridad directiva: [DR] {objetivo_principal_crecimiento}
 - Estimación directiva ante inacción (3 años): [DR] "{pregunta_115_inaccion}"
@@ -588,32 +590,38 @@ BASE DE DATOS AUDITADA:
 ======================================================================
 REGLAS EDITORIALES Y DE RIGOR METODOLÓGICO (ESTRICTAS):
 ======================================================================
-1. LENGUAJE DIRECTO Y RIGUROSO (CERO JERGA DE PLANTILLA):
-   - Prohibido el uso de términos artificiosos como 'unit economics', 'triage', 'SaaS/CAPEX' o 'absorción de capacidad'.
-   - Sustituir por conceptos transparentes: 'eficiencia del personal técnico', 'coste de implantación de herramientas', 'coste recurrente de software', 'clasificación de prioridades', 'dedicación de horas liberadas a trabajos facturables'.
-   - Prohibidos terminantemente los emoticonos o círculos de colores.
-   - Utilizar sistemáticamente los códigos: [DR], [FE], [ES], [HC], [OD].
+1. DISTINCIÓN PULCRA DE LA INVERSIÓN (6.500 €):
+   - Presupuesto máximo declarado disponible por la empresa: [DR] {presupuesto_disponible:,} €.
+   - Inversión total prevista y desglosada en el plan de trabajo: [ES] {presupuesto_disponible:,} €.
+   - PROHIBIDO hablar de "Inversión Total Ejecutada [DR]" puesto que el plan aún no ha comenzado.
 
-2. GRADO DE VALIDACIÓN METODOLÓGICA (CERO PORCENTAJES PSEUDOCIENTÍFICOS):
-   - Prohibido utilizar expresiones como '72% de precisión'. Emplear: 'Nivel de confianza metodológica: Medio-Alto, fundamentado en datos contables aportados y sujeto a comprobación en los primeros 30 días'.
+2. CÁLCULO ESTRICTO DEL PAYBACK (SOBRE MARGEN DE CONTRIBUCIÓN, NO FACTURACIÓN):
+   - Horas totales no facturables auditadas: [DR] {horas_perdidas_dia * 220:.0f} h/año (3,5 h/día x 220 días laborables).
+   - Tarifa: 42 €/h. Margen de contribución directo sobre mano de obra: [ES] {margen_por_hora_calc:.2f} €/h.
+   - En la tabla de sensibilidad del ROI y Payback, utiliza OBLIGATORIAMENTE el margen de contribución:
+     * Escenario Prudente (25% captura = 192,5 h): Margen incremental = 192,5 h x {margen_por_hora_calc:.2f} €/h = 5.305 €/año. Payback económico = {presupuesto_disponible} / 5.305 = 14,7 meses [ES].
+     * Escenario Base (50% captura = 385,0 h): Margen incremental = 385,0 h x {margen_por_hora_calc:.2f} €/h = 10.611 €/año. Payback económico = {presupuesto_disponible} / 10.611 = 7,3 meses [ES].
+     * Escenario Optimista (75% captura = 577,5 h): Margen incremental = 577,5 h x {margen_por_hora_calc:.2f} €/h = 15.916 €/año. Payback económico = {presupuesto_disponible} / 15.916 = 4,9 meses [ES].
+   - Explica con claridad la diferencia entre el Payback analítico sobre facturación bruta y el Payback financiero real sobre margen de contribución.
 
-3. CAPACIDAD PRODUCTIVA Y HORAS DE GESTIÓN (770 HORAS):
-   - Identificar con precisión: 3,5 h/día equivalen a 770 h/año [DR] dedicadas a gestión no facturable.
-   - Denominar los 32.340 € teóricos como: 'Capacidad productiva máxima teórica [ES] (magnitud analítica no acumulable a caja de forma directa sin demanda comercial efectiva)'.
-   - Prohibido sumar en una cifra global nóminas pagadas, capacidad potencial y contingencias normativas. Presentar tabla desagregada con la nota formal de no sumabilidad.
+3. PRUDENCIA LÉXICA (CERO PROMESAS DE 'ELIMINACIÓN' O CERTEZAS):
+   - PROHIBIDO utilizar términos absolutistas como 'eliminación de horas', 'eliminación de segundas visitas' o 'mitigación total'.
+   - Emplear siempre: 'Reducción estimada de 2,0 h/día [ES]', 'Reducción prevista de segundas visitas por falta de repuesto [ES]', 'Sustitución progresiva de tareas manuales seleccionadas [OD]'.
+   - Respecto a la visión de dirección: Sustituir cualquier adulación ("la dirección tiene razón") por 'La estimación de la dirección es coherente con las proyecciones del modelo en un escenario de inacción operativa'.
 
-4. EXACTITUD NORMATIVA REAL (FECHAS BOE ACTUALIZADAS):
-   - Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Explicar el calendario oficial: obligatoriedad fijada para el 1 de enero de 2027 para contribuyentes del Impuesto sobre Sociedades y 1 de julio de 2027 para personas físicas/autónomos. Prohibido afirmar 'obligatoriedad en 2025'.
-   - Facturación Electrónica B2B (Ley 18/2022 Crea y Crece): Exponer el plazo legal: 12 meses tras el desarrollo reglamentario para empresas con facturación superior a 8 M€ y 24 meses para el resto de pymes y autónomos.
-   - Tratar las sanciones como 'exposición a contingencias e inspección tributaria', evitando términos como 'mitigación total' o 'garantía absoluta'.
+4. HONESTIDAD EN BENCHMARKS Y FUENTES ([FE] vs [ES]):
+   - Reserva la etiqueta [FE] ÚNICAMENTE para legislación oficial verificable (BOE, directivas europeas) o estadísticas públicas acreditadas.
+   - Todo rango sectorial comparativo interno (conversión 45-55%, recurrencia 25-40%, etc.) debe etiquetarse OBLIGATORIAMENTE como: '[ES] Referencia Operativa Interna / Benchmark de Trabajo', indicando que es una referencia de diseño metodológico.
+   - En la matriz de brechas, califica 'Control de Margen' como BRECHA MEDIA (situación económica de partida positiva pero distancia relevante frente al objetivo del >18% y 770 h no monetizadas).
 
-5. CASOS PRÁCTICOS DE TRANSFERENCIA OPERATIVA:
-   - Prohibido inventar nombres o datos pretendidamente exactos de empresas ficticias.
-   - Catalogar el apartado como: 'Modelos de Transferencia Operativa y Buenas Prácticas Sectoriales', describiendo soluciones tipo contrastadas en el sector (ej. estandarización de van-stock e integración de partes móviles) y explicando qué parte concreta es transferible a esta empresa.
+5. RIGOR NORMATIVO BOE (VERI*FACTU Y FACTURACIÓN ELECTRÓNICA):
+   - Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Citar la fecha oficial de obligatoriedad: 1 de enero de 2027 para contribuyentes del Impuesto sobre Sociedades y 1 de julio de 2027 para personas físicas/autónomos. Prohibido citar 2025 como plazo vinculante general.
+   - Facturación Electrónica B2B (Ley 18/2022 Crea y Crece): Detallar el régimen transitorio de 12 meses tras desarrollo reglamentario para empresas >8M€ y 24 meses para el resto de pymes y profesionales.
+   - Calificar las contingencias como 'riesgo regulatorio e inspección administrativa', nunca como 'sanción segura inmediata'.
 
 6. METAS Y CONCLUSIONES CONDICIONADAS:
-   - Prohibido afirmar que 'el plan asegurará un margen superior al 18%'.
-   - Redactar como condiciones operativas necesarias: 'El plan de trabajo establece las condiciones de productividad requeridas para orientar la rentabilidad hacia un margen superior al 18% en un plazo de 36 meses, condicionado al cumplimiento estricto de las hipótesis de digitalización de partes, contención de consumos y conversión comercial efectiva'.
+   - Prohibido afirmar que 'el plan garantizará un 18% de margen'.
+   - Redactar conclusiones como condiciones operativas necesarias: 'El plan de acción establece las bases para avanzar hacia un margen superior al 18% en un plazo de 36 meses, condicionado al cumplimiento de las hipótesis de digitalización de partes, contención de consumos y conversión de horas liberadas'.
 
 7. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
    - Inicia obligatoriamente con el bloque ```json ... ```:
@@ -649,7 +657,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 (Requisitos técnicos y calendario de adaptación a Veri*factu RD 1007/2023 modificado y Facturación Electrónica B2B en sus plazos oficiales).
 
 ## 3. Comparativa Sectorial y Referencias de Posición
-(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia [ES] | Objetivo de Trabajo [OD] | Grado de confianza).
+(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia de Trabajo [ES] | Objetivo de Dirección [OD] | Grado de confianza).
 
 ## 4. Modelos de Transferencia Operativa y Buenas Prácticas Sectoriales
 (Dos modelos de referencia técnica en servicios e instalaciones: soluciones incorporadas y elementos aplicables a esta estructura).
@@ -661,16 +669,16 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 (Clasificación de prioridades: 0-6 meses / 6-18 meses / 18-36 meses y mapa de impacto).
 
 ## 7. Evaluación de Brecha Operativa
-(Análisis fundamentado de las 5 dimensiones comparativas de la empresa frente a las referencias de mercado).
+(Análisis fundamentado de las 5 dimensiones comparativas de la empresa frente a las referencias de mercado, catalogando Control de Margen como Brecha Media).
 
 ## 8. Análisis de Escenarios Plausibles de Evolución
-(Cruce de incertidumbres principales con niveles de plausibilidad e inductores de seguimiento. Contraste con la estimación directiva a 3 años).
+(Cruce de incertidumbres principales con niveles de plausibilidad e inductores de seguimiento. Contraste sobrio con la estimación directiva a 3 años).
 
 ## 9. Despliegue Temporal Inverso: Objetivos a {horizonte} Años
 (Definición del estado objetivo a {horizonte} años y retroceso temporal: hitos a consolidar en Año 2 y en Año 1).
 
 ## 10. Decisiones sobre Capacidades y Recursos
-(Clasificación práctica: desarrollo interno de procesos, contratación de herramientas, acuerdos de colaboración y eliminación de tareas manuales).
+(Clasificación práctica: desarrollo interno de procesos, contratación de herramientas, acuerdos de colaboración y eliminación progresiva de tareas manuales).
 
 ## 11. Indicadores de Alerta y Disparadores Operativos
 (Señales objetivas de mercado o costes que deben activar revisiones en el plan de trabajo).
@@ -684,9 +692,9 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 ## 14. Plan de Habilitación del Equipo y Gestión del Cambio
 (Protocolo de formación para operarios de campo, administración y adaptación de clientes habituales).
 
-## 15. Plan de Acción y Hoja de Ruta (30, 90 y 180 Días)
-(Cronograma con acciones, responsables asignados, dependencias técnicas, progresión de indicadores y presupuesto acotado estrictamente a [DR] {presupuesto_disponible:,} €).
-(Análisis de sensibilidad de recuperación de horas bajo escenarios del 25%, 50% y 75%, con plazo orientativo de recuperación de la inversión).
+## 15. Plan de Acción, Hoja de Ruta y Retorno de la Inversión (30, 90 y 180 Días)
+(Cronograma con acciones, responsables asignados, dependencias técnicas, progresión de indicadores e Inversión Prevista [ES] acotada estrictamente a los [DR] {presupuesto_disponible:,} € disponibles).
+(Tabla rigurosa de sensibilidad del ROI con cálculo de Payback financiero sobre margen de contribución real al 25%, 50% y 75% de captura de horas).
 """
 
                 partes_contenido = []
@@ -745,7 +753,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                 st.error(f"Error durante el procesamiento: {e}")
 
 # =====================================================================
-# RENDERIZADO DEL INFORME Y ASISTENTE DIRECTIVO (1 CLIC CON MEMORIA)
+# RENDERIZADO DEL INFORME Y ASISTENTE DIRECTIVO
 # =====================================================================
 if st.session_state.get("informe_generado"):
     datos_graficos = st.session_state.get("datos_graficos", {})
@@ -772,32 +780,43 @@ if st.session_state.get("informe_generado"):
         """
         <div class="assistant-card">
         <h4 style="color: #14532d; margin-bottom: 6px;">Asistente de Interpretación Directiva</h4>
-        <p style="font-size: 0.92rem; color: #166534; margin-bottom: 12px;">
+        <p style="font-size: 0.92rem; color: #166534; margin-bottom: 14px;">
         Consulta tu informe en lenguaje directo. El asistente explica los resultados utilizando exclusivamente los datos y conclusiones de tu diagnóstico, sin sustituir el análisis realizado ni modificar sus conclusiones.
+        </p>
+        <p style="font-size: 0.88rem; color: #14532d; font-weight: bold; margin-bottom: 8px;">
+        Preguntas clave que puedes hacerle a tu diagnóstico:
         </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Botones rápidos de un solo clic
+    # Catálogo de 6 preguntas directivas en 2 filas
     col_b1, col_b2, col_b3 = st.columns(3)
     pregunta_inmediata = None
 
     with col_b1:
-        if st.button("Explicación en lenguaje directo", use_container_width=True):
-            pregunta_inmediata = "Explícame de forma muy sencilla y clara los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, con mis datos reales y sin tecnicismos."
+        if st.button("Explícame el informe sin lenguaje técnico", use_container_width=True):
+            pregunta_inmediata = "Explícame de forma muy sencilla y directa los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, con mis datos reales y sin tecnicismos."
+        if st.button("¿Cuánto dinero puedo recuperar?", use_container_width=True):
+            pregunta_inmediata = "¿Cuánto dinero y margen de contribución real puedo recuperar si reduzco las 3,5 horas diarias dedicadas a tareas administrativas y partes?"
+
     with col_b2:
-        if st.button("¿Por qué el cuello de botella en presupuestos?", use_container_width=True):
-            pregunta_inmediata = "¿Por qué habéis llegado a la conclusión de que los presupuestos y partes son mi mayor fuga de rentabilidad? Explícamelo con mis datos exactos de horas y conversión."
+        if st.button("¿Cuál es el principal problema hoy?", use_container_width=True):
+            pregunta_inmediata = "A partir de mis números reales, ¿cuál es exactamente el mayor problema y fuga de rentabilidad que tiene hoy mi empresa?"
+        if st.button("¿Qué debería hacer en los primeros 30 días?", use_container_width=True):
+            pregunta_inmediata = "Dime exactamente qué dos o tres acciones concretas debería poner en marcha durante los primeros 30 días, quién debería ejecutarlas y con qué presupuesto."
+
     with col_b3:
-        if st.button("¿Qué hago en los primeros 15 días?", use_container_width=True):
-            pregunta_inmediata = "Dime exactamente qué dos o tres acciones concretas debería poner en marcha en los próximos 15 días, quién debería ejecutarlas y con qué presupuesto."
+        if st.button("¿Por qué digitalizar primero los partes?", use_container_width=True):
+            pregunta_inmediata = "¿Por qué recomendáis digitalizar primero los partes de trabajo y el material en furgonetas en vez de contratar comerciales o hacer publicidad?"
+        if st.button("¿Qué riesgos tengo si no hago nada?", use_container_width=True):
+            pregunta_inmediata = "Si decido no hacer nada durante los próximos 3 años, ¿qué impacto económico, operativo y normativo sufrirá mi empresa según el informe?"
 
     # Campo de consulta personalizada
     pregunta_abierta = st.text_input(
-        "O escribe tu propia pregunta sobre el informe:",
-        placeholder="Ej: ¿Cuánto me costará implantar el software móvil y qué gano con ello?",
+        "O escribe una pregunta específica sobre tu informe:",
+        placeholder="Ej: ¿Cómo se calculó exactamente el payback de 7,3 meses en el escenario base?",
     )
     btn_enviar_abierta = st.button("Consultar al Asistente", type="secondary")
 
@@ -807,7 +826,7 @@ if st.session_state.get("informe_generado"):
     elif btn_enviar_abierta and pregunta_abierta:
         pregunta_a_procesar = pregunta_abierta
 
-    # Procesamiento y almacenamiento en memoria
+    # Procesamiento y almacenamiento en memoria de sesión
     if pregunta_a_procesar:
         if not api_key_usuario:
             st.error("Introduce tu clave de API en la barra lateral para consultar al asistente.")
@@ -823,8 +842,9 @@ REGLAS DE RESPUESTA:
 1. Responde a la pregunta basándote EXCLUSIVAMENTE en los datos, cifras contables y conclusiones de este informe.
 2. Cita las cifras reales aportadas por la empresa (facturación, 3,5 h/día de gestión no facturable, coste hora, empleados, presupuesto disponible).
 3. No utilices jerga innecesaria. Habla con naturalidad y precisión pedagógica.
-4. Si te preguntan qué hacer primero, sé muy pragmático: medidas de coste bajo, responsables claros y plazos de 15 días.
-5. No inventes datos que no figuren en el informe.
+4. Si te preguntan sobre el payback o la recuperación económica, sé muy riguroso: explica que el cálculo se hace sobre el margen de contribución real (27,56 €/h) y no sobre facturación bruta.
+5. Si te preguntan qué hacer primero, sé muy pragmático: medidas de coste bajo, responsables claros y plazos de 15 a 30 días.
+6. No inventes datos que no figuren en el informe.
 
 INFORME COMPLETO DE LA EMPRESA:
 {st.session_state['datos_contexto']}
