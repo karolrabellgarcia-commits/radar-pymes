@@ -240,7 +240,7 @@ with tab_fin:
         st.markdown(
             f"""
             <div class="callout-legal">
-            <b>Nota sobre información económica:</b> La resta de ingresos reportados ({facturacion_anual:,.0f} €) y gastos totales ({costes_totales:,.0f} €) arroja un resultado de {resultado_teorico:,.0f} €, distinto del beneficio reportado ({margen_ebitda_declarado:,.0f} €). El informe tomará como referencia la capacidad horaria productiva hasta la verificación de la cuenta de pérdidas y ganancias definitiva.
+            <b>Nota sobre información económica:</b> La resta de ingresos reportados ({facturacion_anual:,.0f} €) y gastos totales ({costes_totales:,.0f} €) arroja un resultado calculado de {resultado_teorico:,.0f} €, distinto del beneficio reportado ({margen_ebitda_declarado:,.0f} €). El informe tomará como referencia la capacidad horaria productiva hasta la verificación de la cuenta de pérdidas y ganancias definitiva.
             </div>
             """,
             unsafe_allow_html=True,
@@ -546,74 +546,89 @@ if st.button(
     if not api_key_usuario:
         st.error("Es obligatorio introducir la clave de API en la barra lateral izquierda.")
     else:
-        with st.spinner("Auditando unit economics, cuadrando P&L proforma y verificando trazabilidad..."):
+        with st.spinner("Auditando unit economics, conciliando P&L contable al 100% y redactando informe..."):
             try:
                 cliente = genai.Client(api_key=api_key_usuario)
 
-                # 1. CÁLCULOS AUDITADOS DE LÍNEA BASE
+                # =====================================================
+                # MOTOR FINANCIERO INTEGRADO (CONCILIACIÓN CONTABLE EXACTA)
+                # =====================================================
+                # 1. Ratios y costes unitarios
+                ratio_compras_exacto = coste_compras_recambios / facturacion_anual  # 165.000 / 480.000 = 0.34375
+                ratio_margen_exacto = 1.0 - ratio_compras_exacto  # 0.65625
                 horas_totales_no_fac = horas_perdidas_dia * 220  # 770 h
-                coste_hora_medio_plantilla = coste_personal / (tamano_equipo * 1800)  # 18.06 €/h
-                coste_salarial_improductivo = horas_totales_no_fac * coste_hora_medio_plantilla  # 13.906 €
-                margen_por_hora_calc = precio_hora_mano_obra * (margen_bruto_pct / 100)  # 27.56 €/h
+                coste_hora_medio_plantilla = coste_personal / (tamano_equipo * 1800)  # 18.0555... -> 18.06 €/h
+                coste_salarial_improductivo = round(horas_totales_no_fac * coste_hora_medio_plantilla)  # 13.903 €
+                margen_por_hora_calc = precio_hora_mano_obra * ratio_margen_exacto  # 42 * 0.65625 = 27.5625 €/h
 
-                # 2. INVERSIÓN AÑO 1
+                # 2. Inversión Año 1
                 capex_inicial = 4000
                 opex_anual_saas = 2500
                 inversion_total_ano1 = capex_inicial + opex_anual_saas  # 6.500 €
 
-                # 3. SENSIBILIDAD DEL PAYBACK
+                # 3. Ventas adicionales generadas Año 1
+                ventas_horas_liberadas = 385 * precio_hora_mano_obra  # 385 h * 42 € = 16.170 €
+                ventas_conversion = 6 * ticket_medio_operacion  # 6 presupuestos * 1.450 € = 8.700 €
+                ventas_contratos_b2b = 5 * 900  # 5 contratos * 900 € = 4.500 €
+                ventas_nuevas_totales = ventas_horas_liberadas + ventas_conversion + ventas_contratos_b2b  # 29.370 €
+                facturacion_ano1 = facturacion_anual + ventas_nuevas_totales  # 509.370 €
+
+                # 4. Compras y consumos Año 1 (Integración de ahorros y nuevos costes)
+                ahorro_mermas_stock = 4800  # Palanca 3
+                coste_material_nuevo = round(ventas_nuevas_totales * ratio_compras_exacto)  # 29.370 * 0.34375 = 10.096 €
+                compras_ano1 = coste_compras_recambios + coste_material_nuevo - ahorro_mermas_stock  # 170.296 €
+
+                # 5. Gastos operativos y P&L Año 1
+                personal_ano1 = coste_personal  # 195.000 €
+                gastos_fijos_ano1 = gastos_fijos  # 58.000 €
+                opex_ano1 = opex_anual_saas  # 2.500 €
+                
+                # EBIT Año 1 ÚNICO Y SIN RESIDUOS:
+                ebit_ano1 = facturacion_ano1 - compras_ano1 - personal_ano1 - gastos_fijos_ano1 - opex_ano1  # 83.574 €
+
+                # 6. Desglose exacto de palancas derivado de la P&L (Conciliación perfecta a 0,00 €):
+                margen_horas_p1 = round(ventas_horas_liberadas * ratio_margen_exacto)  # 10.612 €
+                margen_conversion_p2 = round(ventas_conversion * ratio_margen_exacto)  # 5.709 €
+                margen_b2b_p4 = round(ventas_contratos_b2b * ratio_margen_exacto)  # 2.953 €
+                ahorro_stock_p3 = ahorro_mermas_stock  # 4.800 €
+                coste_saas = opex_ano1  # 2.500 €
+                mejora_neta_ebit = margen_horas_p1 + margen_conversion_p2 + ahorro_stock_p3 + margen_b2b_p4 - coste_saas  # 21.574 €
+
+                # 7. Sensibilidad del Payback
                 h_recup_25 = horas_totales_no_fac * 0.25  # 192.5 h
-                margen_inc_25 = h_recup_25 * margen_por_hora_calc  # 5.305 €
+                margen_inc_25 = h_recup_25 * margen_por_hora_calc  # 5.306 €
                 payback_meses_25 = (inversion_total_ano1 / margen_inc_25) * 12  # 14.7 meses
 
                 h_recup_50 = horas_totales_no_fac * 0.50  # 385.0 h
-                margen_inc_50 = h_recup_50 * margen_por_hora_calc  # 10.611 €
-                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12  # 7.3 meses
+                margen_inc_50 = h_recup_50 * margen_por_hora_calc  # 10.612 €
+                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12  # 7.35 meses -> 7,4 meses
 
                 h_recup_75 = horas_totales_no_fac * 0.75  # 577.5 h
-                margen_inc_75 = h_recup_75 * margen_por_hora_calc  # 15.916 €
+                margen_inc_75 = h_recup_75 * margen_por_hora_calc  # 15.917 €
                 payback_meses_75 = (inversion_total_ano1 / margen_inc_75) * 12  # 4.9 meses
-
-                # 4. CUENTA DE RESULTADOS PROFORMA CONSOLIDADA (INTEGRACIÓN EXACTA)
-                # Ventas adicionales Año 1:
-                # - Horas recuperadas: 385 h x 42 € = +16.170 €
-                # - Conversión (6 presupuestos adicionales de 300 emitidos): 6 x 1.450 € = +8.700 €
-                # - Contratos B2B: 5 contratos x 900 € = +4.500 €
-                # Total incremento facturación Año 1 = +29.370 € -> 509.370 €
-                facturacion_ano1 = facturacion_anual + 29370
-                
-                # Consumos y compras Año 1:
-                # Compras base (165.000) + coste material de nuevos trabajos (29.370 x 34.38% = 10.097 €) - ahorro stock/mermas (-4.800 €)
-                compras_ano1 = 165000 + 10097 - 4800 # 170.297 €
-                personal_ano1 = coste_personal # 195.000 € (capacidad absorbida)
-                gastos_fijos_ano1 = gastos_fijos # 58.000 €
-                opex_ano1 = opex_anual_saas # 2.500 €
-                
-                # EBIT Año 1 ÚNICO E IRREBATIBLE:
-                ebit_ano1 = facturacion_ano1 - compras_ano1 - personal_ano1 - gastos_fijos_ano1 - opex_ano1 # 83.573 € (16.4%)
 
                 prompt_completo = f"""
 Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial para pymes.
 Fecha actual del análisis: Septiembre de 2026.
 Debes elaborar un informe técnico, sobrio, exhaustivo y matemáticamente riguroso para ser defendido ante un comité de dirección.
 
-BASE DE DATOS AUDITADA (ARITMÉTICA EXACTA Y OBLIGATORIA):
+BASE DE DATOS AUDITADA (CONCILIACIÓN MATEMÁTICA CON RESIDUO CERO 0,00 €):
 - Actividad / Especialidad: [DR] {sector} | {subsector}
 - Ámbito territorial: [DR] {pais_region}
 - Plantilla total: [DR] {tamano_equipo} personas (4 técnicos de campo, 1 soporte admin, 1 gerencia/comercial)
 - Facturación anual reportada: [DR] {facturacion_anual:,} € | Coste personal: [DR] {coste_personal:,} € | Compras: [DR] {coste_compras_recambios:,} € | Gastos fijos: [DR] {gastos_fijos:,} € | EBIT actual: [DR] {margen_ebitda_declarado:,} € ({margen_ebitda_declarado/facturacion_anual*100:.2f}%)
 - Facturación por empleado: [C] {facturacion_por_empleado:,.0f} €/año
-- Margen bruto s/ materiales: [C] {margen_bruto_pct:.2f}% | Porcentaje de compras s/ ventas: [C] {100 - margen_bruto_pct:.2f}%
-- Coste horario medio de la plantilla (1.800 h/año convenio): [C] {coste_hora_medio_plantilla:.2f} €/h ({coste_personal:,} € / 6 empleados / 1.800 h).
-- Horas de gestión no facturable: [DR] {horas_perdidas_dia} h/día agregadas en la empresa x 220 días = [C] {horas_totales_no_fac:.0f} h/año.
-- Coste salarial directo absorbido en tareas de gestión: [C] {coste_salarial_improductivo:,.0f} €/año ({horas_totales_no_fac:.0f} h x {coste_hora_medio_plantilla:.2f} €/h).
-- Capacidad teórica de facturación liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año ({horas_totales_no_fac:.0f} h x {precio_hora_mano_obra} €/h).
-- Margen de contribución directo sobre mano de obra: [C] {margen_por_hora_calc:.2f} €/h ({precio_hora_mano_obra} €/h x {margen_bruto_pct:.2f}%).
-- Inversión Año 1: Presupuesto declarado disponible [DR] {presupuesto_disponible:,} €. Desglose: CAPEX inicial de implantación y hardware [ES] {capex_inicial:,} € + OPEX anual licencias SaaS [ES] {opex_anual_saas:,} €/año. Inversión total prevista Año 1: [ES] {inversion_total_ano1:,} €.
+- Margen bruto s/ materiales: [C] {margen_bruto_pct:.2f}% | Ratio compras s/ ventas: [C] {ratio_compras_exacto*100:.2f}%
+- Coste horario medio de plantilla: [C] {coste_hora_medio_plantilla:.2f} €/h ({coste_personal:,} € / 6 / 1.800 h).
+- Horas no facturables: [DR] {horas_perdidas_dia} h/día agregadas x 220 días = [C] {horas_totales_no_fac:.0f} h/año.
+- Coste salarial improductivo: [C] {coste_salarial_improductivo:,} €/año ({horas_totales_no_fac:.0f} h x {coste_hora_medio_plantilla:.2f} €/h).
+- Capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año ({horas_totales_no_fac:.0f} h x {precio_hora_mano_obra} €/h).
+- Margen de contribución directo mano de obra: [C] {margen_por_hora_calc:.2f} €/h.
+- Inversión Año 1: Presupuesto declarado [DR] {presupuesto_disponible:,} €. Desglose: CAPEX inicial [ES] {capex_inicial:,} € + OPEX anual SaaS [ES] {opex_anual_saas:,} €/año. Inversión total prevista: [ES] {inversion_total_ano1:,} €.
 - Sensibilidad del Payback (calculado sobre margen de contribución de {margen_por_hora_calc:.2f} €/h):
-  * Conservador ([HC] 25% captura = {h_recup_25:.1f} h): Margen incremental = [C] {margen_inc_25:,.0f} €/año. Payback = [C] {payback_meses_25:.1f} meses.
-  * Base ([HC] 50% captura = {h_recup_50:.1f} h): Margen incremental = [C] {margen_inc_50:,.0f} €/año. Payback = [C] {payback_meses_50:.1f} meses.
-  * Favorable ([HC] 75% captura = {h_recup_75:.1f} h): Margen incremental = [C] {margen_inc_75:,.0f} €/año. Payback = [C] {payback_meses_75:.1f} meses.
+  * Conservador ([HC] 25% = {h_recup_25:.1f} h): Margen incremental = [C] {margen_inc_25:,.0f} €/año. Payback = [C] {payback_meses_25:.1f} meses.
+  * Base ([HC] 50% = {h_recup_50:.1f} h): Margen incremental = [C] {margen_inc_50:,.0f} €/año. Payback = [C] {payback_meses_50:.1f} meses.
+  * Favorable ([HC] 75% = {h_recup_75:.1f} h): Margen incremental = [C] {margen_inc_75:,.0f} €/año. Payback = [C] {payback_meses_75:.1f} meses.
 
 ======================================================================
 REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
@@ -628,8 +643,8 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
    [OD] Objetivo directivo propuesto en el plan de trabajo.
 
 2. CLARIFICACIÓN OBLIGATORIA DE TARIFAS (SECCIÓN 1):
-   Al citar los 13.906 € y los 32.340 €, añade obligatoriamente esta nota:
-   "Nota de lectura contable: La cifra de 13.906 € [C] representa el coste salarial directo ya devengado en nóminas a razón de 18,06 €/h de coste interno. En contraste, los 32.340 € [C] representan la capacidad teórica máxima de facturación en caso de colocar la totalidad de dichas horas en el mercado a la tarifa de 42,00 €/h [DR]."
+   Al citar los {coste_salarial_improductivo:,} € y los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €, añade obligatoriamente:
+   "Nota de lectura contable: La cifra de {coste_salarial_improductivo:,} € [C] representa el coste salarial directo ya devengado en nóminas a razón de {coste_hora_medio_plantilla:.2f} €/h de coste interno. En contraste, los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} € [C] representan la capacidad teórica máxima de facturación en caso de colocar la totalidad de dichas horas en el mercado a la tarifa de 42,00 €/h [DR]."
 
 3. TABLA DE DESGLOSE DE LAS 770 HORAS (SECCIÓN 1):
    - 4 Técnicos en campo: 0,5 h/día cada uno (partes y albaranes) = 2,0 h/día (440 h/año) [DR].
@@ -637,20 +652,21 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
    - 1 Administración: Pasar partes a mano y reclamación de albaranes = 0,5 h/día (110 h/año) [DR].
    - Total Empresa: 3,5 h/día = 770 h/año [C].
 
-4. AUDITORÍA MATEMÁTICA TRANSPARENTE DE LAS 4 PALANCAS DE MEJORA:
-   Queda estrictamente PROHIBIDO presentar números mágicos sin fórmula. Detalla cada palanca:
-   - Palanca 1 (Captura de horas [HC] 50%): 385 h x 27,56 €/h margen = +10.611 € [C].
-   - Palanca 2 (Mejora de conversión presupuestaria): Actualmente se aceptan 105 presupuestos de 300 emitidos (35% [DR]). Pasar a una tasa del 37% supone 6 presupuestos aceptados adicionales al año x 1.450 € ticket medio = +8.700 € de facturación bruta, que al 65,62% de margen aportan +5.709 € de margen directo neto [ES].
-   - Palanca 3 (Optimización de consumos y stock): 165.000 € en compras [DR] x 2,91% de reducción de compras de mostrador, mermas y urgencias duplicadas = +4.800 € [ES].
-   - Palanca 4 (Contratos de mantenimiento B2B): Estandarización de 5 nuevos contratos anuales a 900 €/año = +4.500 € facturados, que con un coste directo de consumibles del 33,3% aportan +3.000 € netos [ES].
-   - Menos coste recurrente software: -2.500 €/año [ES].
-   - Impacto neto consolidado en margen: 10.611 + 5.709 + 4.800 + 3.000 - 2.500 = +21.620 € [C].
+4. AUDITORÍA EXACTA DE LAS 4 PALANCAS (CONCILIACIÓN CON LA P&L):
+   Detalla cada palanca con sus cifras exactas derivadas de la P&L:
+   - Palanca 1 (Captura de 385 h [HC]): 385 h x 42 € x {ratio_margen_exacto:.5f} = +{margen_horas_p1:,} € [C].
+   - Palanca 2 (Conversión presupuestaria): 6 presupuestos extra de 300 emitidos x 1.450 € ticket = +8.700 € ventas brutas x {ratio_margen_exacto:.5f} = +{margen_conversion_p2:,} € [ES].
+   - Palanca 3 (Optimización de consumos y stock): 165.000 € en compras [DR] x 2,91% de reducción de mermas y compras de mostrador = +{ahorro_stock_p3:,} € [ES].
+   - Palanca 4 (Contratos de mantenimiento B2B): 5 nuevos contratos a 900 €/año = +4.500 € ventas x {ratio_margen_exacto:.5f} = +{margen_b2b_p4:,} € [ES].
+   - Menos coste recurrente software: -{coste_saas:,} €/año [ES].
+   - Impacto neto consolidado: {margen_horas_p1:,} + {margen_conversion_p2:,} + {ahorro_stock_p3:,} + {margen_b2b_p4:,} - {coste_saas:,} = +{mejora_neta_ebit:,} € [C].
+   - EBIT inicial ({margen_ebitda_declarado:,} €) + Mejora neta ({mejora_neta_ebit:,} €) = {ebit_ano1:,} € [C]. (Cuadre perfecto con residuo cero 0 € frente a la P&L).
 
 5. CUENTA DE RESULTADOS PROFORMA CON UN SOLO EBIT CUADRADO (SECCIÓN 13):
    Queda TERMINANTEMENTE PROHIBIDO poner dos filas de EBIT distintas para el mismo año.
    La P&L debe cuadrar matemáticamente línea por línea:
    - Año Actual [DR]: Ventas 480.000 € | Compras 165.000 € | Personal 195.000 € | Fijos 58.000 € | Software 0 € | EBIT = 62.000 € (12,9%).
-   - Año 1 (Transición) [ES]: Ventas 509.370 € (+29.370 € por horas liberadas, 6 presupuestos y 5 contratos B2B) | Compras 170.298 € (165k base + 10.098 € consumos de nuevos trabajos - 4.800 € ahorro stock) | Personal 195.000 € (capacidad absorbida) | Fijos 58.000 € | Software 2.500 € | EBIT = 83.572 € (16,4%).
+   - Año 1 (Transición) [ES]: Ventas {facturacion_ano1:,} € (+{ventas_nuevas_totales:,} €) | Compras {compras_ano1:,} € ({coste_compras_recambios:,} € base + {coste_material_nuevo:,} € material nuevo - {ahorro_mermas_stock:,} € ahorro stock) | Personal {personal_ano1:,} € | Fijos {gastos_fijos_ano1:,} € | Software {opex_ano1:,} € | EBIT = {ebit_ano1:,} € ({ebit_ano1/facturacion_ano1*100:.1f}%).
    - Año 2 (Consolidación) [ES]: Ventas 528.000 € (absorción 60% horas y 12 contratos B2B acumulados) | Compras 175.500 € | Personal 197.000 € | Fijos 58.500 € | Software 2.500 € | EBIT = 94.500 € (17,9%).
    - Año 3 (Madurez) [OD]: Ventas 545.000 € (absorción 70% horas y 20 contratos B2B acumulados) | Compras 180.000 € | Personal 201.000 € | Fijos 59.000 € | Software 2.500 € | EBIT = 102.500 € (18,8%).
 
@@ -686,7 +702,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 
 ## 1. Diagnóstico de Eficiencia, Costes Salariales y Capacidad Productiva
 (Estructura analítica de costes. Coste medio horario de la plantilla: [C] {coste_hora_medio_plantilla:.2f} €/h).
-(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,.0f} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año con nota aclaratoria de tarifas).
+(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año con nota aclaratoria de tarifas).
 
 ## 2. Marco Normativo y Adaptación Técnica (Septiembre 2026)
 (Calendario oficial de Veri*factu RD 1007/2023 modificado [FE] y Facturación Electrónica B2B [FE] en sus plazos reales para sociedades y autónomos).
@@ -723,7 +739,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 
 ## 13. Cuenta de Resultados Proforma a 36 Meses y Justificación del EBIT
 (Tabla Proforma: Actual | Año 1 | Año 2 | Año 3 con UN SOLO EBIT derivado de ingresos menos gastos).
-(Desglose de las 4 palancas que sustentan el crecimiento de facturación y margen).
+(Desglose de las 4 palancas que sustentan el crecimiento de facturación y margen con cuadre exacto a 0,00 €).
 
 ## 14. Vías de Financiación y Optimización de Costes ({pais_region})
 (Líneas de ayuda y bonificaciones FUNDAE [FE], con salvaguarda sobre convocatorias vigentes y bases reguladoras).
@@ -835,7 +851,7 @@ if st.session_state.get("informe_generado"):
         if st.button("Explícame el informe sin lenguaje técnico", use_container_width=True):
             pregunta_inmediata = "Explícame de forma muy sencilla y directa los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, con mis datos reales y sin tecnicismos."
         if st.button("¿Cuánto dinero puedo recuperar realmente?", use_container_width=True):
-            pregunta_inmediata = "¿Cuánto dinero y margen de contribución real puedo recuperar según el escenario base de 50% de recuperación horaria y cómo se calcula el payback de 7,3 meses?"
+            pregunta_inmediata = "¿Cuánto dinero y margen de contribución real puedo recuperar según el escenario base de 50% de recuperación horaria y cómo se calcula el payback de 7,4 meses?"
 
     with col_b2:
         if st.button("¿Cuál es el principal problema hoy?", use_container_width=True):
@@ -874,8 +890,8 @@ Tu objetivo es responder al dueño de la empresa con total claridad, sensatez, c
 
 REGLAS DE RESPUESTA:
 1. Responde a la pregunta basándote EXCLUSIVAMENTE en los datos, cifras contables y conclusiones de este informe.
-2. Cita las cifras reales y calculadas: facturación ([DR] 480.000 €), 3,5 h/día agregadas ([DR]/[C] 770 h/año), coste horario medio ([C] 18,06 €/h), coste improductivo ([C] 13.906 €), inversión Año 1 ([ES] 6.500 € desglosada en [ES] 4.000 € CAPEX y [ES] 2.500 € OPEX SaaS recurrente).
-3. Si te preguntan sobre la cuenta proforma, explica que la facturación crece de 480.000 € a 509.370 € en el Año 1 debido a la monetización de horas liberadas, presupuestos adicionales y contratos B2B, dando un EBIT único de 83.572 € (16,4%).
+2. Cita las cifras reales y calculadas: facturación ([DR] 480.000 €), 3,5 h/día agregadas ([DR]/[C] 770 h/año), coste horario medio ([C] {coste_hora_medio_plantilla:.2f} €/h), coste improductivo ([C] {coste_salarial_improductivo:,} €), inversión Año 1 ([ES] 6.500 € desglosada en [ES] 4.000 € CAPEX y [ES] 2.500 € OPEX SaaS recurrente).
+3. Si te preguntan sobre la cuenta proforma, explica que la facturación crece a {facturacion_ano1:,} € en el Año 1 debido a la monetización de horas liberadas, presupuestos adicionales y contratos B2B, dando un EBIT único de {ebit_ano1:,} € ({ebit_ano1/facturacion_ano1*100:.1f}%), plenamente conciliado con la suma de palancas.
 4. Explica la diferencia entre dato reportado [DR], cálculo exacto [C] e hipótesis de cálculo [HC].
 5. No inventes datos que no figuren en el informe y mantén un lenguaje accesible y pedagógico.
 
