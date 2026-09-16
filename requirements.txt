@@ -1,4 +1,6 @@
 streamlit
 google-genai
-plotly
 pandas
+plotly
+markdown
+xhtml2pdf
