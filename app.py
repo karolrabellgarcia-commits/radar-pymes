@@ -775,9 +775,18 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
                     json_str = match.group(1)
                     datos_graficos = json.loads(json_str)
 
-                    # Limpieza editorial de anclas residuales
+                    # =====================================================
+                    # FILTRADO ESTRICTO DE ANCLAS TÉCNICAS Y ENLACES RESIDUALES
+                    # =====================================================
                     informe_limpio = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
-                    informe_limpio = re.sub(r"\[svg\]\(.*?\)", "", informe_limpio)
+                    # 1. Elimina cualquier ancla tipo [svg](https://...) o [svg](...)
+                    informe_limpio = re.sub(r"\[svg\]\(.*?\)", "", informe_limpio, flags=re.IGNORECASE)
+                    # 2. Elimina posibles anclajes markdown de encabezados [#...]
+                    informe_limpio = re.sub(r"\[#.*?\]", "", informe_limpio)
+                    # 3. Elimina etiquetas html invisibles tipo <a name="..."></a>
+                    informe_limpio = re.sub(r"<a\s+name=[\"'].*?[\"']\s*></a>", "", informe_limpio, flags=re.IGNORECASE)
+                    # 4. Limpia espacios o tabulaciones sobrantes al final de línea
+                    informe_limpio = re.sub(r"[ \t]+$", "", informe_limpio, flags=re.MULTILINE)
 
                     st.session_state["datos_contexto"] = texto_salida
                     st.session_state["informe_generado"] = informe_limpio
@@ -786,7 +795,10 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
                     st.success("Evaluación cuantitativa y plan estratégico elaborados con éxito.")
 
                 else:
-                    texto_limpio = re.sub(r"\[svg\]\(.*?\)", "", texto_salida)
+                    texto_limpio = re.sub(r"\[svg\]\(.*?\)", "", texto_salida, flags=re.IGNORECASE)
+                    texto_limpio = re.sub(r"\[#.*?\]", "", texto_limpio)
+                    texto_limpio = re.sub(r"<a\s+name=[\"'].*?[\"']\s*></a>", "", texto_limpio, flags=re.IGNORECASE)
+                    texto_limpio = re.sub(r"[ \t]+$", "", texto_limpio, flags=re.MULTILINE)
                     st.session_state["informe_generado"] = texto_limpio
                     st.session_state["datos_contexto"] = texto_salida
 
