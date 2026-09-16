@@ -9,7 +9,7 @@ import streamlit as st
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
-    page_title="Diagnóstico Operativo y Plan de Acción Estratégico",
+    page_title="Auditoría Operativa y Plan Estratégico",
     page_icon="📋",
     layout="wide",
 )
@@ -44,7 +44,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Diagnóstico Operativo, Capacidad Productiva y Plan Estratégico")
+st.title("Auditoría Operativa, Diagnóstico de Capacidad y Plan Estratégico")
 st.markdown(
     "Herramienta cuantitativa de evaluación de capacidad productiva, análisis comparativo y prioridades de gestión para pymes."
 )
@@ -644,15 +644,14 @@ REGLAS EDITORIALES Y DE RIGOR OBLIGATORIAS:
    - Sustituir adulaciones hacia el gerente por: 'La estimación de la dirección es coherente con las proyecciones del modelo en un escenario de inacción operativa'.
    - Redondea las cifras proyectadas a centenas o millares para evitar falsa precisión (ej. 13.900 € y 21.200 €, PROHIBIDO poner decimales en estimaciones proyectadas).
 
-7. CUENTA DE RESULTADOS PROFORMA A 36 MESES Y JUSTIFICACIÓN DEL MARGEN >18%:
-   - Incluye una tabla comparativa de Cuenta de Pérdidas y Ganancias (Actual | Año 1 | Año 2 | Año 3).
-   - Justifica de forma explícita de dónde proceden los 24.400 € de mejora de EBIT necesarios para pasar de 62.000 € (12,9%) a 86.400 € (18,0%) sobre los 480.000 €:
-     * +10.600 € por monetización neta de 385 h liberadas (escenario base [HC]).
-     * +8.500 € por mejora de conversión en presupuestos con catálogo paramétrico.
-     * +4.800 € por reducción de compras de urgencia y segundas visitas no imputadas.
-     * +3.000 € por incorporación de contratos de mantenimiento preventivo B2B.
-     * -2.500 € de coste recurrente del software (OPEX anual en estructura [ES]).
-     * Total incremento neto: +24.400 € [C] -> Nuevo EBIT objetivo: 86.400 € (18,0% sobre ventas) [OD].
+7. REGLAS ESTRICTAS PARA LAS 4 PALANCAS DE EBIT Y CUENTA PROFORMA:
+   - Palanca 1 (Captura Horas): 385 h x 27,56 €/h = +10.611 € [C].
+   - Palanca 2 (Conversión Presupuestaria): Detallar la fórmula explícita: 6 presupuestos adicionales al año sobre el flujo de 300 emitidos x 1.450 € ticket x margen de contribución = +8.500 € [ES].
+   - Palanca 3 (Optimización de Compras/Stock): 165.000 € en compras x 2,91% de reducción de mermas y compras de mostrador = +4.800 € [ES].
+   - Palanca 4 (Contratos B2B): 5 contratos nuevos x 900 € x 66,7% margen neto = +3.000 € [ES].
+   - Menos coste recurrente software: -2.500 €/año [ES].
+   - Total incremento neto: +24.411 € [C] -> Nuevo EBIT objetivo: 86.411 € [OD] (18,0% sobre 480.000 €).
+   - En la Cuenta de Resultados Proforma a 36 meses, explicitar que se asume el 'Modelo de Sustitución de Cartera y Mix de Mayor Margen a Capacidad Constante (480k €)' para no generar contradicción lógica entre ventas y conversión.
 
 8. PLIEGO DE 10 REQUISITOS TÉCNICOS Y MATRIZ DE RIESGOS:
    - Listar los 10 requisitos técnicos obligatorios para pedir 3 ofertas comerciales comparables de software SAT/FSM.
@@ -686,16 +685,16 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 
 ## 1. Diagnóstico de Eficiencia, Costes Salariales y Capacidad Productiva
 (Estructura analítica de costes. Coste medio horario de la plantilla: [C] {coste_hora_medio_plantilla:.2f} €/h).
-(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,.0f} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año).
+(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,.0f} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año con nota aclaratoria de tarifas).
 
 ## 2. Marco Normativo y Adaptación Técnica (Septiembre 2026)
 (Calendario oficial de Veri*factu RD 1007/2023 modificado [FE] y Facturación Electrónica B2B [FE] en sus plazos reales para sociedades y autónomos).
 
 ## 3. Comparativa Operativa y Rangos de Referencia Internos
-(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia de Trabajo [ES] | Objetivo de Dirección [OD] | Nivel de Confianza).
+(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia de Trabajo [ES] | Objetivo de Dirección [OD] | Nivel de Confianza calificado honestamente como Medio-Bajo ante ausencia de anuario oficial).
 
-## 4. Modelos de Transferencia Operativa y Buenas Prácticas Sectoriales
-(Dos modelos técnicos contrastados en empresas de instalaciones: medidas aplicadas y elementos transferibles).
+## 4. Modelos Teóricos de Transferencia y Patrones Operativos Típicos
+(Dos modelos ilustrativos basados en buenas prácticas sectoriales, señalando que son patrones arquetípicos y no auditorías directas de empresas identificables).
 
 ## 5. Dinámicas del Entorno y Repercusión en el Negocio
 (Tendencias sectoriales relevantes y consecuencias prácticas para la organización del trabajo).
@@ -722,8 +721,8 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 (Tabla de 5 riesgos: resistencia al cambio, adopción de la app móvil, costes ocultos, desajuste de stock e inercia comercial con probabilidad, impacto y plan de contingencia).
 
 ## 13. Cuenta de Resultados Proforma a 36 Meses y Desglose del Margen >18%
-(Tabla Proforma: Actual | Año 1 | Año 2 | Año 3).
-(Desglose cuantitativo exacto de los +24.400 € [C] requeridos para alcanzar el 18,0% de margen EBIT [OD]).
+(Tabla Proforma: Actual | Año 1 | Año 2 | Año 3 bajo el modelo de sustitución de mix a capacidad constante).
+(Desglose cuantitativo exacto con las fórmulas de las 4 palancas que suman los +24.411 € [C] requeridos para alcanzar el 18,0% de margen EBIT [OD]).
 
 ## 14. Vías de Financiación y Optimización de Costes ({pais_region})
 (Líneas de ayuda y bonificaciones FUNDAE [FE], con salvaguarda sobre convocatorias vigentes y bases reguladoras).
