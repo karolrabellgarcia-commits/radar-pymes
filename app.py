@@ -9,7 +9,7 @@ import streamlit as st
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
-    page_title="Auditoría Operativa y Plan Estratégico",
+    page_title="Diagnóstico Operativo y Plan de Acción Estratégico",
     page_icon="📋",
     layout="wide",
 )
@@ -44,7 +44,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Auditoría Operativa, Diagnóstico de Capacidad y Plan Estratégico")
+st.title("Diagnóstico Operativo, Capacidad Productiva y Plan Estratégico")
 st.markdown(
     "Herramienta cuantitativa de evaluación de capacidad productiva, análisis comparativo y prioridades de gestión para pymes."
 )
@@ -553,7 +553,6 @@ if st.button(
                 # =====================================================
                 # MOTOR FINANCIERO INTEGRADO (CONCILIACIÓN CONTABLE EXACTA)
                 # =====================================================
-                # 1. Ratios y costes unitarios
                 ratio_compras_exacto = coste_compras_recambios / facturacion_anual  # 165.000 / 480.000 = 0.34375
                 ratio_margen_exacto = 1.0 - ratio_compras_exacto  # 0.65625
                 horas_totales_no_fac = horas_perdidas_dia * 220  # 770 h
@@ -561,32 +560,32 @@ if st.button(
                 coste_salarial_improductivo = round(horas_totales_no_fac * coste_hora_medio_plantilla)  # 13.903 €
                 margen_por_hora_calc = precio_hora_mano_obra * ratio_margen_exacto  # 42 * 0.65625 = 27.5625 €/h
 
-                # 2. Inversión Año 1
+                # Inversión Año 1
                 capex_inicial = 4000
                 opex_anual_saas = 2500
                 inversion_total_ano1 = capex_inicial + opex_anual_saas  # 6.500 €
 
-                # 3. Ventas adicionales generadas Año 1
+                # Ventas adicionales Año 1
                 ventas_horas_liberadas = 385 * precio_hora_mano_obra  # 385 h * 42 € = 16.170 €
                 ventas_conversion = 6 * ticket_medio_operacion  # 6 presupuestos * 1.450 € = 8.700 €
                 ventas_contratos_b2b = 5 * 900  # 5 contratos * 900 € = 4.500 €
                 ventas_nuevas_totales = ventas_horas_liberadas + ventas_conversion + ventas_contratos_b2b  # 29.370 €
                 facturacion_ano1 = facturacion_anual + ventas_nuevas_totales  # 509.370 €
 
-                # 4. Compras y consumos Año 1 (Integración de ahorros y nuevos costes)
-                ahorro_mermas_stock = 4800  # Palanca 3
+                # Compras Año 1
+                ahorro_mermas_stock = 4800
                 coste_material_nuevo = round(ventas_nuevas_totales * ratio_compras_exacto)  # 29.370 * 0.34375 = 10.096 €
                 compras_ano1 = coste_compras_recambios + coste_material_nuevo - ahorro_mermas_stock  # 170.296 €
 
-                # 5. Gastos operativos y P&L Año 1
+                # Gastos operativos Año 1
                 personal_ano1 = coste_personal  # 195.000 €
                 gastos_fijos_ano1 = gastos_fijos  # 58.000 €
                 opex_ano1 = opex_anual_saas  # 2.500 €
                 
-                # EBIT Año 1 ÚNICO Y SIN RESIDUOS:
+                # EBIT Año 1 ÚNICO Y SIN RESIDUOS
                 ebit_ano1 = facturacion_ano1 - compras_ano1 - personal_ano1 - gastos_fijos_ano1 - opex_ano1  # 83.574 €
 
-                # 6. Desglose exacto de palancas derivado de la P&L (Conciliación perfecta a 0,00 €):
+                # Desglose de palancas derivado de la P&L (Conciliación perfecta a 0,00 €)
                 margen_horas_p1 = round(ventas_horas_liberadas * ratio_margen_exacto)  # 10.612 €
                 margen_conversion_p2 = round(ventas_conversion * ratio_margen_exacto)  # 5.709 €
                 margen_b2b_p4 = round(ventas_contratos_b2b * ratio_margen_exacto)  # 2.953 €
@@ -594,14 +593,14 @@ if st.button(
                 coste_saas = opex_ano1  # 2.500 €
                 mejora_neta_ebit = margen_horas_p1 + margen_conversion_p2 + ahorro_stock_p3 + margen_b2b_p4 - coste_saas  # 21.574 €
 
-                # 7. Sensibilidad del Payback
+                # Sensibilidad Payback
                 h_recup_25 = horas_totales_no_fac * 0.25  # 192.5 h
                 margen_inc_25 = h_recup_25 * margen_por_hora_calc  # 5.306 €
                 payback_meses_25 = (inversion_total_ano1 / margen_inc_25) * 12  # 14.7 meses
 
                 h_recup_50 = horas_totales_no_fac * 0.50  # 385.0 h
                 margen_inc_50 = h_recup_50 * margen_por_hora_calc  # 10.612 €
-                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12  # 7.35 meses -> 7,4 meses
+                payback_meses_50 = (inversion_total_ano1 / margen_inc_50) * 12  # 7.35 -> 7,4 meses
 
                 h_recup_75 = horas_totales_no_fac * 0.75  # 577.5 h
                 margen_inc_75 = h_recup_75 * margen_por_hora_calc  # 15.917 €
@@ -610,7 +609,7 @@ if st.button(
                 prompt_completo = f"""
 Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial para pymes.
 Fecha actual del análisis: Septiembre de 2026.
-Debes elaborar un informe técnico, sobrio, exhaustivo y matemáticamente riguroso para ser defendido ante un comité de dirección.
+Debes elaborar un informe técnico, sobrio, exhaustivo y matemáticamente riguroso para ser presentado a dirección y comités estratégicos.
 
 BASE DE DATOS AUDITADA (CONCILIACIÓN MATEMÁTICA CON RESIDUO CERO 0,00 €):
 - Actividad / Especialidad: [DR] {sector} | {subsector}
@@ -623,7 +622,7 @@ BASE DE DATOS AUDITADA (CONCILIACIÓN MATEMÁTICA CON RESIDUO CERO 0,00 €):
 - Horas no facturables: [DR] {horas_perdidas_dia} h/día agregadas x 220 días = [C] {horas_totales_no_fac:.0f} h/año.
 - Coste salarial improductivo: [C] {coste_salarial_improductivo:,} €/año ({horas_totales_no_fac:.0f} h x {coste_hora_medio_plantilla:.2f} €/h).
 - Capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año ({horas_totales_no_fac:.0f} h x {precio_hora_mano_obra} €/h).
-- Margen de contribución directo mano de obra: [C] {margen_por_hora_calc:.2f} €/h.
+- Margen de contribución directo mano de obra: [C] {margen_por_hora_calc:.2f} €/h (tarifa {precio_hora_mano_obra} €/h x ratio margen {ratio_margen_exacto:.5f}).
 - Inversión Año 1: Presupuesto declarado [DR] {presupuesto_disponible:,} €. Desglose: CAPEX inicial [ES] {capex_inicial:,} € + OPEX anual SaaS [ES] {opex_anual_saas:,} €/año. Inversión total prevista: [ES] {inversion_total_ano1:,} €.
 - Sensibilidad del Payback (calculado sobre margen de contribución de {margen_por_hora_calc:.2f} €/h):
   * Conservador ([HC] 25% = {h_recup_25:.1f} h): Margen incremental = [C] {margen_inc_25:,.0f} €/año. Payback = [C] {payback_meses_25:.1f} meses.
@@ -631,50 +630,63 @@ BASE DE DATOS AUDITADA (CONCILIACIÓN MATEMÁTICA CON RESIDUO CERO 0,00 €):
   * Favorable ([HC] 75% = {h_recup_75:.1f} h): Margen incremental = [C] {margen_inc_75:,.0f} €/año. Payback = [C] {payback_meses_75:.1f} meses.
 
 ======================================================================
-REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
+REGLAS EDITORIALES Y DE RIGOR METODOLÓGICO:
 ======================================================================
-1. NOTA METODOLÓGICA Y TRAZABILIDAD OBLIGATORIA (SECCIÓN 0):
-   Inserta literalmente la clasificación formal:
-   [DR] Dato reportado por la empresa.
-   [C] Cálculo matemático exacto derivado de los datos reportados.
-   [FE] Fuente externa oficial contrastada (BOE / normativa).
-   [ES] Estimación de consultoría ante ausencia de medición directa.
-   [HC] Hipótesis de cálculo para construcción de escenarios.
-   [OD] Objetivo directivo propuesto en el plan de trabajo.
+1. DECLARACIÓN DE ALCANCE Y TRAZABILIDAD (SECCIÓN 0):
+   - El documento constituye un informe técnico de diagnóstico y consultoría operativa para la toma de decisiones estratégicas. El análisis económico parte de la información contable y operativa facilitada por la empresa mediante el test de diagnóstico y documentación asociada; no constituye una auditoría contable independiente de dichos estados.
+   - Prohibido el uso de términos como 'vinculante' o 'normas de auditoría contable'.
+   - Leyenda formal:
+     [DR] Dato Reportado: información facilitada directamente por la empresa mediante el test de diagnóstico.
+     [C] Cálculo: resultado matemático exacto obtenido a partir de datos reportados.
+     [FE] Fuente Externa: información procedente de normativa oficial (BOE) o fuentes acreditadas.
+     [ES] Estimación: valor aproximado utilizado ante ausencia de medición directa.
+     [HC] Hipótesis de Cálculo: supuesto necesario para proyectar escenarios o evoluciones futuras.
+     [OD] Objetivo Directivo: meta propuesta para la evolución futura de la empresa.
 
-2. CLARIFICACIÓN OBLIGATORIA DE TARIFAS (SECCIÓN 1):
-   Al citar los {coste_salarial_improductivo:,} € y los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €, añade obligatoriamente:
-   "Nota de lectura contable: La cifra de {coste_salarial_improductivo:,} € [C] representa el coste salarial directo ya devengado en nóminas a razón de {coste_hora_medio_plantilla:.2f} €/h de coste interno. En contraste, los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} € [C] representan la capacidad teórica máxima de facturación en caso de colocar la totalidad de dichas horas en el mercado a la tarifa de 42,00 €/h [DR]."
+2. CLARIFICACIÓN CONTABLE DE TARIFAS Y HORAS (SECCIÓN 1):
+   - Al citar los {coste_salarial_improductivo:,} € y los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €, añade:
+     "Nota de lectura contable: La cifra de {coste_salarial_improductivo:,} € [C] representa el coste salarial directo ya devengado en nóminas a razón de {coste_hora_medio_plantilla:.2f} €/h de coste medio de plantilla. En contraste, los {horas_totales_no_fac * precio_hora_mano_obra:,.0f} € [C] representan la capacidad teórica máxima de facturación en caso de colocar la totalidad de dichas horas en el mercado a la tarifa de 42,00 €/h [DR]."
+   - Tabla de desglose de las 770 h: 4 técnicos (0,5 h/día = 2 h/día = 440 h/año) [DR], gerencia/comercial (1 h/día = 220 h/año) [DR], administración (0,5 h/día = 110 h/año) [DR]. Total = 770 h/año [C].
+   - Especificar formalmente que en el Escenario Base se asume [HC] que el 50% de las horas improductivas (385 h) son efectivamente facturables en el mercado, supuesto que será contrastado durante la fase de validación operativa.
+   - El margen por hora de mano de obra es {margen_por_hora_calc:.2f} €/h [C], resultante estricto de aplicar el ratio de margen bruto del 65,625% a los 42 €/h. Prohibido citar costes inventados de 14,44 €/h.
 
-3. TABLA DE DESGLOSE DE LAS 770 HORAS (SECCIÓN 1):
-   - 4 Técnicos en campo: 0,5 h/día cada uno (partes y albaranes) = 2,0 h/día (440 h/año) [DR].
-   - 1 Gerencia / Comercial: Presupuestos a medida no convertidos = 1,0 h/día (220 h/año) [DR].
-   - 1 Administración: Pasar partes a mano y reclamación de albaranes = 0,5 h/día (110 h/año) [DR].
-   - Total Empresa: 3,5 h/día = 770 h/año [C].
+3. RIGOR NORMATIVO A SEPTIEMBRE DE 2026 (SECCIÓN 2):
+   - Facturación Electrónica B2B: Citar el Real Decreto 238/2026 que aprueba el reglamento de desarrollo de la Ley 18/2022 Crea y Crece [FE]. Indicar que los formatos admitidos en el marco reglamentario español son Facturae y sintaxis UBL [FE]. Prohibido taxativamente citar Factur-X como formato reglamentario español.
+   - Veri*factu (RD 1007/2023, modificado por Real Decreto-ley 15/2025): Citar la fecha oficial vigente: 1 de enero de 2027 para sociedades y 1 de julio de 2027 para autónomos [FE]. Indicar que la empresa debe planificar la adaptación a los requisitos técnicos de inalterabilidad, conservación, accesibilidad y trazabilidad dentro de sus plazos aplicables. Prohibido hablar de obligatoriedad en 2025 o sanciones genéricas automáticas de 50.000 €.
 
-4. AUDITORÍA EXACTA DE LAS 4 PALANCAS (CONCILIACIÓN CON LA P&L):
-   Detalla cada palanca con sus cifras exactas derivadas de la P&L:
-   - Palanca 1 (Captura de 385 h [HC]): 385 h x 42 € x {ratio_margen_exacto:.5f} = +{margen_horas_p1:,} € [C].
-   - Palanca 2 (Conversión presupuestaria): 6 presupuestos extra de 300 emitidos x 1.450 € ticket = +8.700 € ventas brutas x {ratio_margen_exacto:.5f} = +{margen_conversion_p2:,} € [ES].
-   - Palanca 3 (Optimización de consumos y stock): 165.000 € en compras [DR] x 2,91% de reducción de mermas y compras de mostrador = +{ahorro_stock_p3:,} € [ES].
-   - Palanca 4 (Contratos de mantenimiento B2B): 5 nuevos contratos a 900 €/año = +4.500 € ventas x {ratio_margen_exacto:.5f} = +{margen_b2b_p4:,} € [ES].
-   - Menos coste recurrente software: -{coste_saas:,} €/año [ES].
-   - Impacto neto consolidado: {margen_horas_p1:,} + {margen_conversion_p2:,} + {ahorro_stock_p3:,} + {margen_b2b_p4:,} - {coste_saas:,} = +{mejora_neta_ebit:,} € [C].
-   - EBIT inicial ({margen_ebitda_declarado:,} €) + Mejora neta ({mejora_neta_ebit:,} €) = {ebit_ano1:,} € [C]. (Cuadre perfecto con residuo cero 0 € frente a la P&L).
+4. BENCHMARKS Y MODELOS DE TRANSFERENCIA (SECCIONES 3 Y 4):
+   - En la sección 3, calificar la comparativa con Nivel de Confianza Medio-Bajo [ES], explicando que la cifra interna es [DR] pero el rango comparativo es una referencia de trabajo interna del modelo y no un censo oficial.
+   - En la sección 4, titular: 'Modelos Teóricos de Transferencia y Patrones Operativos Típicos', indicando expresamente que son esquemas ilustrativos basados en buenas prácticas y no auditorías directas de empresas identificables.
 
-5. CUENTA DE RESULTADOS PROFORMA CON UN SOLO EBIT CUADRADO (SECCIÓN 13):
+5. METODOLOGÍA DEL SCORING 1-10 (SECCIÓN 7):
+   Incluir la tabla de baremación del diagnóstico:
+   - 1-2: Dependencia casi absoluta de procesos manuales o inexistencia de control.
+   - 3-4: Nivel inicial, procesos parcialmente informatizados sin integración móvil.
+   - 5-6: Nivel funcional pero con deficiencias operativas o retrasos de registro.
+   - 7-8: Nivel avanzado, procesos estandarizados, trazables y medidos en tiempo real.
+   - 9-10: Nivel optimizado, integración ERP completa y mejora continua automatizada.
+
+6. CONCILIACIÓN EXACTA DE LA P&L A RESIDUO CERO Y PROYECCIÓN AÑOS 2 Y 3 (SECCIÓN 13):
    Queda TERMINANTEMENTE PROHIBIDO poner dos filas de EBIT distintas para el mismo año.
    La P&L debe cuadrar matemáticamente línea por línea:
    - Año Actual [DR]: Ventas 480.000 € | Compras 165.000 € | Personal 195.000 € | Fijos 58.000 € | Software 0 € | EBIT = 62.000 € (12,9%).
    - Año 1 (Transición) [ES]: Ventas {facturacion_ano1:,} € (+{ventas_nuevas_totales:,} €) | Compras {compras_ano1:,} € ({coste_compras_recambios:,} € base + {coste_material_nuevo:,} € material nuevo - {ahorro_mermas_stock:,} € ahorro stock) | Personal {personal_ano1:,} € | Fijos {gastos_fijos_ano1:,} € | Software {opex_ano1:,} € | EBIT = {ebit_ano1:,} € ({ebit_ano1/facturacion_ano1*100:.1f}%).
-   - Año 2 (Consolidación) [ES]: Ventas 528.000 € (absorción 60% horas y 12 contratos B2B acumulados) | Compras 175.500 € | Personal 197.000 € | Fijos 58.500 € | Software 2.500 € | EBIT = 94.500 € (17,9%).
-   - Año 3 (Madurez) [OD]: Ventas 545.000 € (absorción 70% horas y 20 contratos B2B acumulados) | Compras 180.000 € | Personal 201.000 € | Fijos 59.000 € | Software 2.500 € | EBIT = 102.500 € (18,8%).
+     * Cuadre exacto de palancas derivado de P&L: Horas capturadas +{margen_horas_p1:,} € [C] + Conversión +{margen_conversion_p2:,} € [ES] + Ahorro stock +{ahorro_stock_p3:,} € [ES] + Contratos B2B +{margen_b2b_p4:,} € [ES] - Software {coste_saas:,} € [ES] = +{mejora_neta_ebit:,} € [C] -> EBIT inicial {margen_ebitda_declarado:,} € + {mejora_neta_ebit:,} € = {ebit_ano1:,} € [C] (Residuo: 0,00 €).
+   - Años 2 y 3 (Transparencia en compras): Declarar explícitamente como [HC] que el ratio de compras de material mejora del 34,38% al 32,5% en Año 2 (ventas 528.000 € | compras 171.600 € | EBIT 98.400 €) y al 31,0% en Año 3 (ventas 545.000 € | compras 168.950 € | EBIT 114.550 €) debido a economías de escala en compras agrupadas y erradicación de urgencias en mostrador.
+   - Presentar un contraste transparente entre el Escenario A (Transformación + Crecimiento Comercial) y el Escenario B (Eficiencia Pura a Facturación Constante de 480.000 € con EBIT de 78.500 €).
 
-6. RIGOR EN BENCHMARKS Y MODELOS DE TRANSFERENCIA:
-   - En la sección 3, califica la comparativa de Facturación por Empleado con Nivel de Confianza Medio-Bajo [ES], aclarando que el dato interno es [DR] pero el rango de 75.000-95.000 € es un rango de trabajo interno.
-   - En la sección 4, titula explícitamente: "Modelos Teóricos de Transferencia y Patrones Operativos Típicos", indicando al inicio que son esquemas ilustrativos basados en buenas prácticas y no auditorías directas de empresas identificables.
+7. PLIEGO DE REQUISITOS TÉCNICOS (SECCIÓN 10):
+   En lugar de exigir 'homologación oficial Veri*factu', exigir:
+   "Declaración responsable y documentación técnica del fabricante que garantice la inalterabilidad, conservación, accesibilidad, legibilidad, trazabilidad e integridad de los registros de facturación de conformidad con el RD 1007/2023 y normativa de desarrollo."
 
-7. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
+8. DICTAMEN FINAL DEL CONSULTOR (CONCLUSIÓN):
+   Redactar el cierre formal con lenguaje prudente y defendible:
+   "Con base en la información facilitada por la empresa, los cálculos derivados y los supuestos explicitados en el escenario económico, la inversión prevista de 6.500 € presenta un potencial de retorno favorable bajo el escenario base planteado.
+   El escenario contempla la recuperación del 50% de las horas actualmente identificadas como improductivas, junto con mejoras adicionales en conversión de presupuestos, control de consumos y captación de contratos preventivos.
+   El payback estimado de 7,4 meses debe interpretarse como payback teórico condicionado al cumplimiento de dichos supuestos, y no como un resultado garantizado. La fase de validación operativa de los primeros 30 días permitirá medir la capacidad real de conversión de las horas recuperadas y recalibrar las proyecciones económicas.
+   Desde el punto de vista operativo, se recomienda priorizar en una primera fase el desbloqueo de capacidad instalada y la estandarización de procesos antes de acometer incrementos estructurales de plantilla, reevaluando la necesidad de incorporaciones tras medir la utilización efectiva posterior a la implantación."
+
+9. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
    - Inicia obligatoriamente con el bloque ```json ... ```:
      {{
        "trends": [
@@ -687,67 +699,6 @@ REGLAS EDITORIALES Y DE CUADRE CONTABLE ESTRICTO:
        }}
      }}
      Orden exacto de gap_analysis: [Digitalización, Eficiencia Operativa, Control de Margen, Cartera B2B, Capacidad de Adaptación].
-
-======================================================================
-ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
-======================================================================
-# INFORME DE AUDITORÍA OPERATIVA, DIAGNÓSTICO DE CAPACIDAD Y PLAN ESTRATÉGICO
-
-## 0. Marco Metodológico y Trazabilidad de la Información
-(Nota metodológica formal sobre fuente de datos, clasificación de etiquetas [DR], [C], [FE], [ES], [HC], [OD] y límites del estudio).
-
-## Resumen Ejecutivo: Decisiones Prioritarias y Cuadro de Mando
-(Tabla: Decisión directiva | Plazo | Responsable | Coste previsto | Impacto esperado en rentabilidad).
-(Contraste sobrio con las prioridades manifestadas por la dirección).
-
-## 1. Diagnóstico de Eficiencia, Costes Salariales y Capacidad Productiva
-(Estructura analítica de costes. Coste medio horario de la plantilla: [C] {coste_hora_medio_plantilla:.2f} €/h).
-(Tabla de desglose de las 770 h/año agregadas por perfil. Cuantificación del coste salarial improductivo: [C] {coste_salarial_improductivo:,} €/año y capacidad teórica liberable: [C] {horas_totales_no_fac * precio_hora_mano_obra:,.0f} €/año con nota aclaratoria de tarifas).
-
-## 2. Marco Normativo y Adaptación Técnica (Septiembre 2026)
-(Calendario oficial de Veri*factu RD 1007/2023 modificado [FE] y Facturación Electrónica B2B [FE] en sus plazos reales para sociedades y autónomos).
-
-## 3. Comparativa Operativa y Rangos de Referencia Internos
-(Tabla: Variable analizada | Situación de la empresa [DR] | Rango de Referencia de Trabajo [ES] | Objetivo de Dirección [OD] | Nivel de Confianza calificado honestamente como Medio-Bajo ante ausencia de anuario oficial).
-
-## 4. Modelos Teóricos de Transferencia y Patrones Operativos Típicos
-(Dos modelos ilustrativos basados en buenas prácticas sectoriales, señalando que son patrones arquetípicos y no auditorías directas de empresas identificables).
-
-## 5. Dinámicas del Entorno y Repercusión en el Negocio
-(Tendencias sectoriales relevantes y consecuencias prácticas para la organización del trabajo).
-
-## 6. Mapa de Tendencias y Prioridades de Gestión
-(Clasificación de prioridades: 0-6 meses / 6-18 meses / 18-36 meses y mapa cartesiano de impacto).
-
-## 7. Evaluación de Brecha Operativa
-(Análisis fundamentado de las 5 dimensiones comparativas de la empresa, calificando Control de Margen como Brecha Media).
-
-## 8. Análisis de Escenarios Plausibles de Evolución
-(Cruce de incertidumbres principales con niveles de plausibilidad e inductores de seguimiento. Contraste con la estimación de la dirección).
-
-## 9. Despliegue Temporal Inverso: Objetivos a {horizonte} Años
-(Definición del estado objetivo a {horizonte} años y retroceso temporal: hitos a consolidar en Año 2 y en Año 1).
-
-## 10. Pliego Técnico y Selección de Soluciones: Build / Buy / Partner
-(Pliego de 10 requisitos técnicos obligatorios para pedir 3 ofertas comerciales comparables de software SAT/FSM).
-
-## 11. Fase de Validación Operativa (Días 1 a 30)
-(Protocolo de medición de tiempos reales en campo para calibrar la tasa de captura [HC] sobre las 770 h diagnosticadas).
-
-## 12. Matriz de Riesgos Operativos y Mitigación
-(Tabla de 5 riesgos: resistencia al cambio, adopción de la app móvil, costes ocultos, desajuste de stock e inercia comercial con probabilidad, impacto y plan de contingencia).
-
-## 13. Cuenta de Resultados Proforma a 36 Meses y Justificación del EBIT
-(Tabla Proforma: Actual | Año 1 | Año 2 | Año 3 con UN SOLO EBIT derivado de ingresos menos gastos).
-(Desglose de las 4 palancas que sustentan el crecimiento de facturación y margen con cuadre exacto a 0,00 €).
-
-## 14. Vías de Financiación y Optimización de Costes ({pais_region})
-(Líneas de ayuda y bonificaciones FUNDAE [FE], con salvaguarda sobre convocatorias vigentes y bases reguladoras).
-
-## 15. Plan de Acción, Presupuesto CAPEX/OPEX y Retorno de la Inversión (Playbook 30-90-180 Días)
-(Cronograma con acciones, responsables asignados, dependencias técnicas y progresión de indicadores).
-(Presupuesto desglosado: CAPEX inicial de {capex_inicial:,} € [ES] + OPEX anual de {opex_anual_saas:,} €/año [ES], totalizando {inversion_total_ano1:,} € en el Año 1 [ES] frente a los {presupuesto_disponible:,} € disponibles reportados [DR]).
-(Tabla rigurosa de sensibilidad del Payback calculada sobre margen de contribución de {margen_por_hora_calc:.2f} €/h al 25%, 50% y 75% de recuperación horaria [HC]).
 """
 
                 partes_contenido = []
@@ -792,14 +743,19 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                     json_str = match.group(1)
                     datos_graficos = json.loads(json_str)
 
+                    # Limpieza editorial de anclas residuales
+                    informe_limpio = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
+                    informe_limpio = re.sub(r"\[svg\]\(.*?\)", "", informe_limpio)
+
                     st.session_state["datos_contexto"] = texto_salida
-                    st.session_state["informe_generado"] = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
+                    st.session_state["informe_generado"] = informe_limpio
                     st.session_state["datos_graficos"] = datos_graficos
 
                     st.success("Evaluación cuantitativa y plan estratégico elaborados con éxito.")
 
                 else:
-                    st.session_state["informe_generado"] = texto_salida
+                    texto_limpio = re.sub(r"\[svg\]\(.*?\)", "", texto_salida)
+                    st.session_state["informe_generado"] = texto_limpio
                     st.session_state["datos_contexto"] = texto_salida
 
             except Exception as e:
@@ -891,7 +847,7 @@ Tu objetivo es responder al dueño de la empresa con total claridad, sensatez, c
 REGLAS DE RESPUESTA:
 1. Responde a la pregunta basándote EXCLUSIVAMENTE en los datos, cifras contables y conclusiones de este informe.
 2. Cita las cifras reales y calculadas: facturación ([DR] 480.000 €), 3,5 h/día agregadas ([DR]/[C] 770 h/año), coste horario medio ([C] {coste_hora_medio_plantilla:.2f} €/h), coste improductivo ([C] {coste_salarial_improductivo:,} €), inversión Año 1 ([ES] 6.500 € desglosada en [ES] 4.000 € CAPEX y [ES] 2.500 € OPEX SaaS recurrente).
-3. Si te preguntan sobre la cuenta proforma, explica que la facturación crece a {facturacion_ano1:,} € en el Año 1 debido a la monetización de horas liberadas, presupuestos adicionales y contratos B2B, dando un EBIT único de {ebit_ano1:,} € ({ebit_ano1/facturacion_ano1*100:.1f}%), plenamente conciliado con la suma de palancas.
+3. Si te preguntan sobre la cuenta proforma, explica que la facturación crece a {facturacion_ano1:,} € en el Año 1 debido a la monetización de horas liberadas, presupuestos adicionales y contratos B2B, dando un EBIT único de {ebit_ano1:,} € ({ebit_ano1/facturacion_ano1*100:.1f}%), plenamente conciliado con la suma de palancas a residuo 0,00 €.
 4. Explica la diferencia entre dato reportado [DR], cálculo exacto [C] e hipótesis de cálculo [HC].
 5. No inventes datos que no figuren en el informe y mantén un lenguaje accesible y pedagógico.
 
