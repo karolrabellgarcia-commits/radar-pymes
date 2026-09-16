@@ -9,27 +9,36 @@ import streamlit as st
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
-    page_title="Informe de Diagnóstico Operativo y Plan de Acción",
-    page_icon="📄",
+    page_title="Evaluación Operativa y Plan Estratégico",
+    page_icon="📋",
     layout="wide",
 )
 
-# Estilos CSS para sobriedad editorial de consultoría
+# Estilos CSS de sobriedad editorial de dirección
 st.markdown(
     """
     <style>
-    .metric-box {
-        background-color: #f8f9fa;
-        border-left: 4px solid #1f2937;
-        padding: 12px 16px;
+    .metric-card {
+        background-color: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 16px;
         margin-bottom: 12px;
     }
-    .callout-warning {
-        background-color: #fbfbfb;
-        border-left: 4px solid #b45309;
+    .callout-legal {
+        background-color: #f8fafc;
+        border-left: 3px solid #0f172a;
         padding: 12px 16px;
-        margin: 10px 0;
+        margin: 12px 0;
         font-size: 0.92rem;
+        color: #334155;
+    }
+    .assistant-card {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 20px;
     }
     </style>
     """,
@@ -38,7 +47,7 @@ st.markdown(
 
 st.title("Auditoría Operativa y Plan de Acción Estratégico")
 st.markdown(
-    "Plataforma de evaluación cuantitativa, análisis de brecha operativa y priorización estratégica para pymes."
+    "Herramienta cuantitativa de evaluación de capacidad productiva, análisis comparativo y prioridades de gestión para pymes."
 )
 st.markdown("---")
 
@@ -48,49 +57,51 @@ with st.sidebar:
     api_key_usuario = st.text_input(
         "Clave de API (Gemini):",
         type="password",
-        help="Introduce tu clave personal de acceso a la API.",
+        help="Introduce tu clave personal de acceso a la API de Google AI Studio.",
     )
     st.markdown("---")
-    st.markdown("### Código de Evidencia Documental")
+    st.markdown("### Marco de Evidencia Documental")
     st.caption(
         """
-        • **[DR] Dato Real:** Aportado por la empresa o extraído de balances.\n
-        • **[FE] Fuente Externa:** Estadísticas públicas y estudios contrastados.\n
-        • **[ES] Estimación:** Cálculo derivado sobre las variables del modelo.\n
-        • **[HC] Hipótesis:** Supuesto operativo sujeto a contraste.\n
+        • **[DR] Dato Real:** Aportado por la empresa o extraído de estados contables.\n
+        • **[FE] Fuente Externa:** Estadísticas públicas y anuarios contrastados.\n
+        • **[ES] Estimación:** Cálculo derivado a partir de los datos aportados.\n
+        • **[HC] Hipótesis:** Supuesto operativo sujeto a validación en campo.\n
         • **[OD] Objetivo:** Meta establecida en el plan de trabajo.
         """
     )
 
-# --- SISTEMA DINÁMICO DE PUNTUACIÓN DE PRECISIÓN ---
-score_precision = 40
+# Variables de sesión para el Asistente Interactivo
+if "informe_generado" not in st.session_state:
+    st.session_state["informe_generado"] = None
+if "datos_contexto" not in st.session_state:
+    st.session_state["datos_contexto"] = ""
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
 
 # --- FORMULARIO ESTRUCTURADO EN 5 FASES ---
 tab_gen, tab_fin, tab_ops, tab_mkt, tab_vision = st.tabs([
-    "1. Estructura y Equipo",
-    "2. Información Financiera",
-    "3. Circuito Comercial y Operativo",
-    "4. Mercado y Posicionamiento",
+    "1. Estructura y Capacidad",
+    "2. Datos Económicos",
+    "3. Circuito Comercial y Tiempos",
+    "4. Clientes y Diferenciación",
     "5. Dirección, Plan e Inversión",
 ])
 
-# =====================================================================
-# FASE 1: DATOS GENERALES, EQUIPO Y FLOTA
-# =====================================================================
 with tab_gen:
-    st.markdown("#### Identificación Corporativa y Capacidad Operativa")
+    st.markdown("#### Identificación Corporativa y Equipo")
     g1, g2, g3 = st.columns(3)
     with g1:
         sector = st.text_input(
-            "Sector y actividad principal:",
+            "Actividad o sector principal:",
             value="Instalación y mantenimiento de climatización y aerotermia",
         )
         subsector = st.text_input(
-            "Subsector o especialidad:",
-            value="Frío industrial para hostelería y residencial premium",
+            "Especialidad operativa:",
+            value="Frío comercial para hostelería y climatización residencial de alta gama",
         )
         pais_region = st.text_input(
-            "Ámbito territorial:",
+            "Ámbito territorial de actuación:",
             value="España (Comunidad Valenciana)",
         )
     with g2:
@@ -100,42 +111,39 @@ with tab_gen:
             max_value=2026,
             value=2012,
         )
-        if ano_creacion != 2012:
-            score_precision += 4
-
         tamano_equipo = st.number_input(
-            "Plantilla total (personas):",
+            "Plantilla total de la empresa (personas):",
             min_value=1,
             max_value=500,
             value=6,
         )
         operarios_directos = st.number_input(
-            "Técnicos directos en campo/taller:",
+            "Técnicos directos en campo/obra/taller:",
             min_value=1,
             max_value=500,
             value=4,
         )
     with g3:
         personal_admin = st.number_input(
-            "Personal en soporte/administración:",
+            "Personal de soporte administrativo:",
             min_value=0,
             max_value=50,
             value=1,
         )
         personal_comercial = st.number_input(
-            "Personal dedicado a desarrollo comercial:",
+            "Personal dedicado a captación y ventas:",
             min_value=0,
             max_value=50,
             value=1,
         )
-        tiene_flota = st.checkbox("La empresa cuenta con vehículos o furgonetas operativas", value=True)
+        tiene_flota = st.checkbox("La empresa cuenta con flota de furgonetas o vehículos", value=True)
 
     if tiene_flota:
         st.markdown("##### Gestión de Vehículos Operativos")
         f1, f2 = st.columns(2)
         with f1:
             num_vehiculos = st.number_input(
-                "Número de furgonetas o vehículos de servicio:",
+                "Número de furgonetas de servicio:",
                 min_value=1,
                 max_value=100,
                 value=4,
@@ -144,31 +152,26 @@ with tab_gen:
             control_stock_vehiculos = st.selectbox(
                 "Procedimiento actual de control de material en vehículo:",
                 [
-                    "Sin registro formal / Los operarios reponen material según necesidad",
+                    "Sin registro formal / Los operarios reponen según necesidad",
                     "Registro manual en papel al inicio y fin de jornada",
                     "Hojas de cálculo periódicas",
                     "Identificación digital (códigos QR / aplicación móvil)",
                 ],
             )
-        score_precision += 6
     else:
         num_vehiculos = 0
         control_stock_vehiculos = "Sin flota de vehículos"
 
-# =====================================================================
-# FASE 2: FINANZAS, COBROS Y SUBIDA DE DOCUMENTOS
-# =====================================================================
 with tab_fin:
     st.markdown("#### Cuenta de Explotación y Tesorería")
     
     archivo_subido = st.file_uploader(
-        "Adjuntar balance, cuenta de pérdidas y ganancias o listado contable (PDF, Excel, CSV) (opcional):",
+        "Adjuntar balance de sumas y saldos, pérdidas y ganancias o listado contable (PDF, Excel, CSV) (opcional):",
         type=["pdf", "xlsx", "xls", "csv"],
         help="Permite cotejar partidas contables exactas y documentar las cifras con rigor.",
     )
     if archivo_subido is not None:
-        score_precision += 15
-        st.info(f"Documento incorporado: **{archivo_subido.name}**. El análisis contrastará los datos con este estado financiero.")
+        st.info(f"Documento incorporado: **{archivo_subido.name}**. Se cotejarán los datos contables directamente.")
 
     fn1, fn2, fn3 = st.columns(3)
     with fn1:
@@ -186,18 +189,16 @@ with tab_fin:
             value=450000,
             step=10000,
         )
-        if facturacion_anterior > 0:
-            score_precision += 5
     with fn2:
         coste_personal = st.number_input(
-            "Coste total anual de personal (Nóminas + Seguridad Social) (€):",
+            "Coste total anual de personal (Nóminas brutas + Seguridad Social) (€):",
             min_value=5000,
             max_value=30000000,
             value=195000,
             step=5000,
         )
         coste_compras_recambios = st.number_input(
-            "Consumo de materiales, repuestos y aprovisionamientos (€):",
+            "Consumo anual de materiales, repuestos y compras (€):",
             min_value=0,
             max_value=30000000,
             value=165000,
@@ -205,21 +206,20 @@ with tab_fin:
         )
     with fn3:
         gastos_fijos = st.number_input(
-            "Gastos generales de estructura (Alquiler, suministros, seguros) (€):",
+            "Gastos fijos de estructura (Alquiler, suministros, seguros, asesoría) (€):",
             min_value=1000,
             max_value=10000000,
             value=58000,
             step=2000,
         )
         margen_ebitda_declarado = st.number_input(
-            "Resultado de explotación o beneficio neto estimado (€):",
+            "Beneficio antes de impuestos aproximado declarado (€):",
             min_value=-500000,
             max_value=10000000,
             value=62000,
             step=2000,
         )
 
-    # Cálculos analíticos de balance
     costes_totales = coste_personal + coste_compras_recambios + gastos_fijos
     resultado_teorico = facturacion_anual - costes_totales
     discrepancia_contable = abs(resultado_teorico - margen_ebitda_declarado)
@@ -229,20 +229,20 @@ with tab_fin:
     st.markdown("##### Ratios Derivados de Explotación")
     cf1, cf2, cf3 = st.columns(3)
     cf1.metric("Facturación por Empleado", f"{facturacion_por_empleado:,.0f} €/año")
-    cf2.metric("Margen Bruto de Contribución", f"{margen_bruto_pct:.2f} %")
+    cf2.metric("Margen de Contribución sobre Materiales", f"{margen_bruto_pct:.2f} %")
     cf3.metric("Resultado Teórico Calculado", f"{resultado_teorico:,.0f} €")
 
     if discrepancia_contable > 5000:
         st.markdown(
             f"""
-            <div class="callout-warning">
-            <b>Nota de limitación contable:</b> La resta de Facturación declarada ({facturacion_anual:,.0f} €) y Gastos totales ({costes_totales:,.0f} €) arroja un resultado de {resultado_teorico:,.0f} €, que no coincide con el beneficio indicado de {margen_ebitda_declarado:,.0f} €. Por criterio de cautela, el estudio se centrará en capacidad horaria y márgenes unitarios.
+            <div class="callout-legal">
+            <b>Nota sobre información económica:</b> La diferencia entre ingresos declarados ({facturacion_anual:,.0f} €) y gastos totales ({costes_totales:,.0f} €) refleja un resultado de {resultado_teorico:,.0f} €, distinto del beneficio indicado ({margen_ebitda_declarado:,.0f} €). El informe tomará como referencia la capacidad horaria productiva hasta la verificación de la cuenta de pérdidas y ganancias.
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with st.expander("Detalle de plazos de cobro y saldo pendiente (opcional)"):
+    with st.expander("Plazos de cobro y saldo pendiente de cobro (opcional)"):
         dias_cobro = st.number_input(
             "Periodo medio de cobro a clientes (días):",
             min_value=0,
@@ -250,30 +250,25 @@ with tab_fin:
             value=65,
         )
         saldo_pendiente_cobro = st.number_input(
-            "Importe pendiente de cobro fuera del plazo pactado (€):",
+            "Saldo pendiente de cobro vencido (€):",
             min_value=0,
             max_value=5000000,
             value=18000,
             step=1000,
         )
-        if saldo_pendiente_cobro > 0:
-            score_precision += 6
 
-# =====================================================================
-# FASE 3: VENTAS, PRESUPUESTOS Y OPERACIONES
-# =====================================================================
 with tab_ops:
-    st.markdown("#### Proceso Comercial y Cuellos de Botella de Ejecución")
+    st.markdown("#### Circuito Comercial y Cuellos de Botella de Ejecución")
     op1, op2, op3 = st.columns(3)
     with op1:
         presupuestos_mes = st.number_input(
-            "Presupuestos emitidos mensualmente (promedio):",
+            "Número aproximado de presupuestos emitidos al mes:",
             min_value=1,
             max_value=5000,
             value=25,
         )
         tasa_conversion_presupuestos = st.slider(
-            "Tasa estimada de aceptación de presupuestos (%):",
+            "Porcentaje estimado de presupuestos aceptados (%):",
             min_value=5,
             max_value=100,
             value=35,
@@ -292,10 +287,10 @@ with tab_ops:
             max_value=16.0,
             value=3.5,
             step=0.5,
-            help="Comprende presupuestos no convertidos, trámites de partes de trabajo y coordinación.",
+            help="Comprende presupuestos no aceptados, elaboración manual de partes y llamadas de coordinación.",
         )
         quien_hace_presupuestos = st.selectbox(
-            "Responsable habitual de la elaboración de presupuestos:",
+            "Responsable habitual de elaborar los presupuestos:",
             [
                 "Dirección / Gerencia",
                 "Técnicos especialistas durante jornada de trabajo",
@@ -304,7 +299,7 @@ with tab_ops:
             ],
         )
         precio_hora_mano_obra = st.number_input(
-            "Tarifa horaria facturada al cliente (€/h sin IVA):",
+            "Tarifa horaria facturada de mano de obra (€/h sin IVA):",
             min_value=15,
             max_value=300,
             value=42,
@@ -312,7 +307,7 @@ with tab_ops:
         )
     with op3:
         tiempo_cierre_factura = st.selectbox(
-            "Plazo habitual entre ejecución del servicio y emisión de factura:",
+            "Plazo habitual entre finalización del trabajo y emisión de factura:",
             [
                 "Misma jornada (in situ o procedimiento automático)",
                 "Entre 24 y 48 horas",
@@ -321,7 +316,7 @@ with tab_ops:
             ],
         )
         origen_clientes = st.selectbox(
-            "Vía principal de captación de clientela:",
+            "Canal principal de llegada de nuevos clientes:",
             [
                 "Recomendaciones directas y clientes recurrentes",
                 "Búsqueda orgánica en internet y presencia local",
@@ -345,11 +340,8 @@ with tab_ops:
         height=90,
     )
 
-# =====================================================================
-# FASE 4: CLIENTES, COMPETENCIA Y DIFERENCIACIÓN
-# =====================================================================
 with tab_mkt:
-    st.markdown("#### Segmentación de Clientes y Factores Competitivos")
+    st.markdown("#### Segmentación de Clientes y Diferenciación")
     m1, m2 = st.columns(2)
     with m1:
         porcentaje_b2c = st.slider(
@@ -362,7 +354,7 @@ with tab_mkt:
         st.caption(f"Proporción de ingresos procedente de empresas/terciario: **{porcentaje_b2b}%**")
 
         ingresos_recurrentes_pct = st.slider(
-            "Proporción de ingresos bajo contratos de mantenimiento o cuota periódica (%):",
+            "Proporción de ingresos bajo contratos de mantenimiento periódico (%):",
             min_value=0,
             max_value=100,
             value=15,
@@ -373,25 +365,20 @@ with tab_mkt:
             value="Grandes empresas de servicios energéticos y comercializadoras con contratos cerrados de mantenimiento",
         )
         ventaja_competitiva = st.text_input(
-            "Ventaja competitiva actual (motivo principal de elección):",
+            "Factor diferencial actual (motivo principal de contratación):",
             value="Capacidad de respuesta técnica con plazo inferior a 3 horas en averías críticas de hostelería local",
         )
 
-    with st.expander("Concentración de ingresos por clientes (opcional)"):
+    with st.expander("Concentración de clientes en facturación (opcional)"):
         top5_concentracion = st.slider(
             "Porcentaje de facturación concentrado en los 5 principales clientes (%):",
             min_value=5,
             max_value=100,
             value=30,
         )
-        if top5_concentracion != 30:
-            score_precision += 5
 
-# =====================================================================
-# FASE 5: ESTRATEGIA, VISIÓN 3 AÑOS E INVERSIÓN
-# =====================================================================
 with tab_vision:
-    st.markdown("#### Plan Estratégico y Capacidad Financiera")
+    st.markdown("#### Prioridades Estratégicas y Presupuesto")
     v1, v2 = st.columns(2)
     with v1:
         presupuesto_disponible = st.number_input(
@@ -402,7 +389,7 @@ with tab_vision:
             step=500,
         )
         horizonte = st.slider(
-            "Horizonte temporal del análisis (años):",
+            "Periodo de planificación del estudio (años):",
             min_value=1,
             max_value=5,
             value=3,
@@ -411,17 +398,17 @@ with tab_vision:
             "Prioridad estratégica directiva:",
             [
                 "Incrementar el margen neto y la rentabilidad sobre la estructura actual",
-                "Ampliar volumen de facturación y captar cuota de mercado en segmento empresas",
+                "Ampliar volumen de facturación y captar cuota en empresas",
                 "Reducir la dependencia operativa del equipo directivo",
                 "Contener costes y estandarizar procedimientos de trabajo",
             ],
         )
 
     with v2:
-        st.markdown("##### Evaluación de Perspectiva Directiva")
+        st.markdown("##### Perspectiva y Criterio Directivo")
         pregunta_115_inaccion = st.text_area(
             "Impacto previsto si no se introducen cambios en el periodo considerado:",
-            value="Los márgenes operativos tenderán a reducirse por la evolución de costes de personal, competidores de mayor tamaño captarán clientes pyme mediante ofertas empaquetadas y se deteriorará la rentabilidad.",
+            value="Los márgenes operativos tenderán a reducirse por la evolución de costes salariales, competidores integrados captarán clientes locales con cuotas empaquetadas y se deteriorará la rentabilidad.",
             height=70,
         )
         pregunta_116_deseo = st.text_area(
@@ -430,309 +417,205 @@ with tab_vision:
             height=70,
         )
 
-    score_precision = min(score_precision + 15, 100)
-
-# --- VISUALIZACIÓN DEL NIVEL DE PRECISIÓN ---
-st.markdown("---")
-col_bar1, col_bar2 = st.columns([3, 1])
-with col_bar1:
-    st.progress(score_precision / 100)
-with col_bar2:
-    if score_precision >= 85:
-        st.markdown(f"**Nivel de Precisión de Auditoría: {score_precision}%** (Estándar Directivo)")
-    elif score_precision >= 65:
-        st.markdown(f"**Nivel de Precisión de Auditoría: {score_precision}%** (Nivel Avanzado)")
-    else:
-        st.markdown(f"**Nivel de Precisión de Auditoría: {score_precision}%** (Diagnóstico Preliminar)")
-
 # =====================================================================
-# FUNCIONES GRÁFICAS (PLOTLY) - ESTILO EDITORIAL SOBRIO
+# FUNCIONES GRÁFICAS EJECUTIVAS
 # =====================================================================
-def render_trend_radar(trends_data):
-    horizon_map = {
-        "Prioridad inmediata (0-6 meses)": 1,
-        "Preparación (6-18 meses)": 2,
-        "Seguimiento (18-36 meses)": 3,
-        "Act": 1,
-        "Prepare": 2,
-        "Watch": 3,
+def render_trend_matrix(trends_data):
+    """Renderiza un mapa cartesiano 2x2 sobrio (Impacto vs. Certidumbre/Horizonte)."""
+    horiz_scores = {
+        "Prioridad inmediata (0-6 meses)": 1.5,
+        "Preparación (6-18 meses)": 5.0,
+        "Seguimiento (18-36 meses)": 8.5,
     }
-    quadrant_angle = {
-        "Tecnología": 45,
-        "Operaciones": 135,
-        "Modelo de Negocio": 225,
-        "Mercado": 315,
-        "Mercado / Cliente": 315,
-    }
-
-    plot_rows = []
+    
+    nombres, x_vals, y_vals, descripciones = [], [], [], []
     for t in trends_data:
-        h_val = t.get("horizon", "Prepare")
-        base_r = horizon_map.get(h_val, 2)
-        q_val = t.get("quadrant", "Tecnología")
-        base_theta = quadrant_angle.get(q_val, 45)
+        h_str = t.get("horizon", "Preparación (6-18 meses)")
+        h_score = horiz_scores.get(h_str, 5.0)
         impact = t.get("impact", 5)
+        nombres.append(t.get("name", "Tendencia"))
+        x_vals.append(h_score)
+        y_vals.append(impact)
+        descripciones.append(f"Área: {t.get('quadrant', 'Operaciones')}<br>Impacto estimado: {impact}/10<br>Plazo: {h_str}")
 
-        r_jitter = base_r + (impact - 5) * 0.04
-        theta_jitter = (base_theta + (hash(t.get("name", "")) % 30) - 15) % 360
-
-        plot_rows.append({
-            "name": t.get("name"),
-            "r": r_jitter,
-            "theta": theta_jitter,
-            "horizon": h_val,
-            "quadrant": q_val,
-            "impact": impact,
-        })
-
-    df = pd.DataFrame(plot_rows)
     fig = go.Figure()
 
-    # Trazas con paleta sobria (azul pizarra corporativo y gris oscuro)
+    # Puntos de las tendencias
     fig.add_trace(
-        go.Scatterpolar(
-            r=df["r"],
-            theta=df["theta"],
+        go.Scatter(
+            x=x_vals,
+            y=y_vals,
             mode="markers+text",
-            text=df["name"],
+            text=nombres,
             textposition="top center",
-            textfont=dict(family="Arial", size=10, color="#1f2937"),
-            marker=dict(
-                size=df["impact"] * 2.2,
-                color="#2563eb",
-                line=dict(color="#1e3a8a", width=1.5),
-                opacity=0.85,
-            ),
-            hovertemplate="<b>%{text}</b><br>Cuadrante: %{customdata[0]}<br>Impacto: %{customdata[1]}/10<extra></extra>",
-            customdata=df[["quadrant", "impact"]],
-            showlegend=False,
+            textfont=dict(family="Arial", size=10, color="#1e293b"),
+            marker=dict(size=12, color="#1e40af", line=dict(width=1.5, color="#0f172a")),
+            hoverinfo="text",
+            hovertext=descripciones,
         )
     )
 
+    # Líneas divisorias de cuadrantes
+    fig.add_hline(y=5.5, line_dash="dot", line_color="#cbd5e1", line_width=1.5)
+    fig.add_vline(x=5.0, line_dash="dot", line_color="#cbd5e1", line_width=1.5)
+
+    # Anotaciones de cuadrantes ejecutivos
+    fig.add_annotation(x=2.5, y=9.5, text="ACTUACIÓN INMEDIATA<br>(Alto impacto / Corto plazo)", showarrow=False, font=dict(size=10, color="#475569"))
+    fig.add_annotation(x=7.5, y=9.5, text="PREPARACIÓN ESTRATÉGICA<br>(Alto impacto / Medio-largo plazo)", showarrow=False, font=dict(size=10, color="#475569"))
+    fig.add_annotation(x=2.5, y=1.5, text="OPTIMIZACIÓN TÁCTICA<br>(Impacto moderado / Corto plazo)", showarrow=False, font=dict(size=10, color="#475569"))
+    fig.add_annotation(x=7.5, y=1.5, text="MONITORIZACIÓN<br>(Impacto moderado / Largo plazo)", showarrow=False, font=dict(size=10, color="#475569"))
+
     fig.update_layout(
-        polar=dict(
-            bgcolor="#ffffff",
-            radialaxis=dict(
-                visible=True,
-                range=[0, 3.5],
-                tickvals=[1, 2, 3],
-                ticktext=[
-                    "Prioridad inmediata (0-6m)",
-                    "Preparación (6-18m)",
-                    "Seguimiento (18-36m)",
-                ],
-                tickfont=dict(size=9, color="#4b5563"),
-                linecolor="#e5e7eb",
-                gridcolor="#f3f4f6",
-            ),
-            angularaxis=dict(
-                tickvals=[45, 135, 225, 315],
-                ticktext=["Tecnología", "Operaciones", "Modelo de Negocio", "Mercado"],
-                tickfont=dict(size=11, color="#111827", family="Arial"),
-                linecolor="#d1d5db",
-                gridcolor="#f3f4f6",
-                direction="clockwise",
-            ),
-        ),
+        title=dict(text="Mapa de Tendencias y Prioridades de Gestión", font=dict(size=13, color="#0f172a")),
+        xaxis=dict(title="Horizonte Temporal de Actuación", range=[0, 10], tickvals=[1.5, 5.0, 8.5], ticktext=["0-6 meses", "6-18 meses", "18-36 meses"], showgrid=False),
+        yaxis=dict(title="Nivel de Impacto en Rentabilidad y Operaciones", range=[0, 11], tickvals=[2, 4, 6, 8, 10], showgrid=True, gridcolor="#f1f5f9"),
+        plot_bgcolor="#ffffff",
         paper_bgcolor="#ffffff",
-        title=dict(
-            text="Mapa de Tendencias y Prioridades Estratégicas",
-            font=dict(size=14, color="#111827", family="Arial"),
-            x=0.02,
-        ),
-        margin=dict(l=40, r=40, t=60, b=40),
-        height=520,
+        height=480,
+        margin=dict(l=50, r=40, t=50, b=50),
     )
     return fig
 
 
-def render_gap_radar(gap_data):
+def render_gap_bars(gap_data):
+    """Renderiza una gráfica horizontal comparativa limpia sin escalas ASCII."""
     categories = [
         "Digitalización",
         "Eficiencia Operativa",
         "Control de Margen",
         "Cartera B2B",
-        "Agilidad Estratégica",
+        "Capacidad de Adaptación",
     ]
-
     pyme_scores = gap_data.get("pyme", [2, 4, 4, 5, 3])
-    media_scores = gap_data.get("benchmark_orientativo", [5, 5, 5, 5, 4])
-    aspiracional_scores = gap_data.get("benchmark_aspiracional", [8, 8, 8, 8, 8])
+    ref_scores = gap_data.get("benchmark_orientativo", [5, 5, 5, 5, 4])
+    target_scores = gap_data.get("benchmark_aspiracional", [8, 8, 8, 8, 8])
 
     fig = go.Figure()
 
-    # Nivel actual: Gris oscuro
+    # Situación actual [DR]
     fig.add_trace(
-        go.Scatterpolar(
-            r=pyme_scores,
-            theta=categories,
-            fill="toself",
-            fillcolor="rgba(31, 41, 55, 0.15)",
-            line=dict(color="#1f2937", width=2),
+        go.Bar(
+            y=categories,
+            x=pyme_scores,
+            orientation="h",
             name="Situación Actual [DR]",
+            marker=dict(color="#334155"),
+            width=0.25,
         )
     )
-    # Referencia sectorial: Gris claro punteado
+    # Referencia sectorial [ES]
     fig.add_trace(
-        go.Scatterpolar(
-            r=media_scores,
-            theta=categories,
-            fill="none",
-            line=dict(color="#9ca3af", width=1.5, dash="dash"),
+        go.Scatter(
+            y=categories,
+            x=ref_scores,
+            mode="markers",
             name="Referencia Orientativa [ES]",
+            marker=dict(color="#94a3b8", size=11, symbol="line-ns", line=dict(width=3, color="#64748b")),
         )
     )
-    # Referencia de mejora: Azul corporativo sobrio
+    # Referencia de mejora [OD]
     fig.add_trace(
-        go.Scatterpolar(
-            r=aspiracional_scores,
-            theta=categories,
-            fill="none",
-            line=dict(color="#1e40af", width=2),
+        go.Scatter(
+            y=categories,
+            x=target_scores,
+            mode="markers",
             name="Referencia de Mejora [OD]",
+            marker=dict(color="#1d4ed8", size=10, symbol="diamond"),
         )
     )
 
     fig.update_layout(
-        polar=dict(
-            bgcolor="#ffffff",
-            radialaxis=dict(
-                visible=True,
-                range=[0, 10],
-                tickvals=[2, 4, 6, 8, 10],
-                tickfont=dict(size=9, color="#6b7280"),
-                gridcolor="#f3f4f6",
-                linecolor="#e5e7eb",
-            ),
-            angularaxis=dict(
-                tickfont=dict(size=10, color="#111827"),
-                gridcolor="#f3f4f6",
-                linecolor="#e5e7eb",
-            ),
-        ),
+        title=dict(text="Evaluación de Posición Operativa: Situación Actual vs. Referencias (Escala 1–10)", font=dict(size=13, color="#0f172a")),
+        xaxis=dict(range=[0, 10.5], tickvals=[0, 2, 4, 6, 8, 10], showgrid=True, gridcolor="#f8fafc"),
+        yaxis=dict(autorange="reversed"),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.25, xanchor="center", x=0.5, font=dict(size=10)),
+        plot_bgcolor="#ffffff",
         paper_bgcolor="#ffffff",
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.2,
-            xanchor="center",
-            x=0.5,
-            font=dict(size=10),
-        ),
-        title=dict(
-            text="Matriz de Brecha Operativa: Situación Actual vs. Referencias",
-            font=dict(size=14, color="#111827", family="Arial"),
-            x=0.02,
-        ),
-        margin=dict(l=40, r=40, t=60, b=60),
-        height=450,
+        height=380,
+        margin=dict(l=150, r=30, t=50, b=60),
+        barmode="group",
     )
     return fig
 
 
 # =====================================================================
-# EJECUCIÓN DEL ANÁLISIS
+# PROCESAMIENTO ANALÍTICO PRINCIPAL
 # =====================================================================
+st.markdown("---")
 if st.button(
-    "Ejecutar Auditoría Operativa y Generar Informe Estratégico",
+    "Ejecutar Evaluación Operativa y Generar Plan de Acción",
     type="primary",
     use_container_width=True,
 ):
     if not api_key_usuario:
-        st.error("Es necesario introducir la clave de API en la barra lateral izquierda.")
+        st.error("Es obligatorio introducir la clave de API en la barra lateral izquierda.")
     else:
-        with st.spinner("Procesando parámetros contables, evaluando capacidad horaria y elaborando dictamen..."):
+        with st.spinner("Procesando parámetros operativos, evaluando capacidad horaria y redactando informe de dirección..."):
             try:
                 cliente = genai.Client(api_key=api_key_usuario)
 
                 prompt_completo = f"""
-Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial.
+Eres un Socio Director de Consultoría de Operaciones y Estrategia Empresarial para pymes.
 Dispones de los datos cuantitativos facilitados por la empresa. Debes elaborar un informe técnico, sobrio, exhaustivo y defendible ante un comité directivo.
 
 BASE DE DATOS AUDITADA:
 - Actividad / Especialidad: [DR] {sector} | {subsector}
 - Ámbito territorial: [DR] {pais_region}
 - Año de constitución: [DR] {ano_creacion}
-- Plantilla total: [DR] {tamano_equipo} personas (Técnicos de campo: [DR] {operarios_directos} | Soporte administrativo: [DR] {personal_admin} | Ventas: [DR] {personal_comercial})
+- Plantilla total: [DR] {tamano_equipo} personas (Técnicos de campo: [DR] {operarios_directos} | Soporte administrativo: [DR] {personal_admin} | Comercial: [DR] {personal_comercial})
 - Vehículos operativos: [DR] {num_vehiculos} unidades (Control de stock en vehículo: [DR] {control_stock_vehiculos})
 - Facturación anual del ejercicio: [DR] {facturacion_anual:,} € (Ejercicio previo: [DR] {facturacion_anterior:,} €)
 - Coste total de personal: [DR] {coste_personal:,} €
-- Gasto en materiales y aprovisionamientos: [DR] {coste_compras_recambios:,} €
+- Consumo de materiales y compras: [DR] {coste_compras_recambios:,} €
 - Gastos generales de estructura: [DR] {gastos_fijos:,} €
 - Beneficio de explotación declarado: [DR] {margen_ebitda_declarado:,} €
 - Facturación por empleado: [ES] {facturacion_por_empleado:,.0f} €/año
 - Margen bruto de contribución: [ES] {margen_bruto_pct:.2f}%
 - Ticket medio por actuación: [DR] {ticket_medio_operacion} €
-- Emisión de presupuestos: [DR] {presupuestos_mes} unidades/mes (Tasa de aceptación declarada: [DR] {tasa_conversion_presupuestos}%)
-- Tiempo dedicado a gestión no facturable: [DR] {horas_perdidas_dia} horas/día (presupuestos no aceptados, tramitación de partes y coordinación)
-- Responsable de presupuestos: [DR] {quien_hace_presupuestos}
-- Tarifa horaria facturada de mano de obra: [DR] {precio_hora_mano_obra} €/h (sin IVA)
-- Margen de contribución directo sobre tarifa horaria: [ES] {precio_hora_mano_obra * (margen_bruto_pct/100):.2f} €/h ({precio_hora_mano_obra} €/h x {margen_bruto_pct:.2f}%)
+- Emisión mensual de presupuestos: [DR] {presupuestos_mes} unidades (Aceptación declarada: [DR] {tasa_conversion_presupuestos}%)
+- Tiempo diario de gestión no facturable: [DR] {horas_perdidas_dia} horas/día (presupuestos no aceptados, partes en papel y llamadas)
+- Tarifa horaria facturada mano de obra: [DR] {precio_hora_mano_obra} €/h (sin IVA)
+- Margen de contribución sobre tarifa: [ES] {precio_hora_mano_obra * (margen_bruto_pct/100):.2f} €/h
 - Plazo de cierre de partes a facturación: [DR] {tiempo_cierre_factura}
 - Canal principal de captación: [DR] {origen_clientes}
-- Nivel de digitalización actual: [DR] {stack_tecnologico}
+- Nivel de digitalización: [DR] {stack_tecnologico}
 - Cuello de botella declarado: [DR] {friccion_operativa}
 - Composición de cartera: [DR] {porcentaje_b2c}% Particulares | {porcentaje_b2b}% Empresas
-- Ingresos bajo cuota recurrente: [DR] {ingresos_recurrentes_pct}%
+- Ingresos bajo cuota periódica: [DR] {ingresos_recurrentes_pct}%
 - Competidor de referencia: [DR] {competidor_referencia}
 - Factor diferencial actual: [DR] {ventaja_competitiva}
-- Presupuesto de inversión en modernización (12 meses): [DR] {presupuesto_disponible:,} €
+- Presupuesto de modernización (12 meses): [DR] {presupuesto_disponible:,} €
 - Periodo de planificación: [DR] {horizonte} años
-- Prioridad estratégica declarada: [DR] {objetivo_principal_crecimiento}
+- Prioridad directiva: [DR] {objetivo_principal_crecimiento}
 - Estimación directiva ante inacción (3 años): [DR] "{pregunta_115_inaccion}"
-- Objetivo operativo prioritario de dirección: [DR] "{pregunta_116_deseo}"
-- Grado de precisión de la información facilitada: [ES] {score_precision}%
+- Objetivo prioritario de dirección: [DR] "{pregunta_116_deseo}"
 
 ======================================================================
-NORMAS EDITORIALES Y DE RIGOR METODOLÓGICO (ESTRICTAS):
+REGLAS EDITORIALES Y DE RIGOR METODOLÓGICO (ESTRICTAS):
 ======================================================================
-1. PROHIBICIÓN RADICAL DE EMOJIS Y SÍMBOLOS INFANTILES:
-   - Queda estrictamente PROHIBIDO el uso de emoticonos, círculos de colores (🟢, 🔵, 🟡, 🟠, 🟣), señales de advertencia (⚠️) o bombillas (💡).
-   - Utiliza de forma sistemática los códigos alfanuméricos discretos:
-     * [DR] Dato real aportado por la empresa.
-     * [FE] Fuente externa contrastada.
-     * [ES] Estimación calculada a partir de los datos.
-     * [HC] Hipótesis operativa sujeta a comprobación.
-     * [OD] Objetivo deseado del plan de trabajo.
+1. LENGUAJE CLARO PARA PYMES SIN JERGA ARTIFICIAL:
+   - Prohibido el uso de términos innecesarios como 'unit economics', 'SaaS/CAPEX', 'triage' o 'absorción de capacidad'.
+   - Sustituir por conceptos claros: 'eficiencia de mano de obra', 'coste de implantación de herramientas', 'coste mensual recurrente', 'clasificación de prioridades', 'horas recuperadas dedicadas a facturación directa'.
+   - Prohibidos terminantemente los emoticonos o círculos de colores.
+   - Utilizar exclusivamente los códigos discretos: [DR], [FE], [ES], [HC], [OD].
 
-2. ENCABEZADOS Y LENGUAJE CORPORATIVO SOBRIO:
-   - Utiliza títulos sobrios: "Decisiones prioritarias", "Indicadores de alerta", "Oportunidades de mejora", "Riesgos identificados", "Próximos pasos".
-   - Sustituye expresiones informales:
-     * "Actuar Ya" -> "Prioridad inmediata: 0–6 meses"
-     * "Prepararse" -> "Preparación: 6–18 meses"
-     * "Vigilar" -> "Seguimiento: 18–36 meses"
-     * "Qué construir, comprar, dejar de hacer" -> "Decisiones sobre capacidades y recursos"
-     * "Coste de no hacer nada" -> "Impacto estimado de mantener la situación actual"
-     * "Benchmark aspiracional" -> "Referencia de mejora"
-     * "Radar de tendencias" -> "Mapa de tendencias y prioridades"
-   - Prohibido el uso de términos apocalípticos o coloquiales: "quiebra inminente", "fuga masiva", "moat", "extinción".
+2. ELIMINACIÓN DE PORCENTAJES PSEUDOCIENTÍFICOS:
+   - Prohibido utilizar '72% de precisión' o porcentajes ficticios similares. Emplear: 'Nivel de confianza metodológica: Medio-Alto, sujeto a verificación contable en los primeros 30 días'.
 
-3. NOTAS METODOLÓGICAS FORMALES:
-   - Para las estimaciones, añade: "Nota metodológica: Las cifras identificadas como estimaciones se han calculado a partir de los datos disponibles y deberán validarse con información contable u operativa adicional."
-   - Para las hipótesis: "Hipótesis pendiente de validación: Este punto se incluye como línea de trabajo y no como hecho confirmado."
+3. CAPACIDAD PRODUCTIVA Y HORAS NO FACTURABLES:
+   - Definir con precisión: 3,5 h/día equivalen a 770 h/año [DR] dedicadas a gestión no facturable.
+   - Denominar los 32.340 € teóricos como: 'Capacidad productiva máxima teórica [ES] (magnitud indicativa no acumulable a caja sin absorción comercial efectiva)'.
+   - Prohibido sumar en una sola cifra nómina, capacidad potencial y contingencias normativas. Presentar tabla desagregada señalando que son conceptos contables de naturaleza distinta.
 
-4. RIGOR EN EL CÁLCULO DE CAPACIDAD HORARIA (770 HORAS):
-   - Definir con exactitud: "3,5 h/día (770 h/año) [DR] dedicadas a tareas de gestión no facturables (presupuestación no convertida, tramitación manual de partes y coordinación operativa)."
-   - Denominar los 32.340 € teóricos estrictamente como: "Capacidad productiva máxima teórica [ES] (magnitud analítica no acumulable a caja sin absorción efectiva por demanda de mercado)."
-   - PROHIBIDO sumar en una cifra global el coste salarial, la capacidad potencial y las contingencias normativas. Presentar tabla desagregada con impacto salarial, capacidad potencial y contingencias, indicando que son magnitudes no sumables directamente.
+4. PRECISIÓN REGULATORIA (FECHAS REALES Y LENGUAJE DEFENDIBLE):
+   - Exponer Veri*factu (RD 1007/2023) y Facturación Electrónica B2B en sus plazos normativos reales en España para pymes de este tramo.
+   - Prohibido afirmar 'obligatoriedad general en 2025', 'mitigación total de sanciones' o 'cumplimiento garantizado'. Expresar como 'reducción significativa de la exposición a contingencias tributarias mediante sistemas conformes con los requisitos de inalterabilidad y registro'.
 
-5. REFERENCIAS COMPARATIVAS Y BENCHMARKING:
-   - Si una cifra comparativa no dispone de una fuente pública con tabla y fecha precisa, identifícala formalmente como "Referencia orientativa / benchmark de diseño [ES]", con nivel de confianza medio o bajo.
+5. ESCENARIOS Y CONCLUSIONES CONDICIONADAS (SIN CERTEZAS ABSOLUTAS):
+   - Prohibido afirmar que 'el plan garantizará un 18% de margen'.
+   - Redactar conclusiones como condiciones operativas necesarias: 'El plan de acción establece las bases para avanzar hacia un margen superior al 18% en un plazo de 36 meses, condicionado al cumplimiento de las hipótesis de digitalización de partes, contención de consumos y conversión de horas liberadas'.
 
-6. ESCENARIOS MEDIANTE RANGOS E INDUCTORES (SIN PORCENTAJES CERRADOS FICTICIOS):
-   - Prohibido asignar porcentajes fijos arbitrarios (no escribir "+30%").
-   - Utilizar rangos fundamentados en palancas operativas:
-     * Escenario A (Optimización operativa): Margen en rango [+15% a +25%], condicionado a cuota en empresas y control digital de stock.
-     * Escenario B (Integración en plataformas): Margen comprimido en rango [-5% a +5%].
-     * Escenario C (Especialización en urgencias): Margen en rango [+5% a +12%].
-     * Escenario D (Inacción operativa): Deterioro en rango [-10% a -20%].
-
-7. SALVAGUARDAS LEGALES Y FINANCIERAS:
-   - Marco normativo: Exponer Veri*factu (RD 1007/2023) y Facturación Electrónica B2B en sus plazos y requisitos técnicos reales, tratando las eventuales penalizaciones como "riesgo regulatorio sujeto a inspección y subsanación".
-   - Financiación: Indicar que "las ayudas públicas están sujetas a convocatorias vigentes, dotación presupuestaria y cumplimiento de bases reguladoras en la fecha efectiva de solicitud."
-
-8. FORMATO JSON OBLIGATORIO PARA PLOTLY:
+6. FORMATO JSON OBLIGATORIO PARA GRÁFICOS:
    - Inicia obligatoriamente con el bloque ```json ... ```:
      {{
        "trends": [
@@ -744,66 +627,66 @@ NORMAS EDITORIALES Y DE RIGOR METODOLÓGICO (ESTRICTAS):
          "benchmark_aspiracional": [números 1-10]
        }}
      }}
-     Orden exacto de gap_analysis: [Digitalización, Eficiencia Operativa, Control de Margen, Cartera B2B, Agilidad Estratégica].
+     Orden exacto de gap_analysis: [Digitalización, Eficiencia Operativa, Control de Margen, Cartera B2B, Capacidad de Adaptación].
 
 ======================================================================
 ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
 ======================================================================
 # INFORME DE EVALUACIÓN OPERATIVA Y PLAN DE ACCIÓN ESTRATÉGICO
 
-## 0. Marco Metodológico y Grado de Precisión de la Información
-(Definición formal de los códigos [DR], [FE], [ES], [HC], [OD]. Nivel de precisión del estudio: [ES] {score_precision}%. Advertencia de cautela contable en caso de discrepancias de balance).
+## 0. Marco Metodológico y Grado de Validación de la Información
+(Definición de códigos [DR], [FE], [ES], [HC], [OD]. Nivel de confianza metodológica: Medio-Alto. Criterios de validación).
 
 ## Resumen Ejecutivo: Decisiones Prioritarias
-(Tabla: Decisión directiva | Plazo de ejecución | Propietario | Asignación presupuestaria | Impacto esperado en margen).
-(Cotejo técnico con el objetivo prioritario planteado por Gerencia).
+(Tabla: Decisión directiva | Plazo de implantación | Responsable asignado | Coste previsto | Impacto esperado en rentabilidad).
+(Contraste con el objetivo prioritario expresado por la dirección de la empresa).
 
-## 1. Diagnóstico de Eficiencia y Unit Economics Operativos
-(Estructura analítica de ingresos, aprovisionamientos, personal y estructura. Análisis de facturación por empleado).
-(Cuantificación del tiempo de gestión no facturable: [ES] {horas_perdidas_dia * 220:.0f} horas/año, separando el impacto salarial de la capacidad productiva teórica).
+## 1. Diagnóstico de Eficiencia y Rentabilidad Operativa
+(Análisis de ingresos, compras, mano de obra y estructura fija. Facturación por operario).
+(Tiempo de gestión no facturable: [ES] {horas_perdidas_dia * 220:.0f} horas/año, diferenciando coste laboral de la capacidad productiva teórica).
 
-## 2. Marco Normativo y Exigencias Regulatorias ({pais_region})
-(Requisitos técnicos y calendario de adaptación a Veri*factu RD 1007/2023 y Facturación Electrónica B2B).
+## 2. Marco Normativo y Adaptación Técnica ({pais_region})
+(Requisitos técnicos y calendario de adaptación a Veri*factu RD 1007/2023 y Facturación Electrónica B2B en sus plazos reales para este tramo de empresa).
 
 ## 3. Comparativa Sectorial y Referencias de Posición
-(Tabla: Variable analizada | Situación de la empresa [DR] | Referencia orientativa [ES] | Referencia de mejora [OD] | Grado de confianza metodológica).
+(Tabla: Variable analizada | Situación de la empresa [DR] | Referencia orientativa [ES] | Referencia de mejora [OD] | Grado de confianza).
 
 ## 4. Referencias Prácticas de Transferencia Operativa
-(Análisis de dos operadores técnicos en mercados homologables: soluciones incorporadas y elementos aplicables a esta estructura).
+(Dos casos reales de empresas de servicios técnicos en mercados homologables: qué cambios aplicaron y qué elementos son transferibles).
 
 ## 5. Dinámicas del Entorno y Repercusión en el Negocio
-(Análisis de tendencias relevantes, causas inductoras e implicación directa en decisiones de gestión).
+(Tendencias sectoriales relevantes y consecuencias prácticas para la organización del trabajo).
 
-## 6. Mapa de Tendencias y Prioridades de Actuación
-(Clasificación de prioridades: Prioridad inmediata 0-6 meses / Preparación 6-18 meses / Seguimiento 18-36 meses. Matriz Impacto x Incertidumbre).
+## 6. Mapa de Tendencias y Prioridades de Gestión
+(Clasificación de prioridades: 0-6 meses / 6-18 meses / 18-36 meses y mapa de impacto).
 
-## 7. Análisis de Brecha Operativa (Matriz de Brecha)
-(Evaluación fundamentada de las 5 dimensiones representadas en la matriz gráfica).
+## 7. Evaluación de Brecha Operativa
+(Análisis fundamentado de las 5 dimensiones comparativas de la empresa frente a las referencias de mercado).
 
-## 8. Análisis de Escenarios Plausibles
-(Cruce de incertidumbres principales con niveles de plausibilidad, rangos de rentabilidad esperados e inductores de seguimiento. Contraste con el diagnóstico a 3 años de Gerencia).
+## 8. Análisis de Escenarios Plausibles de Evolución
+(Cruce de incertidumbres principales con niveles de plausibilidad e inductores de seguimiento. Contraste con la estimación directiva a 3 años).
 
-## 9. Despliegue Temporal Inverso: Hitos a {horizonte} Años
+## 9. Despliegue Temporal Inverso: Objetivos a {horizonte} Años
 (Definición del estado objetivo a {horizonte} años y retroceso temporal: hitos a consolidar en Año 2 y en Año 1).
 
 ## 10. Decisiones sobre Capacidades y Recursos
-(Clasificación técnica: desarrollo interno, contratación de servicios tecnológicos especializados, acuerdos y eliminación de procesos manuales).
+(Clasificación práctica: desarrollo interno de procesos, contratación de herramientas, acuerdos de colaboración y eliminación de tareas manuales).
 
 ## 11. Indicadores de Alerta y Disparadores Operativos
-(Métricas del entorno que deben activar revisiones en el plan de actuación).
+(Señales objetivas de mercado o costes que deben activar revisiones en el plan de trabajo).
 
 ## 12. Impacto Estimado de Mantener la Situación Actual
-(Tabla desagregada a 12, 24 y 36 meses: coste de nómina asignado a gestión, capacidad potencial no capturada y riesgo normativo, con nota formal de no sumabilidad directa).
+(Tabla desagregada a 12, 24 y 36 meses: coste salarial improductivo, capacidad no monetizada y contingencias normativas, sin sumar magnitudes incompatibles).
 
 ## 13. Vías de Financiación y Optimización de Costes ({pais_region})
-(Líneas de apoyo público y bonificaciones para formación técnica FUNDAE, con salvaguarda sobre convocatorias vigentes).
+(Líneas de ayuda y bonificaciones para formación técnica FUNDAE, con salvaguarda sobre convocatorias vigentes y cumplimiento de bases).
 
 ## 14. Plan de Habilitación del Equipo y Gestión del Cambio
 (Protocolo de formación para operarios de campo, administración y adaptación de clientes habituales).
 
-## 15. Plan de Acción y Hoja de Ruta (Fases 30, 90 y 180 Días)
-(Cronograma con acciones, responsables formalmente asignados, dependencias técnicas, progresión de KPIs y presupuesto CAPEX/OPEX ajustado a [DR] {presupuesto_disponible:,} €).
-(Análisis de sensibilidad del retorno de la inversión bajo escenarios de absorción de capacidad al 25%, 50% y 75%, con estimación de plazo de recuperación).
+## 15. Plan de Acción y Hoja de Ruta (30, 90 y 180 Días)
+(Cronograma con acciones, responsables asignados, dependencias técnicas, progresión de indicadores y presupuesto acotado estrictamente a [DR] {presupuesto_disponible:,} €).
+(Análisis de sensibilidad de recuperación de horas bajo escenarios del 25%, 50% y 75%, con plazo orientativo de recuperación de la inversión).
 """
 
                 partes_contenido = []
@@ -813,7 +696,7 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                     partes_contenido.append(
                         types.Part.from_bytes(data=bytes_archivo, mime_type=mime_type)
                     )
-                    prompt_completo += "\n\nDOCUMENTO CONTABLE INCORPORADO: Utiliza este archivo para cotejar y documentar las partidas contables exactas de la empresa con código [DR]."
+                    prompt_completo += "\n\nDOCUMENTO CONTABLE ADJUNTO: Coteja las partidas reales de ingresos y costes con código [DR]."
 
                 partes_contenido.append(prompt_completo)
 
@@ -838,11 +721,9 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                         break
 
                 if not respuesta:
-                    raise Exception("Servidores temporalmente ocupados. Por favor, reintenta en unos instantes.")
+                    raise Exception("Servidores de IA temporalmente saturados. Inténtalo de nuevo en unos segundos.")
 
                 texto_salida = respuesta.text
-
-                # Extracción del bloque JSON
                 patron_json = r"```json\s*(\{.*?\})\s*```"
                 match = re.search(patron_json, texto_salida, re.DOTALL)
 
@@ -850,29 +731,114 @@ ESTRUCTURA DEL INFORME (MEMORÁNDUM TÉCNICO DE 15 SECCIONES):
                     json_str = match.group(1)
                     datos_graficos = json.loads(json_str)
 
+                    # Guardar en sesión para la capa interactiva
+                    st.session_state["datos_contexto"] = texto_salida
+                    st.session_state["informe_generado"] = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
+                    st.session_state["datos_graficos"] = datos_graficos
+
                     st.success("Evaluación cuantitativa y plan estratégico elaborados con éxito.")
 
-                    # Visualización gráfica sobria
-                    st.subheader("Representación Gráfica de Posición y Prioridades")
-                    col_r1, col_r2 = st.columns(2)
-
-                    with col_r1:
-                        if "trends" in datos_graficos:
-                            fig_radar = render_trend_radar(datos_graficos["trends"])
-                            st.plotly_chart(fig_radar, use_container_width=True)
-
-                    with col_r2:
-                        if "gap_analysis" in datos_graficos:
-                            fig_gap = render_gap_radar(datos_graficos["gap_analysis"])
-                            st.plotly_chart(fig_gap, use_container_width=True)
-
-                    st.markdown("---")
-
-                    informe_markdown = re.sub(patron_json, "", texto_salida, flags=re.DOTALL).strip()
-                    st.markdown(informe_markdown)
-
                 else:
-                    st.markdown(texto_salida)
+                    st.session_state["informe_generado"] = texto_salida
+                    st.session_state["datos_contexto"] = texto_salida
 
             except Exception as e:
                 st.error(f"Error durante el procesamiento: {e}")
+
+# =====================================================================
+# RENDERIZADO DEL INFORME Y GRÁFICOS EJECUTIVOS
+# =====================================================================
+if st.session_state.get("informe_generado"):
+    datos_graficos = st.session_state.get("datos_graficos", {})
+
+    st.subheader("Representación Gráfica de Posición y Prioridades")
+    col_g1, col_g2 = st.columns(2)
+
+    with col_g1:
+        if "trends" in datos_graficos:
+            fig_trends = render_trend_matrix(datos_graficos["trends"])
+            st.plotly_chart(fig_trends, use_container_width=True)
+
+    with col_g2:
+        if "gap_analysis" in datos_graficos:
+            fig_gap = render_gap_bars(datos_graficos["gap_analysis"])
+            st.plotly_chart(fig_gap, use_container_width=True)
+
+    st.markdown("---")
+    st.markdown(st.session_state["informe_generado"])
+
+    # =====================================================================
+    # CAPA DE INTERPRETACIÓN DIRECTIVA (ASISTENTE CONTEXTUAL)
+    # =====================================================================
+    st.markdown("---")
+    st.markdown(
+        """
+        <div class="assistant-card">
+        <h4 style="color: #14532d; margin-bottom: 6px;">Asistente de Interpretación Directiva</h4>
+        <p style="font-size: 0.92rem; color: #166534; margin-bottom: 12px;">
+        Consulta tu informe en lenguaje directo. El asistente explica los resultados utilizando exclusivamente los datos y conclusiones de tu diagnóstico, sin sustituir el análisis realizado ni modificar sus conclusiones.
+        </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Botones de consulta rápida
+    col_b1, col_b2, col_b3 = st.columns(3)
+    pregunta_rapida = None
+
+    with col_b1:
+        if st.button("Explicación en lenguaje directo"):
+            pregunta_rapida = "Explícame de forma muy sencilla y clara los 3 puntos más importantes de mi informe como si estuviéramos tomando un café, sin tecnicismos."
+    with col_b2:
+        if st.button("¿Por qué el cuello de botella en presupuestos?"):
+            pregunta_rapida = "¿Por qué habéis llegado a la conclusión de que los presupuestos y partes son mi mayor fuga de rentabilidad? Explícamelo con mis datos exactos."
+    with col_b3:
+        if st.button("¿Qué hago en los primeros 15 días?"):
+            pregunta_rapida = "Dime exactamente qué dos o tres acciones concretas debería poner en marcha en los próximos 15 días y quién debería ejecutarlas."
+
+    # Campo de pregunta abierta
+    pregunta_usuario = st.text_input(
+        "Haz una pregunta específica sobre tu informe:",
+        value=pregunta_rapida if pregunta_rapida else "",
+        placeholder="Ej: ¿Cuánto me costará implantar el software móvil y qué gano con ello?",
+    )
+
+    if st.button("Consultar al Asistente") and pregunta_usuario:
+        if not api_key_usuario:
+            st.error("Introduce tu clave de API en la barra lateral para consultar al asistente.")
+        else:
+            with st.spinner("Consultando el informe y preparando explicación..."):
+                try:
+                    cliente = genai.Client(api_key=api_key_usuario)
+                    prompt_asistente = f"""
+Eres el Asistente Directivo de Interpretación de este informe de consultoría.
+Tu objetivo es explicar los resultados al dueño de la empresa con claridad, cercanía, rigor y pedagogía, sin jerga innecesaria.
+
+REGLAS DE RESPUESTA:
+1. Responde a la pregunta planteada basándote ESTRICTAMENTE en los datos, cálculos y conclusiones de este informe.
+2. Utiliza las cifras exactas aportadas por el cliente (facturación, horas, plantilla, márgenes) para fundamentar tu explicación.
+3. No inventes datos ni contradigas las recomendaciones del informe.
+4. Explica los conceptos financieros de manera intuitiva (ej. "ganas X euros de cada 100").
+5. Mantén un tono profesional, constructivo, directo y honesto.
+
+INFORME COMPLETO DE LA EMPRESA:
+{st.session_state['datos_contexto']}
+
+PREGUNTA DEL CLIENTE:
+{pregunta_usuario}
+"""
+                    res_asistente = cliente.models.generate_content(
+                        model="gemini-3.6-flash", contents=prompt_asistente
+                    )
+                    st.markdown(
+                        f"""
+                        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 10px;">
+                        <b>Respuesta del Asistente:</b><br><br>
+                        {res_asistente.text}
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+                except Exception as e:
+                    st.error(f"Error al consultar al asistente: {e}")
