@@ -489,4 +489,4 @@ with st.form("form_auditoria_completa"):
             churn_pct = st.slider("% Clientes perdidos al año (Tasa de Churn)", 0, 50, 8)
 
     with tab6:
-        st.subheader("Digitalización, Procesos y Duplicidades
+        st.subheader("Digitalización, Procesos y Duplicidades")
