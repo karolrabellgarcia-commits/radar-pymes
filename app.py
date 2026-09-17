@@ -17,7 +17,7 @@ import google.generativeai as genai
 # 1. CONFIGURACIÓN Y CLIENTE IA
 # ==============================================================================
 st.set_page_config(
-    page_title="KROMA Ops | Auditoría Operativa y Estratégica Universal",
+    page_title="KROMA Ops | Diagnóstico Empresarial Integral",
     layout="wide"
 )
 
@@ -32,164 +32,208 @@ else:
     ai_model = None
 
 # ==============================================================================
-# 2. MOTOR MATEMÁTICO UNIVERSAL (RESIDUO CERO)
+# 2. MOTOR MATEMÁTICO DETERMINISTA Y CÁLCULO DE ÍNDICES
 # ==============================================================================
-def calcular_auditoria_universal(datos: dict) -> dict:
-    facturacion = float(datos["facturacion"])
-    coste_personal = float(datos["coste_personal"])
-    costes_operativos = float(datos["costes_operativos"])
-    aprovisionamientos = float(datos["aprovisionamientos"])
-    plantilla = max(1, int(datos["plantilla"]))
+def ejecutar_motor_diagnostico(d: dict) -> dict:
+    # 1. P&L y Tendencia
+    v_actual = float(d["ventas_n"])
+    v_anterior = max(1.0, float(d["ventas_n1"]))
+    crecimiento_ventas = ((v_actual - v_anterior) / v_anterior) * 100.0
+
+    compras = float(d["compras"])
+    subcontratas = float(d["subcontratas"])
+    coste_personal = float(d["personal"])
+    gastos_estructura = float(d["estructura"])
+    amortizaciones = float(d["amortizaciones"])
+    gastos_financieros = float(d["gastos_financieros"])
+
+    margen_bruto = v_actual - compras - subcontratas
+    margen_bruto_pct = (margen_bruto / v_actual * 100.0) if v_actual > 0 else 0.0
+
+    ebitda = margen_bruto - coste_personal - gastos_estructura
+    ebitda_pct = (ebitda / v_actual * 100.0) if v_actual > 0 else 0.0
+
+    ebit = ebitda - amortizaciones
+    ebt = ebit - gastos_financieros
+
+    # 2. Tesorería y Ciclo de Conversión de Efectivo (CCC)
+    saldo_clientes = float(d["saldo_clientes"])
+    saldo_proveedores = float(d["saldo_proveedores"])
+    stock_medio = float(d["stock_medio"])
+    caja_actual = float(d["caja_actual"])
+    deuda_bancaria = float(d["deuda_bancaria"])
+    cuota_deuda_anual = float(d["cuota_mensual_deuda"]) * 12.0
+
+    dso = (saldo_clientes / v_actual * 365.0) if v_actual > 0 else 0.0
+    dpo = (saldo_proveedores / (compras + subcontratas) * 365.0) if (compras + subcontratas) > 0 else 0.0
+    coste_mercancias = compras if compras > 0 else (v_actual * 0.4)
+    dio = (stock_medio / coste_mercancias * 365.0) if coste_mercancias > 0 else 0.0
+    ccc = dio + dso - dpo
+
+    # Caja inmovilizada por DSO > 45 días (o stock > 60 días)
+    ventas_dia = v_actual / 365.0
+    caja_atrapada_dso = max(0.0, (dso - 45.0) * ventas_dia)
+    caja_atrapada_stock = max(0.0, (dio - 60.0) * (coste_mercancias / 365.0))
+    potencial_liberacion_caja = caja_atrapada_dso + caja_atrapada_stock
+
+    # 3. Productividad y Personas
+    plantilla = max(1, int(d["plantilla"]))
+    coste_hora_medio = (coste_personal / plantilla / 1750.0) if plantilla > 0 else 25.0
+    horas_totales_disponibles = plantilla * 1750.0
+    horas_improductivas_pct = float(d["pct_horas_improductivas"]) / 100.0
+    horas_improductivas = horas_totales_disponibles * horas_improductivas_pct
+    coste_horas_improductivas = horas_improductivas * coste_hora_medio
+
+    # 4. Operaciones, Retrabajo e Ineficiencia Administrativa
+    num_trabajos = max(1, int(d["num_trabajos_anuales"]))
+    pct_retrabajo = float(d["pct_retrabajo"]) / 100.0
+    coste_medio_error = float(d["coste_medio_error"])
+    coste_retrabajo_anual = num_trabajos * pct_retrabajo * coste_medio_error
+
+    duplicidad_datos = max(1, int(d["duplicidad_datos"]))
+    minutos_duplicados_dia = float(d["operaciones_diarias"]) * (duplicidad_datos - 1) * 6.0
+    horas_fuga_admin_anual = (minutos_duplicados_dia / 60.0) * 220.0
+    fuga_administrativa_euros = horas_fuga_admin_anual * coste_hora_medio
+
+    # 5. Comercial y Concentración
+    leads = max(1, int(d["leads_anuales"]))
+    ventas_cerradas = max(1, int(d["ventas_cerradas"]))
+    tasa_conversion = (ventas_cerradas / leads) * 100.0
+    ticket_medio = v_actual / ventas_cerradas if ventas_cerradas > 0 else 0.0
+    concentracion_top5 = float(d["concentracion_top5"])
+
+    # 6. Cuantificación de los "€ de Oportunidad" (DR / C / ES / HC)
+    dr_retorno_directo = (coste_retrabajo_anual * 0.70) + (potencial_liberacion_caja * 0.15)
+    c_capacidad_liberada = (coste_horas_improductivas * 0.50) * (margen_bruto_pct / 100.0)
+    es_eficiencia_estructura = fuga_administrativa_euros * 0.85
+    hc_headcount_saving = (fuga_administrativa_euros + (coste_horas_improductivas * 0.30)) * 0.40
+    total_oportunidad_euros = dr_retorno_directo + c_capacidad_liberada + es_eficiencia_estructura
+
+    # 7. Cálculo de los 8 Índices de Rendimiento (Puntuación 0.0 a 10.0)
+    idx_rentabilidad = min(10.0, max(0.0, (ebitda_pct / 18.0) * 10.0))
+    idx_productividad = min(10.0, max(0.0, ((1.0 - horas_improductivas_pct) / 0.85) * 10.0))
+    idx_liquidez = 10.0 if ccc <= 30 else max(0.0, 10.0 - ((ccc - 30.0) / 12.0))
+    idx_comercial = min(10.0, max(0.0, (tasa_conversion / 35.0) * 10.0))
+    idx_operaciones = max(0.0, 10.0 - (pct_retrabajo * 80.0))
     
-    # 1. Conciliación Base P&L
-    costes_totales = coste_personal + costes_operativos + aprovisionamientos
-    ebitda_actual = facturacion - costes_totales
-    margen_ebitda_pct = (ebitda_actual / facturacion * 100) if facturacion > 0 else 0.0
-    margen_contribucion = facturacion - aprovisionamientos
-    margen_contribucion_pct = (margen_contribucion / facturacion * 100) if facturacion > 0 else 0.0
+    score_dig = {"Baja / Hojas sueltas": 2.0, "Parcial / Software no conectado": 4.5, "ERP centralizado": 7.5, "Automatizado / Conectado": 9.5}
+    idx_digitalizacion = score_dig.get(d["madurez_digital"], 5.0)
 
-    # 2. Ratios Clave de Eficiencia
-    facturacion_por_empleado = facturacion / plantilla
-    coste_personal_por_empleado = coste_personal / plantilla
-    ratio_coste_laboral = (coste_personal / facturacion * 100) if facturacion > 0 else 0.0
+    riesgo_penaliz = 0.0
+    if concentracion_top5 > 50: riesgo_penaliz += 3.0
+    if d["dependencia_gerente"] == "La empresa se detiene en 48-72h": riesgo_penaliz += 4.0
+    if deuda_bancaria > (ebitda * 3.5) and ebitda > 0: riesgo_penaliz += 2.5
+    idx_riesgo = max(1.0, 10.0 - riesgo_penaliz)
 
-    # 3. Modelado de Fugas e Ineficiencias según Nivel Digital y Procesos
-    factores_fuga = {
-        "Manual / Papel / Hojas de cálculo aisladas": 0.085,  # 8.5% pérdida estimada
-        "Básico / Herramientas estándar no integradas": 0.050, # 5.0%
-        "Medio / ERP o software sectorial parcial": 0.030,     # 3.0%
-        "Alto / Procesos integrados y automatizados": 0.012   # 1.2%
-    }
-    pct_fuga = factores_fuga.get(datos["madurez_digital"], 0.04)
-    
-    # Impacto monetizado
-    fuga_operativa_anual = facturacion * pct_fuga
-    horas_recuperables_estimadas = (coste_personal * (pct_fuga * 0.75)) / max(22.0, (coste_personal_por_empleado / 1750))
-
-    # 4. Proyección Proforma (Optimización y Modernización)
-    mejora_eficiencia_ao1 = fuga_operativa_anual * 0.60
-    coste_inversion_modernizacion = min(35000.0, max(4500.0, facturacion * 0.018))
-    
-    ebitda_proforma_ao1 = ebitda_actual + mejora_eficiencia_ao1
-    ebitda_proforma_ao2 = ebitda_actual + (fuga_operativa_anual * 0.85)
-    ebitda_proforma_ao3 = ebitda_actual + (fuga_operativa_anual * 1.05)
-
-    payback_meses = (coste_inversion_modernizacion / mejora_eficiencia_ao1 * 12) if mejora_eficiencia_ao1 > 0 else 0.0
-    roi_3_aos = (((mejora_eficiencia_ao1 + (fuga_operativa_anual * 0.85) + (fuga_operativa_anual * 1.05)) - coste_inversion_modernizacion) / coste_inversion_modernizacion * 100) if coste_inversion_modernizacion > 0 else 0.0
-
-    # Verificación de cuadre a residuo cero
-    residuo = round((facturacion - (aprovisionamientos + coste_personal + costes_operativos)) - ebitda_actual, 4)
+    cap_extra = float(d["capacidad_adicional_pct"])
+    idx_crecimiento = min(10.0, max(1.0, (cap_extra / 40.0) * 10.0))
 
     return {
-        "facturacion": facturacion,
-        "coste_personal": coste_personal,
-        "costes_operativos": costes_operativos,
-        "aprovisionamientos": aprovisionamientos,
-        "plantilla": plantilla,
-        "ebitda_actual": ebitda_actual,
-        "margen_ebitda_pct": margen_ebitda_pct,
-        "margen_contribucion": margen_contribucion,
-        "margen_contribucion_pct": margen_contribucion_pct,
-        "facturacion_por_empleado": facturacion_por_empleado,
-        "coste_personal_por_empleado": coste_personal_por_empleado,
-        "ratio_coste_laboral": ratio_coste_laboral,
-        "fuga_operativa_anual": fuga_operativa_anual,
-        "horas_recuperables_estimadas": horas_recuperables_estimadas,
-        "coste_inversion_modernizacion": coste_inversion_modernizacion,
-        "mejora_eficiencia_ao1": mejora_eficiencia_ao1,
-        "ebitda_proforma_ao1": ebitda_proforma_ao1,
-        "ebitda_proforma_ao2": ebitda_proforma_ao2,
-        "ebitda_proforma_ao3": ebitda_proforma_ao3,
-        "payback_meses": payback_meses,
-        "roi_3_aos": roi_3_aos,
-        "residuo_cero": residuo == 0.0
+        "v_actual": v_actual, "v_anterior": v_anterior, "crecimiento_ventas": crecimiento_ventas,
+        "margen_bruto": margen_bruto, "margen_bruto_pct": margen_bruto_pct,
+        "ebitda": ebitda, "ebitda_pct": ebitda_pct, "ebit": ebit, "ebt": ebt,
+        "dso": dso, "dpo": dpo, "dio": dio, "ccc": ccc,
+        "caja_atrapada_dso": caja_atrapada_dso, "potencial_liberacion_caja": potencial_liberacion_caja,
+        "coste_retrabajo_anual": coste_retrabajo_anual,
+        "fuga_administrativa_euros": fuga_administrativa_euros,
+        "coste_horas_improductivas": coste_horas_improductivas,
+        "tasa_conversion": tasa_conversion, "ticket_medio": ticket_medio,
+        "dr_retorno_directo": dr_retorno_directo,
+        "c_capacidad_liberada": c_capacidad_liberada,
+        "es_eficiencia_estructura": es_eficiencia_estructura,
+        "hc_headcount_saving": hc_headcount_saving,
+        "total_oportunidad_euros": total_oportunidad_euros,
+        "indices": {
+            "Rentabilidad": idx_rentabilidad,
+            "Productividad": idx_productividad,
+            "Liquidez": idx_liquidez,
+            "Comercial": idx_comercial,
+            "Operaciones": idx_operaciones,
+            "Digitalización": idx_digitalizacion,
+            "Autonomía y Riesgo": idx_riesgo,
+            "Capacidad de Crecimiento": idx_crecimiento
+        }
     }
 
 # ==============================================================================
-# 3. BENCHMARKING E INNOVACIÓN DINÁMICA (IA)
+# 3. INTERPRETACIÓN ESTRATÉGICA CONTEXTUAL (GEMINI 1.5 PRO)
 # ==============================================================================
-def generar_analisis_ia(datos: dict, calc: dict) -> dict:
+def consultar_inteligencia_gemini(datos: dict, c: dict) -> dict:
     if not ai_model:
         return {
-            "benchmarking_sectorial": "Análisis sectorial no disponible (requiere API Key de Gemini configurada).",
-            "evaluacion_cuello_botella": "Evaluación basada en parámetros estándar de eficiencia operativa.",
-            "hoja_ruta_innovacion": {
-                "fase_1_digitalizacion": "Auditoría de procesos manuales y centralización de datos maestros.",
-                "fase_2_automatizacion": "Integración de flujos de trabajo repetitivos y facturación electrónica.",
-                "fase_3_ia_aplicada": "Modelado predictivo de demanda y asistencia automatizada.",
-                "fase_4_blindaje_legal": "Cumplimiento normativo de facturación digital obligatoria."
-            },
-            "recomendacion_directiva": "Priorizar la captura de fugas operativas de corto plazo para autofinanciar la modernización tecnológica."
+            "dictamen_ejecutivo": "Diagnóstico generado mediante motor determinista local. Configure GEMINI_API_KEY para síntesis estratégica avanzada.",
+            "analisis_cuello_botella": f"Fricción identificada en {datos.get('colapso_20pct', 'operaciones')} con impacto directo en margen.",
+            "analisis_riesgo_gobernanza": "Dependencia organizativa moderada. Requiere procedimentar puestos clave.",
+            "hoja_ruta": {
+                "inmediato_30d": "Contención de fugas en retrabajo y aceleración de cobros pendientes.",
+                "medio_plazo_90d": "Automatización de duplicidades de datos y eliminación de software obsoleto.",
+                "estrategico_12m": f"Alineación organizativa orientada al objetivo directivo: {datos.get('objetivo_estrategico', 'Crecer')}"
+            }
         }
 
     prompt = f"""
-    Actúa como un Auditor Estratégico y Consultor de Dirección de primer nivel (KROMA Ops).
-    Tu misión es generar un análisis contextualizado de benchmarking sectorial y una hoja de ruta de innovación para la siguiente empresa:
+    Actúa como Socio Director de Consultoría Estratégica (KROMA Ops). 
+    Audita a la siguiente empresa con rigor implacable a partir de sus datos reales e índices calculados:
 
-    PERFIL DE LA EMPRESA:
-    - Nombre: {datos.get('nombre_empresa', 'Empresa Auditada')}
-    - Sector de Actividad: {datos.get('sector', 'No especificado')}
-    - Modelo de Negocio: {datos.get('modelo_negocio', 'Servicios / Operaciones')}
-    - Plantilla: {calc['plantilla']} empleados
-    - Madurez Digital Actual: {datos.get('madurez_digital', 'Básica')}
-    - Principal Cuello de Botella Declarado: {datos.get('cuello_botella', 'Gestión operativa')}
+    EMPRESA Y CONTEXTO:
+    - Razón Social: {datos.get('nombre_empresa')} | Sector: {datos.get('sector')} | Submódulo: {datos.get('tipo_negocio')}
+    - Objetivo de la Dirección: {datos.get('objetivo_estrategico')} | Problema Crítico Declarado: {datos.get('problema_principal')}
+    - Colapso si suben ventas 20%: {datos.get('colapso_20pct')} | Dependencia Gerente: {datos.get('dependencia_gerente')}
+    - Datos Específicos del Módulo: {json.dumps(datos.get('datos_sectoriales', {}), ensure_ascii=False)}
 
-    MÉTRICAS Y P&L CONCILIADO:
-    - Facturación Anual: {calc['facturacion']:,.2f} €
-    - Facturación por Empleado: {calc['facturacion_por_empleado']:,.2f} €
-    - Peso de Personal sobre Ventas: {calc['ratio_coste_laboral']:.1f} %
-    - EBITDA Actual: {calc['ebitda_actual']:,.2f} € ({calc['margen_ebitda_pct']:.1f} %)
-    - Fuga Operativa Estimada: {calc['fuga_operativa_anual']:,.2f} € / año
-    - Horas anuales recuperables: {calc['horas_recuperables_estimadas']:.0f} h
+    MÉTRICAS ECONÓMICAS Y OPERATIVAS:
+    - Ventas: {c['v_actual']:,.2f} € (Variación interanual: {c['crecimiento_ventas']:+.1f}%)
+    - Margen Bruto: {c['margen_bruto']:,.2f} € ({c['margen_bruto_pct']:.1f}%) | EBITDA: {c['ebitda']:,.2f} € ({c['ebitda_pct']:.1f}%)
+    - Ciclo Conversión Efectivo (CCC): {c['ccc']:.1f} días (DSO: {c['dso']:.1f}d | Stock: {c['dio']:.1f}d | DPO: {c['dpo']:.1f}d)
+    - Concentración Top 5 Clientes: {datos.get('concentracion_top5')}%
 
-    INSTRUCCIONES ANALÍTICAS:
-    1. Compara estos ratios con los estándares reales y benchmarking de su sector ({datos.get('sector')}). Indica si sus ratios están por encima, en la media o rezagados respecto al cuartil superior.
-    2. Analiza específicamente su cuello de botella declarado ('{datos.get('cuello_botella')}') y explica la causa raíz operativa.
-    3. Diseña una hoja de ruta de modernización en 4 horizontes:
-       - Digitalización y procesos inmediatos.
-       - Automatización de flujos de trabajo.
-       - Aplicación práctica de Inteligencia Artificial específica para este sector.
-       - Adecuación y blindaje normativo / fiscal (Facturación electrónica, Veri*factu).
-    4. Proporciona una recomendación de gobernanza para el Comité de Dirección.
+    OPORTUNIDAD MONETIZADA (TOTAL RECUPERABLE: {c['total_oportunidad_euros']:,.2f} €/año):
+    - [DR] Retorno Directo (Retrabajos + Merma): {c['dr_retorno_directo']:,.2f} €
+    - [C] Capacidad Liberada (Horas Improductivas): {c['c_capacidad_liberada']:,.2f} €
+    - [ES] Eficiencia Estructural (Duplicidad Administrativa): {c['es_eficiencia_estructura']:,.2f} €
 
-    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO CON ESTA ESTRUCTURA (sin comillas invertidas ni bloques markdown):
+    PUNTUACIÓN 8 ÍNDICES KROMA (0-10):
+    {json.dumps({k: round(v, 1) for k, v in c['indices'].items()}, ensure_ascii=False)}
+
+    INSTRUCCIONES DIRECTIVAS:
+    1. Redacta un DICTAMEN EJECUTIVO directo, sin rodeos, evaluando si el modelo actual soporta el objetivo de "{datos.get('objetivo_estrategico')}".
+    2. Analiza la CAUSA RAÍZ de su cuello de botella operativo ({datos.get('colapso_20pct')}).
+    3. Evalúa el RIESGO DE GOBERNANZA (dependencia del gerente y concentración de clientes).
+    4. Diseña una HOJA DE RUTA en 3 fases (30 días, 90 días, 12 meses) enfocada en capturar los € de oportunidad y blindar la empresa.
+
+    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO (sin markdown, sin backticks):
     {{
-        "benchmarking_sectorial": "Análisis comparativo riguroso frente al mercado...",
-        "evaluacion_cuello_botella": "Diagnóstico detallado de su principal fricción...",
-        "hoja_ruta_innovacion": {{
-            "fase_1_digitalizacion": "...",
-            "fase_2_automatizacion": "...",
-            "fase_3_ia_aplicada": "...",
-            "fase_4_blindaje_legal": "..."
-        }},
-        "recomendacion_directiva": "Dictamen final para la Dirección General..."
+        "dictamen_ejecutivo": "...",
+        "analisis_cuello_botella": "...",
+        "analisis_riesgo_gobernanza": "...",
+        "hoja_ruta": {{
+            "inmediato_30d": "...",
+            "medio_plazo_90d": "...",
+            "estrategico_12m": "..."
+        }}
     }}
     """
     try:
-        response = ai_model.generate_content(prompt)
-        raw_text = response.text.strip()
-        if raw_text.startswith("```json"):
-            raw_text = raw_text[7:]
-        if raw_text.startswith("```"):
-            raw_text = raw_text[3:]
-        if raw_text.endswith("```"):
-            raw_text = raw_text[:-3]
-        return json.loads(raw_text.strip())
-    except Exception as e:
+        res = ai_model.generate_content(prompt)
+        txt = res.text.strip()
+        if txt.startswith("```json"): txt = txt[7:]
+        if txt.startswith("```"): txt = txt[3:]
+        if txt.endswith("```"): txt = txt[:-3]
+        return json.loads(txt.strip())
+    except Exception:
         return {
-            "benchmarking_sectorial": f"Diagnóstico sectorial en proceso. Análisis empírico del sector {datos.get('sector')}.",
-            "evaluacion_cuello_botella": f"Fricción identificada en {datos.get('cuello_botella')}. Se sugiere optimización de tiempos.",
-            "hoja_ruta_innovacion": {
-                "fase_1_digitalizacion": "Estandarización y captura centralizada de datos.",
-                "fase_2_automatizacion": "Eliminación de tareas manuales de gestión y reconciliación.",
-                "fase_3_ia_aplicada": "Asistentes de operaciones y automatización analítica.",
-                "fase_4_blindaje_legal": "Adaptación a sistemas de facturación verificable."
-            },
-            "recomendacion_directiva": "Proceder a la fase de captura de ineficiencias según el plan proforma."
+            "dictamen_ejecutivo": f"La estructura económica muestra un EBITDA del {c['ebitda_pct']:.1f}%. El objetivo de '{datos.get('objetivo_estrategico')}' requiere sanear el ciclo de conversión de efectivo ({c['ccc']:.0f} días) y desahogar tareas manuales.",
+            "analisis_cuello_botella": f"El colapso señalado en '{datos.get('colapso_20pct')}' evidencia un dimensionamiento rígido que absorbe liquidez.",
+            "analisis_riesgo_gobernanza": f"Concentración en principales cuentas ({datos.get('concentracion_top5')}%) y nivel de dependencia directiva clasificado como crítico.",
+            "hoja_ruta": {
+                "inmediato_30d": "Reclamación activa de cartera vencida y reducción de retrabajos operativos.",
+                "medio_plazo_90d": "Unificación de la pila de software para suprimir la reintroducción manual de información.",
+                "estrategico_12m": "Estandarización de procesos operativos para desacoplar el crecimiento del tiempo del director general."
+            }
         }
 
 # ==============================================================================
-# 4. GENERADOR PDF EDITORIAL (15 SECCIONES)
+# 4. GENERADOR PDF EDITORIAL DE ALTA DENSIDAD
 # ==============================================================================
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -210,262 +254,239 @@ class NumberedCanvas(canvas.Canvas):
 
     def draw_page_decorations(self, page_count):
         self.saveState()
-        self.setFont("Helvetica", 8)
-        self.setFillColor(colors.HexColor("#64748B"))
-        # Encabezado
-        self.drawString(54, 800, "KROMA OPS | DOSSIER DE AUDITORÍA OPERATIVA Y ESTRATÉGICA")
+        self.setFont("Helvetica", 7.5)
+        self.setFillColor(colors.HexColor("#475569"))
+        self.drawString(45, 804, "KROMA OPS | AUDITORÍA INTEGRAL Y DICTAMEN ESTRATÉGICO")
         self.setStrokeColor(colors.HexColor("#CBD5E1"))
         self.setLineWidth(0.5)
-        self.line(54, 792, 541, 792)
-        # Pie
-        self.line(54, 48, 541, 48)
-        self.drawString(54, 36, "DOCUMENTO TÉCNICO CONFIDENCIAL - EMISIÓN DIRECTIVA")
-        self.drawRightString(541, 36, f"Página {self._pageNumber} de {page_count}")
+        self.line(45, 796, 550, 796)
+        self.line(45, 42, 550, 42)
+        self.drawString(45, 30, "DOCUMENTO TÉCNICO CONFIDENCIAL - ESTRICTAMENTE RESERVADO A DIRECCIÓN")
+        self.drawRightString(550, 30, f"Página {self._pageNumber} de {page_count}")
         self.restoreState()
 
-def generar_pdf_universal(datos: dict, calc: dict, ia_results: dict) -> bytes:
+def generar_pdf_dossier(d: dict, c: dict, ia: dict) -> bytes:
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        leftMargin=54,
-        rightMargin=54,
-        topMargin=60,
-        bottomMargin=60
+        leftMargin=45,
+        rightMargin=45,
+        topMargin=55,
+        bottomMargin=55
     )
 
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'DocTitle',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=24,
-        textColor=colors.HexColor("#0F172A"),
-        spaceAfter=12
-    )
-    h1_style = ParagraphStyle(
-        'H1',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=12,
-        leading=16,
-        textColor=colors.HexColor("#1E293B"),
-        spaceBefore=14,
-        spaceAfter=6
-    )
-    body_style = ParagraphStyle(
-        'Body',
-        parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=9.5,
-        leading=13.5,
-        textColor=colors.HexColor("#334155"),
-        spaceAfter=8
-    )
+    title_style = ParagraphStyle('DocTitle', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=18, leading=22, textColor=colors.HexColor("#0F172A"), spaceAfter=6)
+    sub_style = ParagraphStyle('DocSub', parent=styles['Normal'], fontName='Helvetica', fontSize=8.5, leading=11, textColor=colors.HexColor("#64748B"), spaceAfter=12)
+    h1 = ParagraphStyle('H1', parent=styles['Normal'], fontName='Helvetica-Bold', fontSize=10.5, leading=14, textColor=colors.HexColor("#0F172A"), spaceBefore=10, spaceAfter=5)
+    body = ParagraphStyle('Body', parent=styles['Normal'], fontName='Helvetica', fontSize=8, leading=11, textColor=colors.HexColor("#334155"), spaceAfter=6)
+    callout = ParagraphStyle('Callout', parent=styles['Normal'], fontName='Helvetica-Oblique', fontSize=8, leading=11, textColor=colors.HexColor("#1E293B"))
 
     story = []
+    story.append(Paragraph(f"INFORME DE AUDITORÍA OPERATIVA Y VALORACIÓN DE EFICIENCIA", title_style))
+    story.append(Paragraph(f"<b>Entidad:</b> {d.get('nombre_empresa')} | <b>Sector:</b> {d.get('sector')} | <b>Modelo:</b> {d.get('tipo_negocio')} | <b>Objetivo Declarado:</b> {d.get('objetivo_estrategico')}", sub_style))
 
-    # Portada / Cabecera
-    story.append(Paragraph(f"INFORME DE AUDITORÍA OPERATIVA Y HOJA DE RUTA", title_style))
-    story.append(Paragraph(f"<b>Entidad:</b> {datos.get('nombre_empresa', 'No especificada')} | <b>Sector:</b> {datos.get('sector', 'General')} | <b>Plantilla:</b> {calc['plantilla']} personas", body_style))
-    story.append(Spacer(1, 10))
+    # Bloque 1: Dictamen Ejecutivo
+    story.append(Paragraph("1. DICTAMEN ESTRATÉGICO DE DIRECCIÓN", h1))
+    story.append(Paragraph(ia.get("dictamen_ejecutivo", ""), callout))
+    story.append(Spacer(1, 6))
 
-    # Sección 1: P&L Base
-    story.append(Paragraph("1. Conciliación Económica Base (P&L Verificada)", h1_style))
-    pl_data = [
-        ["Concepto Contable", "Importe Anual (€)", "% sobre Ingresos"],
-        ["Facturación Total Bruta", f"{calc['facturacion']:,.2f} €", "100,0 %"],
-        ["Aprovisionamientos / Costes Directos", f"{calc['aprovisionamientos']:,.2f} €", f"{calc['aprovisionamientos']/calc['facturacion']*100:.1f} %"],
-        ["Masa Salarial y Cargas Sociales", f"{calc['coste_personal']:,.2f} €", f"{calc['ratio_coste_laboral']:.1f} %"],
-        ["Costes Operativos Generales (Opex)", f"{calc['costes_operativos']:,.2f} €", f"{calc['costes_operativos']/calc['facturacion']*100:.1f} %"],
-        ["EBITDA de Explotación", f"{calc['ebitda_actual']:,.2f} €", f"{calc['margen_ebitda_pct']:.1f} %"]
+    # Bloque 2: Matriz de los 8 Índices KROMA
+    story.append(Paragraph("2. MATRIZ CUANTITATIVA DE 8 ÍNDICES DE RENDIMIENTO", h1))
+    idx_items = list(c["indices"].items())
+    row1_names = [k for k, _ in idx_items[:4]]
+    row1_vals = [f"{v:.1f} / 10" for _, v in idx_items[:4]]
+    row2_names = [k for k, _ in idx_items[4:]]
+    row2_vals = [f"{v:.1f} / 10" for _, v in idx_items[4:]]
+    
+    t_idx_data = [
+        row1_names,
+        row1_vals,
+        row2_names,
+        row2_vals
     ]
-    t_pl = Table(pl_data, colWidths=[240, 130, 117])
-    t_pl.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F1F5F9")),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor("#0F172A")),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ('TOPPADDING', (0, 0), (-1, -1), 4),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
-        ('LINEBELOW', (0, -1), (-1, -1), 1.5, colors.HexColor("#0F172A")),
-    ]))
-    story.append(t_pl)
-    story.append(Spacer(1, 10))
-
-    # Sección 2: Benchmarking Sectorial (IA)
-    story.append(Paragraph("2. Evaluación de Benchmarking y Competitividad Sectorial", h1_style))
-    story.append(Paragraph(ia_results.get("benchmarking_sectorial", ""), body_style))
-    story.append(Spacer(1, 8))
-
-    # Sección 3: Análisis de Cuello de Botella y Fugas
-    story.append(Paragraph(f"3. Diagnóstico de Operativa y Fricción Declarada ({datos.get('cuello_botella', 'Operativa')})", h1_style))
-    story.append(Paragraph(ia_results.get("evaluacion_cuello_botella", ""), body_style))
-    story.append(Paragraph(f"<b>Cuantificación de fuga operativa estimada:</b> {calc['fuga_operativa_anual']:,.2f} €/año (equivalente a aprox. {calc['horas_recuperables_estimadas']:,.0f} horas de capacidad no capitalizada).", body_style))
-    story.append(Spacer(1, 8))
-
-    # Sección 4: Plan Proforma de Modernización a 3 Años
-    story.append(Paragraph("4. Cuenta de Resultados Proforma con Eficiencia Operativa (3 Años)", h1_style))
-    proforma_data = [
-        ["Horizonte Temporal", "EBITDA Proyectado (€)", "Margen s/Ventas", "Generación Neta Acumulada"],
-        ["Año 0 (Situación Actual)", f"{calc['ebitda_actual']:,.2f} €", f"{calc['margen_ebitda_pct']:.1f} %", "Base de Referencia"],
-        ["Año 1 (Fase Digital / Captura 60%)", f"{calc['ebitda_proforma_ao1']:,.2f} €", f"{calc['ebitda_proforma_ao1']/calc['facturacion']*100:.1f} %", f"+{calc['mejora_eficiencia_ao1']:,.2f} €"],
-        ["Año 2 (Automatización / Captura 85%)", f"{calc['ebitda_proforma_ao2']:,.2f} €", f"{calc['ebitda_proforma_ao2']/calc['facturacion']*100:.1f} %", f"+{calc['ebitda_proforma_ao2']-calc['ebitda_actual']:,.2f} €"],
-        ["Año 3 (Madurez con IA / 100%+)", f"{calc['ebitda_proforma_ao3']:,.2f} €", f"{calc['ebitda_proforma_ao3']/calc['facturacion']*100:.1f} %", f"+{calc['ebitda_proforma_ao3']-calc['ebitda_actual']:,.2f} €"]
-    ]
-    t_prof = Table(proforma_data, colWidths=[150, 110, 95, 132])
-    t_prof.setStyle(TableStyle([
+    t_idx = Table(t_idx_data, colWidths=[126, 126, 126, 127])
+    t_idx.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#0F172A")),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTSIZE', (0, 0), (-1, -1), 7.5),
+        ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor("#F8FAFC")),
+        ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor("#1E293B")),
+        ('TEXTCOLOR', (0, 2), (-1, 2), colors.white),
+        ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+        ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor("#F8FAFC")),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
-        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
     ]))
-    story.append(t_prof)
-    story.append(Spacer(1, 10))
+    story.append(t_idx)
+    story.append(Spacer(1, 8))
 
-    # Sección 5: Hoja de Ruta de Innovación
-    story.append(Paragraph("5. Hoja de Ruta de Innovación y Modernización Integral", h1_style))
-    ruta = ia_results.get("hoja_ruta_innovacion", {})
-    story.append(Paragraph(f"• <b>Digitalización de Procesos:</b> {ruta.get('fase_1_digitalizacion', '')}", body_style))
-    story.append(Paragraph(f"• <b>Automatización de Flujos:</b> {ruta.get('fase_2_automatizacion', '')}", body_style))
-    story.append(Paragraph(f"• <b>Inteligencia Artificial Aplicada:</b> {ruta.get('fase_3_ia_aplicada', '')}", body_style))
-    story.append(Paragraph(f"• <b>Blindaje Normativo y Fiscal:</b> {ruta.get('fase_4_blindaje_legal', '')}", body_style))
-    story.append(Spacer(1, 10))
+    # Bloque 3: € de Oportunidad (DR / C / ES / HC)
+    story.append(Paragraph("3. CUANTIFICACIÓN DEL IMPACTO RECUPERABLE (€ DE OPORTUNIDAD)", h1))
+    opp_data = [
+        ["Vector de Impacto", "Monetización (€/año)", "Origen de la Fuga / Acción Requerida"],
+        ["[DR] Retorno Directo", f"{c['dr_retorno_directo']:,.2f} €", "Contención de retrabajo, costes de errores y liquidación de mermas"],
+        ["[C] Capacidad Liberada", f"{c['c_capacidad_liberada']:,.2f} €", "Margen bruto recuperable al reconvertir horas improductivas en facturación"],
+        ["[ES] Eficiencia de Estructura", f"{c['es_eficiencia_estructura']:,.2f} €", "Supresión de duplicidad de captura de datos y horas manuales de oficina"],
+        ["[HC] Optimización de Crecimiento", f"{c['hc_headcount_saving']:,.2f} €", "Capacidad de absorber mayor volumen sin incremento proporcional de personal"],
+        ["TOTAL IMPACTO ACCIONABLE", f"{c['total_oportunidad_euros']:,.2f} €", "Margen neto anual consolidado al culminar la modernización"]
+    ]
+    t_opp = Table(opp_data, colWidths=[145, 110, 250])
+    t_opp.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#1E293B")),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 7.5),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
+        ('LINEBELOW', (0, -1), (-1, -1), 1.5, colors.HexColor("#0F172A")),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor("#F1F5F9")),
+    ]))
+    story.append(t_opp)
+    story.append(Spacer(1, 8))
 
-    # Sección 6: Dictamen Directivo
-    story.append(Paragraph("6. Dictamen de Dirección y Gobernanza", h1_style))
-    story.append(Paragraph(ia_results.get("recomendacion_directiva", ""), body_style))
+    # Bloque 4: Cuenta de Explotación y Tesorería
+    story.append(Paragraph("4. RADIOGRAFÍA FINANCIERA Y CICLO DE CONVERSIÓN DE EFECTIVO", h1))
+    fin_data = [
+        ["Métrica Financiera", "Valor Calculado", "Métrica de Tesorería y Balance", "Valor Calculado"],
+        ["Facturación Anual N", f"{c['v_actual']:,.2f} €", "DSO (Plazo Medio Cobro)", f"{c['dso']:.1f} días"],
+        ["Crecimiento vs N-1", f"{c['crecimiento_ventas']:+.1f} %", "DIO (Permanencia de Stock)", f"{c['dio']:.1f} días"],
+        ["Margen Bruto", f"{c['margen_bruto']:,.2f} € ({c['margen_bruto_pct']:.1f}%)", "DPO (Plazo Pago Proveedor)", f"{c['dpo']:.1f} días"],
+        ["EBITDA Normalizado", f"{c['ebitda']:,.2f} € ({c['ebitda_pct']:.1f}%)", "CCC (Ciclo Conversión Caja)", f"{c['ccc']:.1f} días"],
+        ["EBIT (Resultado Operativo)", f"{c['ebit']:,.2f} €", "Caja Atrapada Excesiva", f"{c['potencial_liberacion_caja']:,.2f} €"]
+    ]
+    t_fin = Table(fin_data, colWidths=[135, 117, 135, 118])
+    t_fin.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor("#F1F5F9")),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 7.5),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor("#CBD5E1")),
+    ]))
+    story.append(t_fin)
+    story.append(Spacer(1, 8))
+
+    # Bloque 5: Análisis de Cuellos de Botella y Riesgo
+    story.append(Paragraph("5. EVALUACIÓN DE VULNERABILIDAD, PROCESOS Y GOBERNANZA", h1))
+    story.append(Paragraph(f"<b>Causa Raíz Operativa ({d.get('colapso_20pct')}):</b> {ia.get('analisis_cuello_botella')}", body))
+    story.append(Paragraph(f"<b>Riesgo Estructural y Concentración:</b> {ia.get('analisis_riesgo_gobernanza')}", body))
+    story.append(Spacer(1, 6))
+
+    # Bloque 6: Hoja de Ruta Ejecutiva
+    story.append(Paragraph("6. PLAN DIRECTIVO DE ACCIÓN Y MODERNIZACIÓN", h1))
+    hr = ia.get("hoja_ruta", {})
+    story.append(Paragraph(f"• <b>Fase 1 (Inmediato - 30 días):</b> {hr.get('inmediato_30d', '')}", body))
+    story.append(Paragraph(f"• <b>Fase 2 (Consolidación - 90 días):</b> {hr.get('medio_plazo_90d', '')}", body))
+    story.append(Paragraph(f"• <b>Fase 3 (Estratégico - 12 meses):</b> {hr.get('estrategico_12m', '')}", body))
 
     doc.build(story, canvasmaker=NumberedCanvas)
     buffer.seek(0)
     return buffer.getvalue()
 
 # ==============================================================================
-# 5. INTERFAZ LIMPIA DE ENTRADA DE DATOS (STREAMLIT)
+# 5. FORMULARIO MODULAR MULTI-BLOQUE (STREAMLIT)
 # ==============================================================================
-st.title("KROMA Ops — Auditoría Operativa y Financiera")
-st.caption("Diagnóstico universal de capacidad, benchmarking sectorial y hoja de ruta de innovación.")
+st.title("KROMA Ops — Auditoría Empresarial y Diagnóstico Integral")
+st.caption("Motor determinista universal de rendimiento operativo, rentabilidad, tesorería y gobernanza.")
 
-with st.form("form_auditoria_universal"):
-    st.subheader("1. Identificación y Perfil de Negocio")
-    col_a1, col_a2 = st.columns(2)
-    with col_a1:
-        nombre_empresa = st.text_input("Nombre de la Empresa", value="Soluciones Integrales S.L.")
-        sector = st.text_input("Sector de Actividad", value="Servicios Técnicos y Mantenimiento Industrial")
-    with col_a2:
-        modelo_negocio = st.selectbox(
-            "Modelo Operativo Principal",
-            ["Servicios con personal de campo / desplazamientos", "Servicios profesionales / consultoría", "Proyectos e instalaciones", "Distribución y comercio", "Fabricación / Taller"]
-        )
-        plantilla = st.number_input("Plantilla Total (personas)", min_value=1, value=12, step=1)
-
-    st.subheader("2. Cuentas Maestras de Explotación (Anual)")
-    col_b1, col_b2, col_b3, col_b4 = st.columns(4)
-    with col_b1:
-        facturacion = st.number_input("Facturación Anual (€)", min_value=10000.0, value=850000.0, step=10000.0)
-    with col_b2:
-        coste_personal = st.number_input("Coste Personal Anual (€)", min_value=5000.0, value=380000.0, step=5000.0)
-    with col_b3:
-        aprovisionamientos = st.number_input("Aprovisionamientos / Materiales (€)", min_value=0.0, value=220000.0, step=5000.0)
-    with col_b4:
-        costes_operativos = st.number_input("Gastos Generales / Opex (€)", min_value=0.0, value=110000.0, step=5000.0)
-
-    st.subheader("3. Madurez y Cuellos de Botella Actuales")
-    col_c1, col_c2 = st.columns(2)
-    with col_c1:
-        madurez_digital = st.selectbox(
-            "Nivel de Digitalización Actual",
-            [
-                "Manual / Papel / Hojas de cálculo aisladas",
-                "Básico / Herramientas estándar no integradas",
-                "Medio / ERP o software sectorial parcial",
-                "Alto / Procesos integrados y automatizados"
-            ]
-        )
-    with col_c2:
-        cuello_botella = st.selectbox(
-            "Principal Fricción o Reto Percibido",
-            [
-                "Control de horas trabajadas vs. horas facturadas",
-                "Retrasos en presupuestos y cobro de servicios",
-                "Márgenes reducidos y costes operativos descontrolados",
-                "Dependencia excesiva de tareas manuales y administrativas",
-                "Falta de visibilidad sobre la rentabilidad real por cliente o proyecto"
-            ]
-        )
-
-    submit_btn = st.form_submit_button("Ejecutar Auditoría y Generar Plan")
-
-# ==============================================================================
-# 6. EJECUCIÓN Y RENDERIZADO DEL DIAGNÓSTICO
-# ==============================================================================
-if submit_btn:
-    datos_input = {
-        "nombre_empresa": nombre_empresa,
-        "sector": sector,
-        "modelo_negocio": modelo_negocio,
-        "plantilla": plantilla,
-        "facturacion": facturacion,
-        "coste_personal": coste_personal,
-        "aprovisionamientos": aprovisionamientos,
-        "costes_operativos": costes_operativos,
-        "madurez_digital": madurez_digital,
-        "cuello_botella": cuello_botella
-    }
-
-    with st.spinner("Conciliando estados financieros a residuo cero y analizando sector..."):
-        calculos = calcular_auditoria_universal(datos_input)
-        analisis_ia = generar_analisis_ia(datos_input, calculos)
-        pdf_bytes = generar_pdf_universal(datos_input, calculos, analisis_ia)
-
-    st.success("Auditoría completada. Conciliación matemática verificada (Residuo: 0,00 €).")
-
-    # Métricas de primer nivel
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("EBITDA Actual", f"{calculos['ebitda_actual']:,.2f} €", f"{calculos['margen_ebitda_pct']:.1f}%")
-    m2.metric("Fuga Operativa Anual", f"{calculos['fuga_operativa_anual']:,.2f} €", "-Incurrible", delta_color="inverse")
-    m3.metric("Recuperación Año 1", f"+{calculos['mejora_eficiencia_ao1']:,.2f} €", f"Payback: {calculos['payback_meses']:.1f} m")
-    m4.metric("Facturación / Empleado", f"{calculos['facturacion_por_empleado']:,.2f} €", f"Coste: {calculos['ratio_coste_laboral']:.1f}% s/Ventas")
-
-    st.markdown("---")
-
-    # Pestañas de detalle
-    tab1, tab2, tab3 = st.tabs(["📊 P&L Conciliado", "🌐 Benchmarking e IA", "🚀 Plan de Innovación"])
+with st.form("form_auditoria_completa"):
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        "1. Identidad y Estrategia",
+        "2. P&L y Rentabilidad",
+        "3. Tesorería y Balance",
+        "4. Productividad y Personas",
+        "5. Comercial y Clientes",
+        "6. Procesos y Datos",
+        "7. Módulo Sectorial"
+    ])
 
     with tab1:
-        st.write("#### Conciliación Estricta de la Cuenta de Explotación")
-        df_pl = pd.DataFrame([
-            {"Partida": "Facturación Bruta", "Importe (€)": calculos["facturacion"], "% s/Ventas": 100.0},
-            {"Partida": "(-) Aprovisionamientos y Costes Directos", "Importe (€)": -calculos["aprovisionamientos"], "% s/Ventas": (calculos["aprovisionamientos"]/calculos["facturacion"])*100},
-            {"Partida": "(-) Masa Salarial y Seguridad Social", "Importe (€)": -calculos["coste_personal"], "% s/Ventas": calculos["ratio_coste_laboral"]},
-            {"Partida": "(-) Gastos de Explotación (Opex)", "Importe (€)": -calculos["costes_operativos"], "% s/Ventas": (calculos["costes_operativos"]/calculos["facturacion"])*100},
-            {"Partida": "(=) EBITDA Normalizado", "Importe (€)": calculos["ebitda_actual"], "% s/Ventas": calculos["margen_ebitda_pct"]},
-        ])
-        st.dataframe(df_pl.style.format({"Importe (€)": "{:,.2f} €", "% s/Ventas": "{:.1f} %"}), use_container_width=True)
+        st.subheader("Identificación de la Empresa y Visión Estratégica")
+        c1, c2 = st.columns(2)
+        with c1:
+            nombre_empresa = st.text_input("Nombre de la Empresa", value="Técnicas y Montajes Industriales S.L.")
+            sector = st.text_input("Sector de Actividad", value="Ingeniería y Servicios Técnicos")
+            plantilla = st.number_input("Nº Empleados Totales", min_value=1, value=14, step=1)
+        with c2:
+            tipo_negocio = st.selectbox("Tipología / Módulo Dinámico", [
+                "Servicios Técnicos / Instalaciones",
+                "Industria / Fabricación",
+                "Comercio / Retail / Distribución",
+                "Hostelería / Restauración",
+                "Servicios Profesionales / Consultoría"
+            ])
+            objetivo_estrategico = st.selectbox("Objetivo de la Dirección a 3 Años", [
+                "Aumentar rentabilidad y margen (manteniendo tamaño)",
+                "Escalar y crecer en volumen de ventas",
+                "Reducir dependencia del propietario / profesionalizar",
+                "Preparar la empresa para una venta o entrada de socios",
+                "Sanear tesorería y reducir endeudamiento"
+            ])
+            problema_principal = st.text_input("Mayor Problema que Quita el Sueño a la Dirección", value="Falta de control de horas en proyectos y retrasos en cobros.")
 
     with tab2:
-        st.write("#### Benchmarking Sectorial Dinámico")
-        st.info(analisis_ia.get("benchmarking_sectorial", ""))
-        st.write("#### Análisis del Cuello de Botella")
-        st.write(analisis_ia.get("evaluacion_cuello_botella", ""))
+        st.subheader("Cuenta de Explotación (Mini P&L Anual)")
+        c3, c4, c5 = st.columns(3)
+        with c3:
+            ventas_n = st.number_input("Facturación Año Actual (€)", min_value=1000.0, value=1250000.0, step=25000.0)
+            ventas_n1 = st.number_input("Facturación Año Anterior (€)", min_value=1000.0, value=1100000.0, step=25000.0)
+        with c4:
+            compras = st.number_input("Aprovisionamientos / Materiales (€)", min_value=0.0, value=350000.0, step=10000.0)
+            subcontratas = st.number_input("Subcontratación Directa (€)", min_value=0.0, value=90000.0, step=5000.0)
+        with c5:
+            personal = st.number_input("Masa Salarial Total + SS (€)", min_value=1000.0, value=480000.0, step=10000.0)
+            estructura = st.number_input("Gastos Generales / Opex (€)", min_value=0.0, value=160000.0, step=5000.0)
+            amortizaciones = st.number_input("Amortizaciones (€)", min_value=0.0, value=25000.0, step=2000.0)
+            gastos_financieros = st.number_input("Gastos Financieros (€)", min_value=0.0, value=12000.0, step=1000.0)
 
     with tab3:
-        st.write("#### Hoja de Ruta de Modernización")
-        ruta = analisis_ia.get("hoja_ruta_innovacion", {})
-        st.markdown(f"**1. Digitalización:** {ruta.get('fase_1_digitalizacion', '')}")
-        st.markdown(f"**2. Automatización:** {ruta.get('fase_2_automatizacion', '')}")
-        st.markdown(f"**3. IA Aplicada al Sector:** {ruta.get('fase_3_ia_aplicada', '')}")
-        st.markdown(f"**4. Blindaje Normativo:** {ruta.get('fase_4_blindaje_legal', '')}")
-        st.markdown(f"> **Dictamen Directivo:** {analisis_ia.get('recomendacion_directiva', '')}")
+        st.subheader("Balance Operativo y Circulante (Tesorería)")
+        c6, c7 = st.columns(2)
+        with c6:
+            saldo_clientes = st.number_input("Saldo Pendiente de Clientes (€)", min_value=0.0, value=260000.0, step=10000.0)
+            saldo_proveedores = st.number_input("Saldo Deuda a Proveedores (€)", min_value=0.0, value=85000.0, step=5000.0)
+            stock_medio = st.number_input("Valor de Stock / Inventario Medio (€)", min_value=0.0, value=75000.0, step=5000.0)
+        with c7:
+            caja_actual = st.number_input("Caja / Tesorería Disponible (€)", min_value=0.0, value=45000.0, step=5000.0)
+            deuda_bancaria = st.number_input("Deuda Bancaria Total (€)", min_value=0.0, value=180000.0, step=10000.0)
+            cuota_mensual_deuda = st.number_input("Cuota Mensual Financiación (€/mes)", min_value=0.0, value=3200.0, step=200.0)
 
-    st.markdown("---")
-    st.download_button(
-        label="📄 Descargar Dossier de Auditoría Completo (PDF)",
-        data=pdf_bytes,
-        file_name=f"Auditoria_KROMA_{datos_input['nombre_empresa'].replace(' ', '_')}.pdf",
-        mime="application/pdf"
-    )
+    with tab4:
+        st.subheader("Capacidad, Productividad y Personas")
+        c8, c9 = st.columns(2)
+        with c8:
+            pct_horas_improductivas = st.slider("% Horas no facturables / improductivas (desplazamientos, gestiones)", 0, 60, 22)
+            num_trabajos_anuales = st.number_input("Nº Total de Trabajos / Proyectos / Pedidos al año", min_value=1, value=650, step=25)
+            pct_retrabajo = st.slider("% Trabajos con fallos / repeticiones / retrabajo", 0, 30, 6)
+            coste_medio_error = st.number_input("Coste Medio de Subsanar un Error / Retrabajo (€)", min_value=0.0, value=350.0, step=25.0)
+        with c9:
+            dependencia_gerente = st.selectbox("Si el Gerente desaparece 30 días:", [
+                "La empresa opera con normalidad",
+                "Aparecen fricciones pero continúa",
+                "Se frenan decisiones críticas y presupuestos",
+                "La empresa se detiene en 48-72h"
+            ])
+            colapso_20pct = st.selectbox("Si las ventas suben un 20% mañana, ¿qué colapsa primero?", [
+                "Capacidad técnica / Operarios de campo",
+                "Administración y facturación",
+                "Tesorería / Financiación del circulante",
+                "Capacidad de almacenaje y logística",
+                "Nada, tenemos holgura operativa"
+            ])
+            capacidad_adicional_pct = st.slider("% Volumen adicional absorbible sin contratar", 0, 50, 15)
+
+    with tab5:
+        st.subheader("Comercial, Cartera y Dependencia")
+        c10, c11 = st.columns(2)
+        with c10:
+            leads_anuales = st.number_input("Nº Oportunidades / Presupuestos emitidos al año", min_value=1, value=220, step=10)
+            ventas_cerradas = st.number_input("Nº Presupuestos Ganados / Clientes cerrados", min_value=1, value=85, step=5)
+        with c11:
+            concentracion_top5 = st.slider("% Ventas en los 5 Mayores Clientes", 5, 100, 48)
+            churn_pct = st.slider("% Clientes perdidos al año (Tasa de Churn)", 0, 50, 8)
+
+    with tab6:
+        st.subheader("Digitalización, Procesos y Duplicidades
