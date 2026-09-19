@@ -5,10 +5,10 @@ import os
 import google.generativeai as genai
 
 # ==============================================================================
-# 1. CONFIGURACIÓN DEL SISTEMA Y GESTIÓN DE API
+# 1. CONFIGURACIÓN DEL SISTEMA Y GESTIÓN DE ACCESO
 # ==============================================================================
 st.set_page_config(
-    page_title="KROMA Enterprise | Radar Estratégico y Benchmarking por CIF",
+    page_title="KROMA Packaging Intelligence | Radar Estratégico Especializado",
     layout="wide"
 )
 
@@ -24,12 +24,13 @@ with st.sidebar:
         type="password",
         help="Clave de Google AI Studio (aistudio.google.com)"
     )
-    st.caption("Capa 1: Motor de sintesis directiva y evaluacion de riesgos.")
+    st.caption("Vertical Activo: Envases, Embalajes y Termoformado (CNAE 1721 / 2222)")
     st.divider()
-    st.markdown("**Capas de Datos Conectadas:**")
-    st.markdown("- Capa 2: Registro Mercantil / SABI (Balances)")
-    st.markdown("- Capa 3: Benchmarking Ciego (50 Rivales CNAE)")
-    st.markdown("- Capa 4: Radar BDNS y Scoring Vendor Finance")
+    st.markdown("**Bases de Datos Estructuradas:**")
+    st.markdown("- Muestra SABI: 50 Balances oficiales auditados")
+    st.markdown("- Normativa UE: PPWR / Ley 7/2022 / Directiva SUP")
+    st.markdown("- Catálogo Tecnologías COTS: TRL 8-9")
+    st.markdown("- Scoring Financiero: Grenke / DLL Vendor Finance")
 
 if api_key_input:
     genai.configure(api_key=api_key_input)
@@ -60,189 +61,237 @@ def obtener_modelo_activo():
     return genai.GenerativeModel("gemini-3.6-flash")
 
 # ==============================================================================
-# 2. CAPAS 2 Y 3: BASE DE DATOS REGISTRO MERCANTIL / SABI & BENCHMARKING
+# 2. BASE DE CONOCIMIENTO ESTRUCTURADA: PACKAGING & ENVASES (DATA ENGINE)
 # ==============================================================================
+
+# 2.1. Base de Balances Oficiales (Registro Mercantil / SABI)
 BASE_DATOS_SABI = {
     "B98765432": {
         "razon_social": "BioPack Levantina de Envases S.L.",
-        "cnae": "1721 - Fabricacion de papel y carton ondulado; envases y embalajes",
+        "cnae": "1721 - Fabricación de papel y cartón ondulado; envases y embalajes",
+        "subsector": "Termoformado de celulosa y envases microcanal para HORECA e industria alimentaria",
         "provincia": "Valencia",
         "plantilla": 24,
-        "historico_3y": {
-            "2022": {"ventas": 2850000, "ebitda": 245000, "ebitda_pct": 8.6, "dso": 88, "dio": 46},
-            "2023": {"ventas": 3120000, "ebitda": 280000, "ebitda_pct": 9.0, "dso": 84, "dio": 44},
-            "2024": {"ventas": 3410000, "ebitda": 289850, "ebitda_pct": 8.5, "dso": 82, "dio": 42}
-        },
         "balance_actual": {
-            "ventas": 3410000,
-            "coste_materiales": 1580000,
-            "personal": 980000,
-            "gastos_explotacion": 560150,
-            "ebitda": 289850,
+            "ventas": 3410000.0,
+            "coste_materiales_consumos": 1580000.0,
+            "personal": 980000.0,
+            "gastos_explotacion_opex": 560150.0,
+            "ebitda": 289850.0,
             "ebitda_pct": 8.5,
-            "clientes_cobro_pendiente": 765000,
-            "existencias_stock": 390000,
-            "proveedores_deuda": 320000,
-            "tesoreria_disponible": 65000,
-            "deuda_bancaria_total": 540000,
+            "amortizaciones": 75000.0,
+            "gastos_financieros": 22000.0,
+            "resultado_neto_est": 144637.5,
+            "clientes_cobro_pendiente": 765000.0,  # DSO: 81.9 días
+            "existencias_stock": 390000.0,         # DIO: 90.1 días sobre compras
+            "proveedores_deuda": 320000.0,         # DPO: 73.9 días
+            "tesoreria_disponible": 65000.0,
+            "deuda_bancaria_total": 540000.0,
             "ratio_deuda_ebitda": 1.86,
-            "capex_maximo_anual": 45000
+            "capex_maximo_anual": 45000.0
         },
         "benchmark_50_rivales": {
-            "muestra_tamano": 50,
-            "cnae_analizado": "1721 (Segmento 2M a 6M EUR en España)",
+            "cnae_analizado": "1721 (Segmento 2.5M a 6M EUR en España - Muestra de 50 empresas)",
             "ebitda_medio_pct": 12.8,
             "ebitda_top25_pct": 15.4,
-            "dso_medio_dias": 58,
-            "dio_medio_dias": 28,
-            "ventas_por_empleado_media": 185000,
-            "ventas_por_empleado_empresa": 142083
-        }
-    },
-    "A28123456": {
-        "razon_social": "Mecanizados y Matrices del Norte S.A.",
-        "cnae": "2562 - Ingenieria mecanica por cuenta de terceros / Mecanizado",
-        "provincia": "Navarra",
-        "plantilla": 18,
-        "historico_3y": {
-            "2022": {"ventas": 2100000, "ebitda": 210000, "ebitda_pct": 10.0, "dso": 92, "dio": 35},
-            "2023": {"ventas": 2350000, "ebitda": 230000, "ebitda_pct": 9.8, "dso": 90, "dio": 38},
-            "2024": {"ventas": 2580000, "ebitda": 245100, "ebitda_pct": 9.5, "dso": 87, "dio": 36}
-        },
-        "balance_actual": {
-            "ventas": 2580000,
-            "coste_materiales": 920000,
-            "personal": 1020000,
-            "gastos_explotacion": 394900,
-            "ebitda": 245100,
-            "ebitda_pct": 9.5,
-            "clientes_cobro_pendiente": 615000,
-            "existencias_stock": 254000,
-            "proveedores_deuda": 210000,
-            "tesoreria_disponible": 52000,
-            "deuda_bancaria_total": 480000,
-            "ratio_deuda_ebitda": 1.95,
-            "capex_maximo_anual": 35000
-        },
-        "benchmark_50_rivales": {
-            "muestra_tamano": 50,
-            "cnae_analizado": "2562 (Segmento 1.5M a 5M EUR en España)",
-            "ebitda_medio_pct": 14.2,
-            "ebitda_top25_pct": 17.1,
-            "dso_medio_dias": 62,
-            "dio_medio_dias": 22,
-            "ventas_por_empleado_media": 172000,
-            "ventas_por_empleado_empresa": 143333
+            "dso_medio_dias": 58.0,
+            "dso_top25_dias": 45.0,
+            "dio_medio_dias": 32.0,
+            "dio_top25_dias": 22.0,
+            "ventas_por_empleado_media": 185000.0,
+            "ventas_por_empleado_empresa": 142083.0,
+            "merma_media_sector_pct": 3.8,
+            "merma_top25_sector_pct": 1.6
         }
     }
 }
 
-# ==============================================================================
-# 3. CAPA 4: RADAR DE SUBVENCIONES VIGENTES Y PARTNERS VENDOR FINANCE
-# ==============================================================================
-SUBVENCIONES_OFICIALES = [
+# 2.2. Base de Datos de Normativas y Amenazas Regulatorias Reales (Sector Packaging)
+KNOWLEDGE_NORMATIVAS = [
     {
-        "organismo": "IVACE / Fondos Feder - Programa Economia Circular",
-        "convocatoria": "Sustitucion de recubrimientos plasticos por dispersion acuosa en lineas termicas",
-        "cobertura": "Hasta 40% a fondo perdido (Tope: 75.000 EUR)",
-        "plazo": "Convocatoria activa - Cierre en 45 dias habiles",
-        "cnaes_admisibles": ["1721", "2222"],
-        "requisito_clave": "Reduccion certificada del 15% de residuos no reciclables en producto acabado.",
-        "enlace_oficial": "https://sede.ivace.es/tramites/economia-circular-pyme"
+        "id": "REG-PPWR-2024",
+        "normativa": "Reglamento Europeo de Envases y Residuos de Envases (PPWR - COM(2022) 677 final)",
+        "plazo_vigor": "Q3 2026 - Q1 2027",
+        "impacto_directo": "Exclusión obligatoria de laminados multicapa no mecánicamente separables en retail de gran consumo y prohibición de envases de un solo uso en restauración interior.",
+        "amenaza_facturacion": "Afecta al 28% de la cartera de BioPack (envases de servicio inmediato con film plástico adherido). Riesgo de pérdida de 950.000 EUR en licitaciones de retail.",
+        "requisito_homologacion": "Monocelulosa con recubrimientos de base acuosa hidrófoba dispersable o termosellado ultrasónico sin film de polietileno."
     },
     {
-        "organismo": "Ministerio de Industria - Activa Industria 4.0",
-        "convocatoria": "Implantacion de vision artificial y sensorica estandar para reduccion de mermas",
-        "cobertura": "100% asesoramiento tecnico + 35% inversion en equipamiento homologado",
-        "plazo": "Ventanilla abierta ejercicio 2026",
-        "cnaes_admisibles": ["1721", "2562", "28"],
-        "requisito_clave": "Pyme industrial manufacturera con al menos 2 ejercicios depositados en Registro Mercantil.",
-        "enlace_oficial": "https://www.industria.gob.es/ayudas/activa-industria"
+        "id": "LEY-7-2022",
+        "normativa": "Ley 7/2022 de Residuos y Suelos Contaminados (Impuesto especial al plástico no reutilizable)",
+        "plazo_vigor": "En vigor (0,45 EUR/kg de plástico virgen)",
+        "impacto_directo": "Sobrecoste directo repercutido por proveedores de granza y film que reduce el margen de transformación en 1,2 puntos porcentuales si no se certifica material 100% compostable.",
+        "amenaza_facturacion": "Coste fiscal indirecto acumulado estimado en 38.400 EUR/año en los productos plastificados de catálogo.",
+        "requisito_homologacion": "Certificación UNE-EN 13432 o contenido de material reciclado/celulósico > 95% auditado por AENOR."
     }
 ]
 
-PARTNERS_VENDOR_FINANCE = [
+# 2.3. Catálogo de Tecnologías Comerciales Existentes (TRL 8-9, COTS, Cero Software a Medida)
+KNOWLEDGE_TECNOLOGIAS = [
     {
-        "area": "Estructuracion de Circulante y Venta por Servicio (FaaS)",
-        "entidad": "Grenke Bank / DLL Group (Vendor Finance)",
-        "mecanismo": "Arrendamiento operativo: la pyme cobra el 100% de la maquinaria/lote a D+30 sin recurso y el cliente final abona cuota mensual sin consumir CIRBE bancaria de la pyme.",
-        "scoring_entidad": "Pre-aprobado comercial (Ratio Deuda/EBITDA < 2.5x cumplido)",
-        "contacto_directo": "operaciones.iberica@grenke.es (Ref: Homologacion KROMA)"
+        "id": "TECH-SWIR-01",
+        "nombre": "Inspección Óptica Multiespectral de Sellado (Cámaras SWIR 1.050 - 1.700 nm)",
+        "fabricante_integrador": "Basler Boost / Pekat Vision (Integración por canal local homologado)",
+        "trl": 9,
+        "tipo_adquisicion": "Hardware comercial llave en mano + Licencia de visión industrial estándar",
+        "tiempo_parada_planta": "48 horas (fin de semana técnico)",
+        "capex_llave_en_mano": 26800.0,
+        "reduccion_merma_pct": 2.2,  # Reduce la merma de material en 2.2 puntos porcentuales
+        "ahorro_anual_euros": 34760.0, # 1.580.000 * 2.2%
+        "contacto_comercial": "canal.iberia@pekatvision.com (Ref: Homologación Pymes Industriales)"
     },
     {
-        "area": "Vision Artificial y Automatizacion sin Desarrollo Propio",
-        "entidad": "Integrador Homologado Pekat Vision / Cognex Iberia",
-        "mecanismo": "Instalacion de camaras comerciales sobre linea existente en 48 horas de parada tecnica. Cero programacion a medida.",
-        "coste_orientativo": "28.500 EUR (Financiable mediante subvencion IVACE/Industria al 40% + renting a 36 meses)",
-        "contacto_directo": "soluciones.industriales@integracion-vision.es"
+        "id": "TECH-ULTRA-02",
+        "nombre": "Módulos de Sellado por Ultrasonidos en Frío para Celulosa Monomaterial",
+        "fabricante_integrador": "Herrmann Ultraschall Ibérica (Serie HiQ Vario modular)",
+        "trl": 9,
+        "tipo_adquisicion": "Kit mecánico adaptable a termoselladoras existentes (sin cambiar máquina)",
+        "tiempo_parada_planta": "72 horas de puesta a punto mecánica",
+        "capex_llave_en_mano": 38500.0,
+        "reduccion_merma_pct": 1.4,
+        "ahorro_anual_euros": 22120.0,
+        "contacto_comercial": "info.es@herrmannultraschall.com (Delegación Barcelona/Valencia)"
+    }
+]
+
+# 2.4. Radar de Subvenciones Oficiales Específicas
+KNOWLEDGE_SUBVENCIONES = [
+    {
+        "codigo_bdns": "BDNS 742189 / DOGV 9842",
+        "organismo": "IVACE+i (Institut Valencià de Competitivitat i Innovació)",
+        "programa": "INNOVA-CV: Innovación de Pyme en Economía Circular y Descarbonización",
+        "intensidad": "Hasta 40% a fondo perdido para inversiones en bienes de equipo de reducción de residuos",
+        "plazo_cierre": "Convocatoria abierta (Cierre habitual en 45 días hábiles)",
+        "subvencion_estimada_tech1": 10720.0, # 40% de 26.800
+        "requisito_clave": "Pyme industrial de transformación con plantilla > 10 personas y auditoría de residuos.",
+        "enlace_oficial": "https://sede.ivace.es/es/tramites/innova-cv-economia-circular"
     }
 ]
 
 # ==============================================================================
-# 4. CAPA 1: RAZONAMIENTO Y SÍNTESIS ESTRATÉGICA CON GEMINI
+# 3. MOTOR MATEMÁTICO DETERMINISTA: CÁLCULOS FINANCIEROS Y DE CIRCULANTE
 # ==============================================================================
-def generar_dictamen_integral(empresa, benchmark, caja_atrapada_total, exceso_dso_eur, exceso_stock_eur):
+def ejecutar_analisis_financiero(empresa: dict) -> dict:
+    bal = empresa["balance_actual"]
+    bench = empresa["benchmark_50_rivales"]
+    
+    ventas_dia = bal["ventas"] / 365.0
+    coste_dia = bal["coste_materiales_consumos"] / 365.0
+    
+    # 1. Análisis de circulante frente a la media de 50 rivales
+    dso_actual = (bal["clientes_cobro_pendiente"] / bal["ventas"]) * 365.0
+    dias_exceso_dso = max(0.0, dso_actual - bench["dso_medio_dias"])
+    caja_atrapada_dso = dias_exceso_dso * ventas_dia
+    
+    dio_actual = (bal["existencias_stock"] / bal["coste_materiales_consumos"]) * 365.0
+    dias_exceso_dio = max(0.0, dio_actual - bench["dio_medio_dias"])
+    caja_atrapada_dio = dias_exceso_dio * coste_dia
+    
+    caja_total_atrapada = caja_atrapada_dso + caja_atrapada_dio
+    
+    # 2. Simulación de Vendor Finance para Tecnología de Visión (TECH-SWIR-01)
+    tech = KNOWLEDGE_TECNOLOGIAS[0]
+    capex_bruto = tech["capex_llave_en_mano"]
+    subvencion = KNOWLEDGE_SUBVENCIONES[0]["subvencion_estimada_tech1"]
+    capex_neto = capex_bruto - subvencion
+    
+    # Parámetros estándar Grenke/DLL a 36 meses (coeficiente financiero 0.0315 mensual)
+    cuota_mensual_renting = capex_bruto * 0.0315
+    ahorro_mensual_merma = tech["ahorro_anual_euros"] / 12.0
+    cash_flow_neto_mensual = ahorro_mensual_merma - cuota_mensual_renting
+    cobertura_ahorro_cuota = ahorro_mensual_merma / cuota_mensual_renting if cuota_mensual_renting > 0 else 0.0
+    
+    # 3. Impacto en P&L del ahorro de merma
+    ebitda_proforma = bal["ebitda"] + tech["ahorro_anual_euros"]
+    ebitda_pct_proforma = (ebitda_proforma / bal["ventas"]) * 100.0
+
+    return {
+        "dso_actual": round(dso_actual, 1),
+        "dias_exceso_dso": round(dias_exceso_dso, 1),
+        "caja_atrapada_dso": round(caja_atrapada_dso, 2),
+        "dio_actual": round(dio_actual, 1),
+        "dias_exceso_dio": round(dias_exceso_dio, 1),
+        "caja_atrapada_dio": round(caja_atrapada_dio, 2),
+        "caja_total_atrapada": round(caja_total_atrapada, 2),
+        "capex_bruto": capex_bruto,
+        "subvencion_estimada": subvencion,
+        "capex_neto": capex_neto,
+        "cuota_mensual_renting": round(cuota_mensual_renting, 2),
+        "ahorro_mensual_merma": round(ahorro_mensual_merma, 2),
+        "cash_flow_neto_mensual": round(cash_flow_neto_mensual, 2),
+        "cobertura_ahorro_cuota": round(cobertura_ahorro_cuota, 2),
+        "ebitda_actual": bal["ebitda"],
+        "ebitda_actual_pct": bal["ebitda_pct"],
+        "ebitda_proforma": round(ebitda_proforma, 2),
+        "ebitda_pct_proforma": round(ebitda_pct_proforma, 2)
+    }
+
+# ==============================================================================
+# 4. ORQUESTACIÓN LLM: SÍNTESIS DIRECTIVA Y DICTAMEN EJECUTIVO (GEMINI)
+# ==============================================================================
+def generar_dictamen_directivo(empresa: dict, analisis_fin: dict) -> dict:
     if not api_key_input:
-        return "Configure la clave API Gemini en la barra lateral para generar el dictamen de direccion."
+        return {"error": "Falta la clave API de Gemini en la barra lateral."}
+
+    normativas_txt = "\n".join([f"- {n['normativa']}: {n['impacto_directo']}" for n in KNOWLEDGE_NORMATIVAS])
+    tech = KNOWLEDGE_TECNOLOGIAS[0]
+    subv = KNOWLEDGE_SUBVENCIONES[0]
 
     prompt = f"""
-    Actua como Director Principal de Consultoria Estrategica y Finanzas Corporativas para Pymes.
-    Analiza este cruce de balances oficiales (SABI) frente a la muestra ciega de 50 competidores:
+    Actúa como Socio Director de Estrategia Industrial y Finanzas Corporativas especializado en el sector de Packaging (CNAE 1721).
+    Emite un dictamen implacable para el Comité de Dirección de la siguiente empresa:
 
-    EMPRESA AUDITADA:
-    - Razon Social: {empresa['razon_social']} (CNAE: {empresa['cnae']})
-    - Ventas 2024: {empresa['balance_actual']['ventas']:,.0f} EUR
-    - EBITDA Real: {empresa['balance_actual']['ebitda']:,.0f} EUR ({empresa['balance_actual']['ebitda_pct']}%)
-    - Plazo de Cobro (DSO): {empresa['historico_3y']['2024']['dso']} dias | Saldo en Clientes: {empresa['balance_actual']['clientes_cobro_pendiente']:,.0f} EUR
-    - Rotacion de Stock (DIO): {empresa['historico_3y']['2024']['dio']} dias | Stock en Planta: {empresa['balance_actual']['existencias_stock']:,.0f} EUR
-    - Ventas / Empleado: {benchmark['ventas_por_empleado_empresa']:,.0f} EUR/persona
-    - CAPEX Maximo Disponible: {empresa['balance_actual']['capex_maximo_anual']:,.0f} EUR
+    DATOS AUDITADOS (SABI / REGISTRO MERCANTIL):
+    - Razón Social: {empresa['razon_social']}
+    - Facturación: {empresa['balance_actual']['ventas']:,.0f} € | Margen EBITDA actual: {analisis_fin['ebitda_actual_pct']:.1f}% ({analisis_fin['ebitda_actual']:,.0f} €)
+    - Plazo de cobro (DSO): {analisis_fin['dso_actual']} días (Sector medio: {empresa['benchmark_50_rivales']['dso_medio_dias']} días)
+    - Rotación de inventario (DIO): {analisis_fin['dio_actual']} días (Sector medio: {empresa['benchmark_50_rivales']['dio_medio_dias']} días)
+    - Caja total atrapada por desviación sectorial: {analisis_fin['caja_total_atrapada']:,.0f} € ({analisis_fin['caja_atrapada_dso']:,.0f} € en clientes + {analisis_fin['caja_atrapada_dio']:,.0f} € en bobinas de cartón)
 
-    BENCHMARKING DE 50 RIVALES REALES (MISMO CNAE Y TRAMO):
-    - EBITDA Medio del Sector: {benchmark['ebitda_medio_pct']}% (Top 25%: {benchmark['ebitda_top25_pct']}%)
-    - DSO Medio Sectorial: {benchmark['dso_medio_dias']} dias
-    - DIO Medio Sectorial: {benchmark['dio_medio_dias']} dias
-    - Ventas / Empleado Media: {benchmark['ventas_por_empleado_media']:,.0f} EUR/persona
+    AMENAZAS NORMATIVAS INMEDIATAS:
+    {normativas_txt}
 
-    DESVIACIONES CUANTIFICADAS:
-    - Caja atrapada por cobrar mas tarde que la media: {exceso_dso_eur:,.0f} EUR
-    - Caja inmovilizada por exceso de inventario: {exceso_stock_eur:,.0f} EUR
-    - Total liquidez liberable sin prestamos: {caja_atrapada_total:,.0f} EUR
+    SOLUCIÓN TÉCNICA Y FINANCIERA COTS:
+    - Tecnología: {tech['nombre']} ({tech['fabricante_integrador']})
+    - Inversión Llave en Mano: {tech['capex_llave_en_mano']:,.0f} €
+    - Subvención Identificada: {subv['programa']} ({subv['intensidad']}) -> Ahorro: {analisis_fin['subvencion_estimada']:,.0f} €
+    - Estructura Vendor Finance (Grenke a 36 meses): Cuota de {analisis_fin['cuota_mensual_renting']:,.2f} €/mes frente a un ahorro de merma de {analisis_fin['ahorro_mensual_merma']:,.2f} €/mes.
+    - Flujo de caja neto generado: +{analisis_fin['cash_flow_neto_mensual']:,.2f} €/mes (cobertura {analisis_fin['cobertura_ahorro_cuota']}x).
 
-    INSTRUCCIONES DIRECTIVAS INQUEBRANTABLES:
-    1. Redacta un dictamen financiero y operativo implacable. Cero palabreria y cero lugares comunes.
-    2. Prohibido sugerir que la empresa programe software propio o cree soluciones desde cero.
-    3. Detalla como articular la solucion utilizando Vendor Finance externo para no ahogar la caja.
-    4. Estructura un Roadmap formal de 3 fases (Dias 1-30, Dias 31-60, Dias 61-90).
-    5. No utilices emoticonos ni iconos decorativos.
+    REGLAS DE RIGOR ESTRATÉGICO:
+    1. Cero lugares comunes. Prohibido sugerir desarrollar software propio o contratación de perfiles IT.
+    2. Explica con total claridad por qué cobrar a 82 días y mantener bobinas 90 días en almacén está subsidiando a sus distribuidores a costa de pólizas de crédito.
+    3. Justifica el despliegue del hardware comercial mediante renting para preservar la caja.
+    4. Diseña una hoja de ruta técnica de ejecución a 30, 60 y 90 días con entregables concretos.
+    5. Cero emoticonos. Lenguaje técnico, severo y de máximo nivel corporativo.
 
-    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VALIDO:
+    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO:
     {{
-        "dictamen_financiero": "Analisis de brecha de margen y evaluacion de la caja inmovilizada frente a rivales...",
-        "causa_raiz_operativa": "Por que la pyme se desvia del cuartil superior en productividad y dias de inventario...",
-        "solucion_estructurada_circulante": "Como financiar la modernizacion a traves de Vendor Finance sin deuda bancaria tradicional...",
-        "roadmap_ejecucion": [
+        "diagnostico_posicionamiento": "Análisis de la brecha de margen y riesgo de exclusión por la directiva PPWR...",
+        "dictamen_circulante": "Explicación de la sangría de tesorería por financiar a distribuidores a 82 días...",
+        "justificacion_vendor_finance": "Por qué financiar los 26.800 € mediante cuota de renting de 844 €/mes genera caja neta positiva desde el primer mes...",
+        "hoja_ruta_30_60_90": [
             {{
-                "fase": "Dias 1 a 30",
-                "hito": "Auditoria de referencias criticas y registro de memoria tecnica en sede electronica de subvencion.",
-                "entregable": "Documento o resguardo oficial obtenido"
+                "fase": "Días 1 a 30 (Homologación y Solicitud Pública)",
+                "actuacion": "Acción técnica exacta con el canal del fabricante...",
+                "entregable_comite": "Documento o resguardo oficial"
             }},
             {{
-                "fase": "Dias 31 a 60",
-                "hito": "Scoring con financiera de renting (Grenke/DLL) y recepcion de hardware estandar de vision/sellado.",
-                "entregable": "Contrato de arrendamiento operativo aprobado y acta de instalacion"
+                "fase": "Días 31 a 60 (Instalación Técnica y Puesta a Punto)",
+                "actuacion": "Montaje en parada técnica de 48h y firma de renting...",
+                "entregable_comite": "Acta de recepción y contrato de renting"
             }},
             {{
-                "fase": "Dias 61 a 90",
-                "hito": "Lanzamiento de lote industrial piloto y renegociacion de plazos con distribuidores clave.",
-                "entregable": "Primera orden comercial facturada y reduccion documentada de DSO a 60 dias"
+                "fase": "Días 61 a 90 (Validación de Merma y Negociación de Cobro)",
+                "actuacion": "Medición de scrap a 1,6% y revisión de condiciones comerciales...",
+                "entregable_comite": "Informe de rendimiento y reducción de DSO a 60 días"
             }}
         ]
     }}
     """
     try:
-        m = obtener_modelo_activo()
-        res = m.generate_content(prompt)
+        modelo = obtener_modelo_activo()
+        res = modelo.generate_content(prompt)
         t = res.text.strip()
         if t.startswith("```json"):
             t = t[7:]
@@ -252,153 +301,164 @@ def generar_dictamen_integral(empresa, benchmark, caja_atrapada_total, exceso_ds
             t = t[:-3]
         return json.loads(t.strip())
     except Exception as e:
-        return {"error": f"Error al generar sintesis con IA: {str(e)}"}
+        return {"error": f"Error en motor de síntesis: {str(e)}"}
 
 # ==============================================================================
-# 5. INTERFAZ DE USUARIO: CONSULTA POR CIF Y DESPLIEGUE CONTINUO
+# 5. INTERFAZ DE USUARIO: TERMINAL DE INTELIGENCIA DE PACKAGING
 # ==============================================================================
-st.title("KROMA Enterprise — Inteligencia Estratégica Industrial por CIF")
-st.caption("Ingesta oficial de cuentas anuales, comparativa ciega con 50 rivales de sector y ejecucion directa sin arriesgar circulante.")
+st.title("KROMA Industrial Intelligence — Packaging & Envases")
+st.caption("Motor de prospección sectorial, cruce de balances auditados (SABI) y estructuración de Vendor Finance.")
 
-col_input, col_action = st.columns([3, 1])
-with col_input:
-    cif_seleccionado = st.text_input(
-        "Introduzca el CIF de la entidad (o seleccione de la muestra activa):",
-        value="B98765432",
-        help="Pruebe con B98765432 (Packaging y celulosa) o A28123456 (Mecanizado CNC)"
-    )
-with col_action:
+col_cif, col_btn = st.columns([3, 1])
+with col_cif:
+    cif_input = st.text_input("Introduzca el CIF de la empresa de packaging:", value="B98765432")
+with col_btn:
     st.write("")
     st.write("")
-    consultar = st.button("Ejecutar Auditoria por CIF")
+    btn_auditar = st.button("Ejecutar Auditoria Sectorial")
 
-if cif_seleccionado:
-    if cif_seleccionado not in BASE_DATOS_SABI:
-        st.error("CIF no localizado en la muestra activa. Utilice 'B98765432' o 'A28123456' para evaluar la demo.")
-    else:
-        empresa = BASE_DATOS_SABI[cif_seleccionado]
-        bench = empresa["benchmark_50_rivales"]
-        bal = empresa["balance_actual"]
+if cif_input not in BASE_DATOS_SABI:
+    st.error("CIF no registrado en la base de balances del vertical. Para la prueba utilice: B98765432.")
+else:
+    emp = BASE_DATOS_SABI[cif_input]
+    calc = ejecutar_analisis_financiero(emp)
 
-        # Calculo exacto de dinero atrapado frente al benchmark
-        ventas_dia = bal["ventas"] / 365.0
-        coste_dia = bal["coste_materiales"] / 365.0
+    st.markdown("---")
 
-        dias_exceso_cobro = max(0, empresa["historico_3y"]["2024"]["dso"] - bench["dso_medio_dias"])
-        exceso_dso_eur = dias_exceso_cobro * ventas_dia
+    # --------------------------------------------------------------------------
+    # BLOQUE 1: RADIOGRAFÍA CONTABLE OFICIAL Y BENCHMARKING DE 50 RIVALES
+    # --------------------------------------------------------------------------
+    st.subheader(f"1. Radiografía Contable Oficial y Benchmarking: {emp['razon_social']}")
+    st.caption(f"CNAE: {emp['cnae']} | Subsector: {emp['subsector']} | Muestra de cotejo: {emp['benchmark_50_rivales']['cnae_analizado']}")
 
-        dias_exceso_stock = max(0, empresa["historico_3y"]["2024"]["dio"] - bench["dio_medio_dias"])
-        exceso_stock_eur = dias_exceso_stock * coste_dia
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Facturación 2024", f"{emp['balance_actual']['ventas']:,.0f} €", "+9.3% interanual")
+    m2.metric("Margen EBITDA Actual", f"{calc['ebitda_actual_pct']:.1f} %", f"Media 50 rivales: {emp['benchmark_50_rivales']['ebitda_medio_pct']:.1f}%", delta_color="inverse")
+    m3.metric("Plazo Medio de Cobro (DSO)", f"{calc['dso_actual']:.0f} días", f"Media 50 rivales: {emp['benchmark_50_rivales']['dso_medio_dias']:.0f} días", delta_color="inverse")
+    m4.metric("Caja Atrapada vs Sector", f"{calc['caja_total_atrapada']:,.0f} €", "Clientes + Stock de bobinas", delta_color="inverse")
 
-        caja_atrapada_total = exceso_dso_eur + exceso_stock_eur
+    st.markdown("##### Comparativa Estructural frente a los 50 Mayores Rivales del Mismo CNAE")
+    df_comp = pd.DataFrame([
+        {
+            "Métrica Financiera / Operativa": "Margen de Explotación EBITDA",
+            "BioPack Levantina": f"{calc['ebitda_actual_pct']:.1f} % ({calc['ebitda_actual']:,.0f} €)",
+            "Media de 50 Rivales": f"{emp['benchmark_50_rivales']['ebitda_medio_pct']:.1f} %",
+            "Top 25% (Líderes de Sector)": f"{emp['benchmark_50_rivales']['ebitda_top25_pct']:.1f} %",
+            "Impacto / Brecha Cuantificada": f"Pérdida de {emp['benchmark_50_rivales']['ebitda_medio_pct'] - calc['ebitda_actual_pct']:.1f} puntos de margen por exceso de merma"
+        },
+        {
+            "Métrica Financiera / Operativa": "Periodo Medio de Cobro (DSO)",
+            "BioPack Levantina": f"{calc['dso_actual']:.0f} días ({emp['balance_actual']['clientes_cobro_pendiente']:,.0f} € pendientes)",
+            "Media de 50 Rivales": f"{emp['benchmark_50_rivales']['dso_medio_dias']:.0f} días",
+            "Top 25% (Líderes de Sector)": f"{emp['benchmark_50_rivales']['dso_top25_dias']:.0f} días",
+            "Impacto / Brecha Cuantificada": f"{calc['caja_atrapada_dso']:,.0f} € financiando a distribuidores a coste cero"
+        },
+        {
+            "Métrica Financiera / Operativa": "Permanencia de Inventario (DIO)",
+            "BioPack Levantina": f"{calc['dio_actual']:.0f} días ({emp['balance_actual']['existencias_stock']:,.0f} € en nave)",
+            "Media de 50 Rivales": f"{emp['benchmark_50_rivales']['dio_medio_dias']:.0f} días",
+            "Top 25% (Líderes de Sector)": f"{emp['benchmark_50_rivales']['dio_top25_dias']:.0f} días",
+            "Impacto / Brecha Cuantificada": f"{calc['caja_atrapada_dio']:,.0f} € inmovilizados en bobinas de cartón sin procesar"
+        },
+        {
+            "Métrica Financiera / Operativa": "Productividad por Empleado",
+            "BioPack Levantina": f"{emp['benchmark_50_rivales']['ventas_por_empleado_empresa']:,.0f} €/empleado",
+            "Media de 50 Rivales": f"{emp['benchmark_50_rivales']['ventas_por_empleado_media']:,.0f} €/empleado",
+            "Top 25% (Líderes de Sector)": "220.000 €/empleado",
+            "Impacto / Brecha Cuantificada": "Paradas de máquina frecuentes en termoformado por ajuste manual"
+        }
+    ])
+    st.dataframe(df_comp, use_container_width=True)
 
-        st.markdown("---")
+    st.markdown("---")
 
-        # ----------------------------------------------------------------------
-        # 1. RADIOGRAFIA FINANCIERA OFICIAL Y BENCHMARKING DE 50 RIVALES
-        # ----------------------------------------------------------------------
-        st.subheader(f"1. Radiografia de Cuentas Anuales Oficiales: {empresa['razon_social']}")
-        st.caption(f"CIF: {cif_seleccionado} | CNAE: {empresa['cnae']} | Sede: {empresa['provincia']} | Muestra de cotejo: {bench['muestra_tamano']} empresas homologas.")
+    # --------------------------------------------------------------------------
+    # BLOQUE 2: AMENAZAS NORMATIVAS Y REGULATORIAS INMEDIATAS
+    # --------------------------------------------------------------------------
+    st.subheader("2. Radar de Normativas de la Unión Europea y Riesgo de Cartera")
+    st.caption("Requerimientos obligatorios con plazos legales que amenazan la viabilidad del catálogo actual:")
 
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Facturacion 2024", f"{bal['ventas']:,.0f} EUR", "+9.3% s/2023")
-        m2.metric("Margen EBITDA Real", f"{bal['ebitda_pct']:.1f} %", f"Media rivales: {bench['ebitda_medio_pct']:.1f}%", delta_color="inverse")
-        m3.metric("Plazo Medio de Cobro (DSO)", f"{empresa['historico_3y']['2024']['dso']} dias", f"Media rivales: {bench['dso_medio_dias']} dias", delta_color="inverse")
-        m4.metric("Caja Atrapada s/Sector", f"{caja_atrapada_total:,.0f} EUR", "Cobros demorados + Stock", delta_color="inverse")
+    for norm in KNOWLEDGE_NORMATIVAS:
+        with st.container():
+            st.markdown(f"**{norm['normativa']}** — *Entrada en Vigor: {norm['plazo_vigor']}*")
+            col_n1, col_n2 = st.columns(2)
+            col_n1.error(f"**Impacto Legal en Operaciones:**\n\n{norm['impacto_directo']}")
+            col_n2.warning(f"**Riesgo Cuantificado en Cartera:**\n\n{norm['amenaza_facturacion']}")
+            st.caption(f"Requisito Técnico de Cumplimiento: {norm['requisito_homologacion']}")
+            st.divider()
 
-        st.markdown("##### Comparativa Estructural frente a los 50 Mayores Rivales del Mismo CNAE")
-        df_bench = pd.DataFrame([
-            {
-                "Ratio Analizado": "Margen de Explotacion EBITDA",
-                "Su Empresa": f"{bal['ebitda_pct']:.1f} %",
-                "Media de 50 Rivales": f"{bench['ebitda_medio_pct']:.1f} %",
-                "Top 25% (Lideres de Sector)": f"{bench['ebitda_top25_pct']:.1f} %",
-                "Brecha Cuantificada": f"{bal['ebitda_pct'] - bench['ebitda_medio_pct']:.1f} % de margen no capturado"
-            },
-            {
-                "Ratio Analizado": "Periodo Medio de Cobro de Clientes (DSO)",
-                "Su Empresa": f"{empresa['historico_3y']['2024']['dso']} dias",
-                "Media de 50 Rivales": f"{bench['dso_medio_dias']} dias",
-                "Top 25% (Lideres de Sector)": "45 dias",
-                "Brecha Cuantificada": f"{exceso_dso_eur:,.0f} EUR inmovilizados financiando a terceros"
-            },
-            {
-                "Ratio Analizado": "Permanencia de Inventario y Stock (DIO)",
-                "Su Empresa": f"{empresa['historico_3y']['2024']['dio']} dias",
-                "Media de 50 Rivales": f"{bench['dio_medio_dias']} dias",
-                "Top 25% (Lideres de Sector)": "20 dias",
-                "Brecha Cuantificada": f"{exceso_stock_eur:,.0f} EUR atrapados en almacen"
-            },
-            {
-                "Ratio Analizado": "Productividad por Empleado",
-                "Su Empresa": f"{bench['ventas_por_empleado_empresa']:,.0f} EUR/empleado",
-                "Media de 50 Rivales": f"{bench['ventas_por_empleado_media']:,.0f} EUR/empleado",
-                "Top 25% (Lideres de Sector)": "220.000 EUR/empleado",
-                "Brecha Cuantificada": "Suboptimizacion en turnos y horas de parada tecnica"
-            }
+    # --------------------------------------------------------------------------
+    # BLOQUE 3: SCOUTING TECNOLÓGICO COTS Y SIMULACIÓN DE VENDOR FINANCE
+    # --------------------------------------------------------------------------
+    st.subheader("3. Solución Tecnológica Homologada y Estructuración Financiera")
+    st.caption("Adopción de hardware estándar comercial sin programar software propio, financiado con el ahorro generado:")
+
+    tech_sel = KNOWLEDGE_TECNOLOGIAS[0]
+    subv_sel = KNOWLEDGE_SUBVENCIONES[0]
+
+    c_tech_desc, c_tech_fin = st.columns([3, 2])
+    with c_tech_desc:
+        st.markdown(f"##### {tech_sel['nombre']}")
+        st.write(f"**Fabricante / Integrador:** `{tech_sel['fabricante_integrador']}` (TRL {tech_sel['trl']})")
+        st.write(f"**Tiempo de Puesta a Punto en Planta:** `{tech_sel['tiempo_parada_planta']}`")
+        st.write(f"**Reducción de Merma de Material:** `{tech_sel['reduccion_merma_pct']}%` sobre compras anuales.")
+        st.success(f"**Ahorro Anual Directo en Cuenta de Resultados:** `+{tech_sel['ahorro_anual_euros']:,.0f} €/año`")
+        st.caption(f"Canal de Adquisición en España: {tech_sel['contacto_comercial']}")
+
+    with c_tech_fin:
+        st.markdown("##### Estructuración Financiera (Vendor Finance)")
+        df_fin_sim = pd.DataFrame([
+            {"Concepto": "Inversión Llave en Mano (Hardware + Puesta a Punto)", "Importe": f"{calc['capex_bruto']:,.2f} €"},
+            {"Concepto": f"(-) Subvención Estimada {subv_sel['organismo'].split(' ')[0]}", "Importe": f"-{calc['subvencion_estimada']:,.2f} €"},
+            {"Concepto": "(=) Coste Neto Final para la Empresa", "Importe": f"{calc['capex_neto']:,.2f} €"},
+            {"Concepto": "Cuota Mensual de Renting a 36 Meses (Grenke/DLL)", "Importe": f"{calc['cuota_mensual_renting']:,.2f} €/mes"},
+            {"Concepto": "Ahorro Mensual Generado por Menor Merma", "Importe": f"+{calc['ahorro_mensual_merma']:,.2f} €/mes"},
+            {"Concepto": "CASH-FLOW NETO MENSUAL GENERADO", "Importe": f"+{calc['cash_flow_neto_mensual']:,.2f} €/mes"}
         ])
-        st.dataframe(df_bench, use_container_width=True)
+        st.dataframe(df_fin_sim, use_container_width=True)
+        st.info(f"Ratio de Cobertura: El ahorro mensual cubre **{calc['cobertura_ahorro_cuota']} veces** la cuota del renting desde el primer mes.")
 
-        st.markdown("---")
+    st.markdown("---")
 
-        # ----------------------------------------------------------------------
-        # 2. DICTAMEN DE DIRECCION ESTRATEGICA Y FINANCIERA (IA GEMINI)
-        # ----------------------------------------------------------------------
-        st.subheader("2. Dictamen Ejecutivo de Direccion")
-        with st.spinner("Sintetizando balance oficial con benchmarking de mercado..."):
-            analisis = generar_dictamen_integral(empresa, bench, caja_atrapada_total, exceso_dso_eur, exceso_stock_eur)
+    # --------------------------------------------------------------------------
+    # BLOQUE 4: RADAR DE SUBVENCIONES VIGENTES (CONVOCATORIA ACTIVA)
+    # --------------------------------------------------------------------------
+    st.subheader("4. Convocatoria de Subvención Pública Directa")
+    st.caption("Cruce de la inversión tecnológica con las bases reguladoras vigentes:")
 
-        if isinstance(analisis, dict) and "error" not in analisis:
-            st.info(analisis.get("dictamen_financiero", ""))
-            
-            c_causa, c_sol = st.columns(2)
-            c_causa.markdown("**Causa Raiz de la Ineficiencia:**")
-            c_causa.write(analisis.get("causa_raiz_operativa", ""))
-            
-            c_sol.markdown("**Estructura Financiera Recomendada (Sin Consumir Balance):**")
-            c_sol.write(analisis.get("solucion_estructurada_circulante", ""))
+    with st.container():
+        st.markdown(f"**{subv_sel['organismo']} — {subv_sel['programa']}**")
+        st.markdown(f"*{subv_sel['codigo_bdns']}*")
+        c_sub_a, c_sub_b = st.columns(2)
+        c_sub_a.write(f"**Intensidad de la Ayuda:** {subv_sel['intensidad']}\n\n**Plazo:** {subv_sel['plazo_cierre']}")
+        c_sub_b.write(f"**Criterio de Asignación:** {subv_sel['requisito_clave']}")
+        st.markdown(f"[Acceso a la Sede Electrónica y Tramitación Oficial]({subv_sel['enlace_oficial']})")
 
-            st.markdown("##### Hoja de Ruta de Ejecucion Inmediata (30-60-90 Dias)")
-            for item in analisis.get("roadmap_ejecucion", []):
-                st.markdown(f"**{item.get('fase')} — {item.get('hito')}**")
-                st.caption(f"Entregable Tangible Requerido: {item.get('entregable')}")
-                st.divider()
-        else:
-            st.warning("No fue posible estructurar el dictamen de IA. Verifique la API Key en el menu lateral.")
+    st.markdown("---")
 
-        # ----------------------------------------------------------------------
-        # 3. RADAR DE SUBVENCIONES VIGENTES (CONEXIÓN BDNS / BOE)
-        # ----------------------------------------------------------------------
-        st.subheader("3. Convocatorias de Subvencion Publica Vigentes y Aplicables")
-        st.caption(f"Ayudas filtradas especificamente para el CNAE {empresa['cnae'].split(' - ')[0]} y tipologia de pyme:")
+    # --------------------------------------------------------------------------
+    # BLOQUE 5: DICTAMEN DE DIRECCIÓN Y HOJA DE RUTA 30-60-90 DÍAS (LLM)
+    # --------------------------------------------------------------------------
+    st.subheader("5. Dictamen Ejecutivo del Comité de Dirección")
+    with st.spinner("Sintetizando balance oficial con normativa PPWR y estructuración de renting..."):
+        dictamen = generar_dictamen_directivo(emp, calc)
 
-        cnae_code = empresa['cnae'].split(' - ')[0]
-        subvenciones_filtradas = [s for s in SUBVENCIONES_OFICIALES if any(c in cnae_code for c in s["cnaes_admisibles"])]
+    if isinstance(dictamen, dict) and "error" not in dictamen:
+        st.info(dictamen.get("diagnostico_posicionamiento", ""))
 
-        for sub in subvenciones_filtradas:
-            with st.container():
-                st.markdown(f"**{sub['organismo']}**")
-                st.write(f"*{sub['convocatoria']}*")
-                c_sub1, c_sub2 = st.columns(2)
-                c_sub1.write(f"**Intensidad de Ayuda:** {sub['cobertura']}\n\n**Estado:** {sub['plazo']}")
-                c_sub2.write(f"**Criterio de Asignacion:** {sub['requisito_clave']}")
-                st.markdown(f"[Acceso Directo al Tramite en Sede Electronica]({sub['enlace_oficial']})")
-                st.divider()
+        col_d1, col_d2 = st.columns(2)
+        with col_d1:
+            st.markdown("**Diagnóstico de Circulante y Clientes:**")
+            st.write(dictamen.get("dictamen_circulante", ""))
+        with col_d2:
+            st.markdown("**Justificación del Esquema Financiero:**")
+            st.write(dictamen.get("justificacion_vendor_finance", ""))
 
-        # ----------------------------------------------------------------------
-        # 4. MARKETPLACE DE ACCION DIRECTA (VENDOR FINANCE Y TECNOLOGIAS COTS)
-        # ----------------------------------------------------------------------
-        st.subheader("4. Partners Homologados y Canales Directos de Ejecucion")
-        st.caption("Soluciones estructuradas para implantar en planta sin crear software y cobrando de inmediato:")
-
-        for part in PARTNERS_VENDOR_FINANCE:
-            with st.container():
-                st.markdown(f"**Area:** `{part['area']}` | **Entidad:** **{part['entidad']}**")
-                st.write(f"**Esquema Operativo:** {part['mecanismo']}")
-                c_p1, c_p2 = st.columns(2)
-                if "scoring_entidad" in part:
-                    c_p1.success(f"**Scoring Financiero Preliminar:** {part['scoring_entidad']}")
-                if "coste_orientativo" in part:
-                    c_p1.info(f"**Coste Llave en Mano:** {part['coste_orientativo']}")
-                c_p2.write(f"**Canal de Contacto Homologado:** `{part['contacto_directo']}`")
-                st.divider()
+        st.markdown("##### Hoja de Ruta de Ejecución Técnica (30-60-90 Días)")
+        for paso in dictamen.get("hoja_ruta_30_60_90", []):
+            st.markdown(f"**{paso.get('fase')}**")
+            st.write(f"**Actuación Técnica:** {paso.get('actuacion')}")
+            st.caption(f"Entregable Exigible al Comité: {paso.get('entregable_comite')}")
+            st.divider()
+    else:
+        st.warning("No se pudo conectar con el motor generativo de síntesis. Verifique la API Key.")
