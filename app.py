@@ -34,20 +34,41 @@ with st.sidebar:
     )
     st.caption("La clave se mantiene activa durante toda la sesion.")
 
-ai_model = None
 if api_key_input:
     genai.configure(api_key=api_key_input)
-    modelos_candidatos = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"]
-    for m_name in modelos_candidatos:
-        try:
-            ai_model = genai.GenerativeModel(m_name)
-            break
-        except Exception:
-            continue
 
 # ==============================================================================
 # 2. MOTOR DE PROSPECCION Y RADAR DE TENDENCIAS
 # ==============================================================================
+def obtener_modelo_activo():
+    preferidos = [
+        "models/gemini-3.6-flash",
+        "gemini-3.6-flash",
+        "models/gemini-1.5-pro",
+        "gemini-1.5-pro",
+        "models/gemini-1.5-flash",
+        "gemini-1.5-flash"
+    ]
+    
+    # 1. Intentar con los modelos preferidos actualizados
+    for p in preferidos:
+        try:
+            m = genai.GenerativeModel(p)
+            return m
+        except Exception:
+            continue
+
+    # 2. Si fallan los nombres estaticos, consultar a la API los modelos disponibles
+    try:
+        modelos_disponibles = genai.list_models()
+        for mod in modelos_disponibles:
+            if "generateContent" in mod.supported_generation_methods:
+                return genai.GenerativeModel(mod.name)
+    except Exception:
+        pass
+
+    return genai.GenerativeModel("gemini-3.6-flash")
+
 def generar_radar_innovacion(perfil: dict) -> dict:
     if not api_key_input:
         return {
@@ -72,7 +93,7 @@ def generar_radar_innovacion(perfil: dict) -> dict:
     - El tono debe ser analitico, ejecutivo, preciso y cuantitativamente orientativo.
     - No utilices emoticonos ni iconos decorativos en las respuestas.
 
-    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VALIDO CON ESTA ESTRUCTURA EXACTA (sin bloques markdown de codigo ni texto complementario):
+    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VALIDO CON ESTA ESTRUCTURA EXACTA (sin bloques markdown de codigo ```json ni texto complementario):
     {{
         "resumen_vision": "Sintesis prospectiva sobre la evolucion estrategica de la entidad a tres anos vista...",
         "macrotendencias": [
@@ -172,26 +193,20 @@ def generar_radar_innovacion(perfil: dict) -> dict:
         ]
     }}
     """
-
-    modelos_a_probar = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"]
-    ultimo_error = ""
-    for nom_mod in modelos_a_probar:
-        try:
-            m = genai.GenerativeModel(nom_mod)
-            res = m.generate_content(prompt)
-            t = res.text.strip()
-            if t.startswith("```json"):
-                t = t[7:]
-            if t.startswith("```"):
-                t = t[3:]
-            if t.endswith("```"):
-                t = t[:-3]
-            return json.loads(t.strip())
-        except Exception as e:
-            ultimo_error = str(e)
-            continue
-
-    return {"error": f"Error al generar con Gemini: {ultimo_error}"}
+    
+    try:
+        modelo = obtener_modelo_activo()
+        res = modelo.generate_content(prompt)
+        t = res.text.strip()
+        if t.startswith("```json"):
+            t = t[7:]
+        if t.startswith("```"):
+            t = t[3:]
+        if t.endswith("```"):
+            t = t[:-3]
+        return json.loads(t.strip())
+    except Exception as e:
+        return {"error": f"Error al generar con Gemini: {str(e)}"}
 
 # ==============================================================================
 # 3. GENERADOR DE DOSSIER EDITORIAL EN PDF
