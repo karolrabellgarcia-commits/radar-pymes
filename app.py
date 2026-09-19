@@ -13,79 +13,83 @@ from reportlab.pdfgen import canvas
 import google.generativeai as genai
 
 # ==============================================================================
-# 1. CONFIGURACIÓN Y CLIENTE IA (CON CASILLA LATERAL)
+# 1. CONFIGURACION Y CLIENTE IA
 # ==============================================================================
 st.set_page_config(
-    page_title="KROMA TrendRadar | Inteligencia Estratégica e Innovación",
+    page_title="KROMA TrendRadar | Inteligencia Estrategica e Innovacion",
     layout="wide"
 )
 
-# Clave por defecto si existe en entorno o secrets
 default_key = os.environ.get("GEMINI_API_KEY", "")
 if not default_key and "GEMINI_API_KEY" in st.secrets:
     default_key = st.secrets["GEMINI_API_KEY"]
 
-# Barra lateral para introducir la clave
 with st.sidebar:
-    st.header("🔑 Acceso y Configuración")
+    st.header("Configuracion de Acceso")
     api_key_input = st.text_input(
-        "Introduce tu GEMINI_API_KEY:",
+        "Clave API Gemini:",
         value=default_key,
         type="password",
-        help="Obtén tu clave en Google AI Studio (aistudio.google.com)"
+        help="Clave de Google AI Studio (aistudio.google.com)"
     )
-    st.caption("Introduce la clave una vez y quedará activa durante toda tu sesión.")
+    st.caption("La clave se mantiene activa durante toda la sesion.")
 
+ai_model = None
 if api_key_input:
     genai.configure(api_key=api_key_input)
-    ai_model = genai.GenerativeModel("gemini-1.5-pro-latest")
-else:
-    ai_model = None
+    modelos_candidatos = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"]
+    for m_name in modelos_candidatos:
+        try:
+            ai_model = genai.GenerativeModel(m_name)
+            break
+        except Exception:
+            continue
 
 # ==============================================================================
-# 2. MOTOR DE PROSPECCIÓN Y RADAR DE TENDENCIAS
+# 2. MOTOR DE PROSPECCION Y RADAR DE TENDENCIAS
 # ==============================================================================
 def generar_radar_innovacion(perfil: dict) -> dict:
-    if not ai_model:
+    if not api_key_input:
         return {
-            "error": "Falta la clave API. Introduce tu GEMINI_API_KEY en la barra lateral izquierda para generar el radar."
+            "error": "Falta la clave API. Introduzca su clave en el panel lateral para iniciar el analisis."
         }
 
     prompt = f"""
-    Actúa como Socio Director de una firma global de prospección e inteligencia estratégica (estilo Trendone, Gartner, Board of Innovation).
-    Tu misión es realizar un Radar de Tendencias, Scouting Tecnológico y Oportunidades de Innovación Disruptiva para la siguiente pyme:
+    Actua como Socio Director de una firma global de prospeccion e inteligencia estrategica (metodologia Trendone, Gartner, Board of Innovation).
+    Tu mision es elaborar un Radar de Tendencias, Scouting Tecnologico y Oportunidades de Innovacion Disruptiva para la siguiente pyme:
 
-    PERFIL DEL NEGOCIO:
-    - Empresa: {perfil.get('nombre_empresa')}
-    - Sector y Nicho Exacto: {perfil.get('sector_nicho')}
-    - Propuesta Actual y Clientes: {perfil.get('modelo_actual')}
-    - Mayor Fortaleza / Activo Actual: {perfil.get('fortaleza')}
-    - Grado de Ambición de Innovación: {perfil.get('ambicion')}
-    - Desafío o Amenaza Percibida: {perfil.get('amenaza')}
+    PERFIL CORPORATIVO:
+    - Entidad: {perfil.get('nombre_empresa')}
+    - Sector y Nicho Especifico: {perfil.get('sector_nicho')}
+    - Propuesta Actual y Segmento de Clientes: {perfil.get('modelo_actual')}
+    - Ventaja Competitiva Actual / Fortaleza: {perfil.get('fortaleza')}
+    - Nivel de Ambicion Estrategica: {perfil.get('ambicion')}
+    - Amenaza de Mercado Identificada: {perfil.get('amenaza')}
 
-    INSTRUCCIONES DE RIGOR ESTRATÉGICO:
-    - Nada de respuestas genéricas de consultoría básica ni consejos obvios ("usa redes sociales", "haz una web", "usa ChatGPT").
-    - Enfócate en tendencias emergentes reales, tecnologías aplicadas concretas a su cadena de valor y nuevos modelos de ingresos.
-    - Sé exhaustivo, técnico, inspirador y accionable.
+    CRITERIOS DE RIGOR ESTRATEGICO:
+    - Evita cualquier generalidad o recomendacion superficial (como uso de redes sociales o digitalizacion generica).
+    - Centrate en tendencias de mercado emergentes comprobadas, aplicaciones tecnologicas de impacto directo en su cadena de valor y modelos de negocio de alto margen.
+    - El tono debe ser analitico, ejecutivo, preciso y cuantitativamente orientativo.
+    - No utilices emoticonos ni iconos decorativos en las respuestas.
 
-    GENERA EXCLUSIVAMENTE UN OBJETO JSON VÁLIDO CON ESTA ESTRUCTURA (sin bloques markdown de código ```json ni texto adicional):
+    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VALIDO CON ESTA ESTRUCTURA EXACTA (sin bloques markdown de codigo ni texto complementario):
     {{
-        "resumen_vision": "Visión de futuro para esta empresa en los próximos 3 años (1 párrafo denso, ambicioso y directivo)...",
+        "resumen_vision": "Sintesis prospectiva sobre la evolucion estrategica de la entidad a tres anos vista...",
         "macrotendencias": [
             {{
-                "nombre": "Nombre de la Macro/Micro Tendencia",
-                "horizonte": "Inmediato (0-12m) / Medio (1-3 años) / Largo (3-5 años)",
-                "impacto_sector": "Cómo transforma las reglas del juego de su mercado",
-                "oportunidad_pyme": "Qué oportunidad concreta abre para esta empresa específica"
+                "nombre": "Nombre formal de la tendencia",
+                "horizonte": "Inmediato (0-12m) / Medio Plazo (1-3 anos) / Largo Plazo (3-5 anos)",
+                "impacto_sector": "Transformacion estructural del entorno competitivo",
+                "oportunidad_pyme": "Oportunidad de captura de valor aplicable para esta empresa"
             }},
             {{
-                "nombre": "Segunda Tendencia",
+                "nombre": "Segunda tendencia",
                 "horizonte": "...",
                 "impacto_sector": "...",
                 "oportunidad_pyme": "..."
             }},
             {{
-                "nombre": "Tercera Tendencia",
+                "nombre": "Tercera tendencia",
                 "horizonte": "...",
                 "impacto_sector": "...",
                 "oportunidad_pyme": "..."
@@ -93,19 +97,19 @@ def generar_radar_innovacion(perfil: dict) -> dict:
         ],
         "tecnologias_aplicadas": [
             {{
-                "tecnologia": "Nombre de la Tecnología / Caso de Uso IA",
-                "madurez": "Emergente / En Aceleración / Consolidada",
-                "caso_uso_real": "Aplicación quirúrgica en sus operaciones, producto o canal de venta",
-                "ejemplo_mercado": "Qué startup o empresa puntera ya lo está haciendo en el mundo"
+                "tecnologia": "Nombre de la tecnologia o solucion de IA",
+                "madurez": "Emergente / En Crecimiento / Madura",
+                "caso_uso_real": "Caso de aplicacion directa en producto, canal u operaciones",
+                "ejemplo_mercado": "Referencia de empresa o entidad pionera a nivel global"
             }},
             {{
-                "tecnologia": "Segunda Tecnología",
+                "tecnologia": "Segunda tecnologia",
                 "madurez": "...",
                 "caso_uso_real": "...",
                 "ejemplo_mercado": "..."
             }},
             {{
-                "tecnologia": "Tercera Tecnología",
+                "tecnologia": "Tercera tecnologia",
                 "madurez": "...",
                 "caso_uso_real": "...",
                 "ejemplo_mercado": "..."
@@ -113,21 +117,21 @@ def generar_radar_innovacion(perfil: dict) -> dict:
         ],
         "nuevos_modelos_negocio": [
             {{
-                "concepto": "Nombre del Nuevo Modelo (ej. Servitización, Suscripción B2B, Marketplace, etc.)",
-                "mecanismo_ingreso": "Cómo se monetiza y de dónde proviene el margen",
-                "ventaja_defensiva": "Por qué blindará al negocio frente a competidores tradicionales"
+                "concepto": "Denominacion del modelo de negocio",
+                "mecanismo_ingreso": "Estructura de monetizacion y origen del margen",
+                "ventaja_defensiva": "Barrera de entrada y proteccion frente a competidores"
             }},
             {{
-                "concepto": "Segundo Modelo",
+                "concepto": "Segundo modelo",
                 "mecanismo_ingreso": "...",
                 "ventaja_defensiva": "..."
             }}
         ],
         "matriz_priorizacion": [
             {{
-                "iniciativa": "Nombre de la iniciativa",
-                "categoria": "Quick Win / Apuesta Estratégica / Experimento Rápido",
-                "impacto_negocio": "Alto / Medio / Radical",
+                "iniciativa": "Denominacion del proyecto",
+                "categoria": "Ganancia Inmediata / Apuesta Estrategica / Experimento Agil",
+                "impacto_negocio": "Alto / Medio / Transformador",
                 "complejidad": "Baja / Media / Alta"
             }},
             {{
@@ -151,35 +155,43 @@ def generar_radar_innovacion(perfil: dict) -> dict:
         ],
         "pilotos_accion": [
             {{
-                "plazo": "Fase 1: 30 Días (Exploración & Prototipado)",
-                "accion": "Experimento de bajo coste y validación rápida...",
-                "kpi_exito": "Métrica clave de validación"
+                "plazo": "Fase 1: 30 Dias (Definicion y Prototipado)",
+                "accion": "Prueba de concepto de bajo coste y validacion rapida",
+                "kpi_exito": "Indicador cuantitativo de validacion"
             }},
             {{
-                "plazo": "Fase 2: 90 Días (Piloto de Mercado)",
-                "accion": "Primer lanzamiento controlado con clientes diana...",
-                "kpi_exito": "Métrica de tracción inicial"
+                "plazo": "Fase 2: 90 Dias (Despliegue Controlado)",
+                "accion": "Piloto de mercado con clientes cualificados",
+                "kpi_exito": "Metrica de traccion inicial"
             }},
             {{
-                "plazo": "Fase 3: 180 Días (Escalado & Integración)",
-                "accion": "Consolidación en la propuesta comercial principal...",
-                "kpi_exito": "Métrica de volumen / facturación"
+                "plazo": "Fase 3: 180 Dias (Escalado e Integracion)",
+                "accion": "Incorporacion al portafolio comercial estandar",
+                "kpi_exito": "Metrica de contribucion a ingresos"
             }}
         ]
     }}
     """
-    try:
-        res = ai_model.generate_content(prompt)
-        t = res.text.strip()
-        if t.startswith("```json"):
-            t = t[7:]
-        if t.startswith("```"):
-            t = t[3:]
-        if t.endswith("```"):
-            t = t[:-3]
-        return json.loads(t.strip())
-    except Exception as e:
-        return {"error": f"Error al procesar la respuesta de la IA: {str(e)}"}
+    
+    modelos_a_probar = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"]
+    ultimo_error = ""
+    for nom_mod in modelos_a_probar:
+        try:
+            m = genai.GenerativeModel(nom_mod)
+            res = m.generate_content(prompt)
+            t = res.text.strip()
+            if t.startswith("```json"):
+                t = t[7:]
+            if t.startswith("```"):
+                t = t[3:]
+            if t.endswith("```"):
+                t = t[:-3]
+            return json.loads(t.strip())
+        except Exception as e:
+            ultimo_error = str(e)
+            continue
+
+    return {"error": f"Error al generar con Gemini: {ultimo_error}"}
 
 # ==============================================================================
 # 3. GENERADOR DE DOSSIER EDITORIAL EN PDF
@@ -205,15 +217,15 @@ class NumberedCanvas(canvas.Canvas):
         self.saveState()
         self.setFont("Helvetica-Bold", 7.5)
         self.setFillColor(colors.HexColor("#0F172A"))
-        self.drawString(45, 804, "KROMA TRENDRADAR | DOSSIER DE INTELIGENCIA ESTRATÉGICA")
+        self.drawString(45, 804, "KROMA TRENDRADAR | DOSSIER DE INTELIGENCIA ESTRATEGICA")
         self.setFont("Helvetica", 7.5)
         self.setFillColor(colors.HexColor("#64748B"))
         self.setStrokeColor(colors.HexColor("#CBD5E1"))
         self.setLineWidth(0.5)
         self.line(45, 796, 550, 796)
         self.line(45, 42, 550, 42)
-        self.drawString(45, 30, "INFORME DE INNOVACIÓN Y PROSPECTIVA SECTORIAL - CONFIDENCIAL")
-        self.drawRightString(550, 30, f"Página {self._pageNumber} de {page_count}")
+        self.drawString(45, 30, "INFORME DE INNOVACION Y PROSPECTIVA SECTORIAL - CONFIDENCIAL")
+        self.drawRightString(550, 30, f"Pagina {self._pageNumber} de {page_count}")
         self.restoreState()
 
 def generar_pdf_trendradar(perfil: dict, radar: dict) -> bytes:
@@ -235,17 +247,15 @@ def generar_pdf_trendradar(perfil: dict, radar: dict) -> bytes:
     callout = ParagraphStyle('Callout', parent=styles['Normal'], fontName='Helvetica-Oblique', fontSize=8.5, leading=12, textColor=colors.HexColor("#1E293B"))
 
     story = []
-    story.append(Paragraph("RADAR DE TENDENCIAS & HOJA DE RUTA DE INNOVACIÓN", title_style))
-    story.append(Paragraph(f"<b>Entidad:</b> {perfil.get('nombre_empresa')} | <b>Sector:</b> {perfil.get('sector_nicho')} | <b>Ambición:</b> {perfil.get('ambicion')}", sub_style))
+    story.append(Paragraph("RADAR DE TENDENCIAS Y HOJA DE RUTA DE INNOVACION", title_style))
+    story.append(Paragraph(f"<b>Entidad:</b> {perfil.get('nombre_empresa')} | <b>Sector:</b> {perfil.get('sector_nicho')} | <b>Ambicion:</b> {perfil.get('ambicion')}", sub_style))
 
-    # Visión Ejecutiva
-    story.append(Paragraph("1. VISIÓN ESTRATÉGICA DE FUTURO", h1))
+    story.append(Paragraph("1. VISION ESTRATEGICA DE FUTURO", h1))
     story.append(Paragraph(radar.get("resumen_vision", ""), callout))
     story.append(Spacer(1, 6))
 
-    # Macrotendencias
-    story.append(Paragraph("2. RADAR DE MACRO & MICRO TENDENCIAS SECTORIALES", h1))
-    t_tend_data = [["Tendencia", "Horizonte", "Transformación del Mercado", "Oportunidad para la Empresa"]]
+    story.append(Paragraph("2. RADAR DE MACRO Y MICRO TENDENCIAS SECTORIALES", h1))
+    t_tend_data = [["Tendencia", "Horizonte", "Transformacion del Mercado", "Oportunidad para la Entidad"]]
     for item in radar.get("macrotendencias", []):
         t_tend_data.append([
             item.get("nombre", ""),
@@ -267,9 +277,8 @@ def generar_pdf_trendradar(perfil: dict, radar: dict) -> bytes:
     story.append(t_tend)
     story.append(Spacer(1, 6))
 
-    # Tecnologías & IA
-    story.append(Paragraph("3. SCOUTING TECNOLÓGICO & CASOS DE USO DE IA", h1))
-    t_tec_data = [["Tecnología / IA", "Madurez", "Caso de Uso Aplicado al Negocio", "Benchmark Global"]]
+    story.append(Paragraph("3. SCOUTING TECNOLOGICO Y CASOS DE USO DE IA", h1))
+    t_tec_data = [["Tecnologia / IA", "Madurez", "Caso de Uso Aplicado al Negocio", "Benchmark Global"]]
     for item in radar.get("tecnologias_aplicadas", []):
         t_tec_data.append([
             item.get("tecnologia", ""),
@@ -291,133 +300,26 @@ def generar_pdf_trendradar(perfil: dict, radar: dict) -> bytes:
     story.append(t_tec)
     story.append(Spacer(1, 6))
 
-    # Modelos de Negocio
-    story.append(Paragraph("4. NUEVOS MODELOS DE NEGOCIO & MONETIZACIÓN", h1))
+    story.append(Paragraph("4. NUEVOS MODELOS DE NEGOCIO Y MONETIZACION", h1))
     for mb in radar.get("nuevos_modelos_negocio", []):
-        story.append(Paragraph(f"• <b>{mb.get('concepto')}:</b> {mb.get('mecanismo_ingreso')}", body))
-        story.append(Paragraph(f"  <i>Ventaja defensiva:</i> {mb.get('ventaja_defensiva')}", body))
+        story.append(Paragraph(f"<b>{mb.get('concepto')}:</b> {mb.get('mecanismo_ingreso')}", body))
+        story.append(Paragraph(f"<i>Ventaja defensiva:</i> {mb.get('ventaja_defensiva')}", body))
     story.append(Spacer(1, 4))
 
-    # Hoja de Ruta de Pilotos
-    story.append(Paragraph("5. HOJA DE RUTA DE EXPERIMENTACIÓN & PILOTOS", h1))
+    story.append(Paragraph("5. HOJA DE RUTA DE EXPERIMENTACION Y PILOTOS", h1))
     for p in radar.get("pilotos_accion", []):
-        story.append(Paragraph(f"• <b>{p.get('plazo')}:</b> {p.get('accion')}", body))
-        story.append(Paragraph(f"  <b>Métrica de Éxito (KPI):</b> {p.get('kpi_exito')}", body))
+        story.append(Paragraph(f"<b>{p.get('plazo')}:</b> {p.get('accion')}", body))
+        story.append(Paragraph(f"<b>Metrica de Exito (KPI):</b> {p.get('kpi_exito')}", body))
 
     doc.build(story, canvasmaker=NumberedCanvas)
     buffer.seek(0)
     return buffer.getvalue()
 
 # ==============================================================================
-# 4. ENTRADA DE DATOS (PERFIL ESTRATÉGICO PRECARGADO)
+# 4. ENTRADA DE DATOS
 # ==============================================================================
-st.title("KROMA TrendRadar — Inteligencia de Mercado & Innovación")
-st.caption("Radar de tendencias emergentes, scouting tecnológico y nuevos modelos de negocio para pymes.")
+st.title("KROMA TrendRadar — Inteligencia de Mercado e Innovacion")
+st.caption("Radar de tendencias emergentes, prospeccion tecnologica y nuevos modelos de negocio para pymes.")
 
-with st.expander("🎯 Configurar Perfil de la Empresa a Prospectar", expanded=True):
-    with st.form("form_radar"):
-        col1, col2 = st.columns(2)
-        with col1:
-            nombre_empresa = st.text_input("Nombre de la Empresa", value="Actiuform Design S.L.")
-            sector_nicho = st.text_input("Sector y Nicho Específico", value="Diseño, fabricación y distribución de mobiliario de oficina y espacios de trabajo (contract)")
-            modelo_actual = st.text_input("Propuesta Actual y Clientes", value="Venta B2B de mobiliario estándar y a medida a través de distribuidores, arquitectos y licitaciones")
-        with col2:
-            fortaleza = st.text_input("Principal Activo / Fortaleza Actual", value="Fábrica flexible propia, control de calidad y red consolidada de prescriptores y arquitectos")
-            ambicion = st.selectbox("Grado de Ambición Innovadora", [
-                "Disruptiva: Nuevos modelos de negocio, servicios por suscripción e IA aplicada",
-                "Adyacente: Nuevos canales digitales, personalización bajo demanda y sostenibilidad circular",
-                "Incremental: Digitalización de procesos y ampliación de catálogo de productos"
-            ])
-            amenaza = st.text_input("Mayor Desafío o Amenaza Percibida", value="Comoditización de precios por importaciones asiáticas y reducción de metros de oficina por auge del teletrabajo")
-
-        submit_btn = st.form_submit_button("⚡ Generar Radar de Innovación y Prospección en Pantalla")
-
-# Guardar en memoria de sesión para no perderlo al cambiar de pestaña
-if submit_btn:
-    perfil = {
-        "nombre_empresa": nombre_empresa,
-        "sector_nicho": sector_nicho,
-        "modelo_actual": modelo_actual,
-        "fortaleza": fortaleza,
-        "ambicion": ambicion,
-        "amenaza": amenaza
-    }
-    with st.spinner("Analizando macrotendencias globales, casos de uso de IA y modelos disruptivos para este nicho..."):
-        st.session_state["radar_resultado"] = generar_radar_innovacion(perfil)
-        st.session_state["perfil_activo"] = perfil
-
-# ==============================================================================
-# 5. VISUALIZACIÓN INMEDIATA DEL DIAGNÓSTICO EN PANTALLA
-# ==============================================================================
-if "radar_resultado" in st.session_state:
-    radar = st.session_state["radar_resultado"]
-    perfil = st.session_state["perfil_activo"]
-
-    if "error" in radar:
-        st.error(radar["error"])
-    else:
-        st.markdown("---")
-        
-        # 1. Visión Estratégica
-        st.subheader("🔮 Visión Estratégica de Dirección (Horizonte 3 Años)")
-        st.info(radar.get("resumen_vision", ""))
-
-        # 2. Pestañas de Prospección y Scouting
-        tab_tend, tab_tech, tab_biz, tab_matrix, tab_road = st.tabs([
-            "📡 Radar de Tendencias",
-            "🤖 Scouting Tecnológico & IA",
-            "💎 Nuevos Modelos de Ingresos",
-            "📊 Matriz de Priorización",
-            "🚀 Hoja de Ruta de Pilotos"
-        ])
-
-        with tab_tend:
-            st.markdown("#### Fuerzas de Mercado que Transformarán el Sector")
-            for t in radar.get("macrotendencias", []):
-                with st.container():
-                    st.markdown(f"##### 📌 {t.get('nombre')} — `{t.get('horizonte')}`")
-                    c_a, c_b = st.columns(2)
-                    c_a.write(f"**Impacto en las Reglas del Sector:**\n{t.get('impacto_sector')}")
-                    c_b.success(f"**Oportunidad Concreta para la Empresa:**\n{t.get('oportunidad_pyme')}")
-                    st.divider()
-
-        with tab_tech:
-            st.markdown("#### Tecnologías Emergentes & Aplicaciones Concretas de IA")
-            for tc in radar.get("tecnologias_aplicadas", []):
-                with st.container():
-                    st.markdown(f"##### ⚙️ {tc.get('tecnologia')} — *Madurez: {tc.get('madurez')}*")
-                    st.write(f"**Aplicación Quirúrgica en el Negocio:** {tc.get('caso_uso_real')}")
-                    st.caption(f"🌍 **Benchmark Global (Quién lo está haciendo ya):** {tc.get('ejemplo_mercado')}")
-                    st.divider()
-
-        with tab_biz:
-            st.markdown("#### Nuevas Vías de Monetización y Diversificación")
-            for mb in radar.get("nuevos_modelos_negocio", []):
-                with st.container():
-                    st.markdown(f"##### 💡 {mb.get('concepto')}")
-                    st.write(f"**Mecanismo de Generación de Ingresos:** {mb.get('mecanismo_ingreso')}")
-                    st.write(f"**Ventaja Defensiva (Moat):** {mb.get('ventaja_defensiva')}")
-                    st.divider()
-
-        with tab_matrix:
-            st.markdown("#### Matriz de Iniciativas: Impacto vs. Complejidad")
-            df_mat = pd.DataFrame(radar.get("matriz_priorizacion", []))
-            if not df_mat.empty:
-                st.dataframe(df_mat, use_container_width=True)
-
-        with tab_road:
-            st.markdown("#### Plan de Experimentación: De la Idea al Piloto Validado")
-            for pl in radar.get("pilotos_accion", []):
-                st.markdown(f"**{pl.get('plazo')}**")
-                st.write(pl.get('accion'))
-                st.info(f"🎯 **KPI Clave de Validación:** {pl.get('kpi_exito')}")
-
-        st.markdown("---")
-        # El PDF queda solo como exportación opcional al final
-        pdf_bytes = generar_pdf_trendradar(perfil, radar)
-        st.download_button(
-            label="📄 Guardar copia en PDF (Opcional)",
-            data=pdf_bytes,
-            file_name=f"KROMA_TrendRadar_{perfil['nombre_empresa'].replace(' ', '_')}.pdf",
-            mime="application/pdf"
-        )
+with st.expander("Configurar Perfil de la Empresa a Prospectar", expanded=True):
+    with st.
