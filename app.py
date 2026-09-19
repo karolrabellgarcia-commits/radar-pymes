@@ -172,7 +172,7 @@ def generar_radar_innovacion(perfil: dict) -> dict:
         ]
     }}
     """
-    
+
     modelos_a_probar = ["gemini-1.5-pro", "gemini-1.5-flash", "gemini-2.0-flash"]
     ultimo_error = ""
     for nom_mod in modelos_a_probar:
@@ -322,4 +322,105 @@ st.title("KROMA TrendRadar — Inteligencia de Mercado e Innovacion")
 st.caption("Radar de tendencias emergentes, prospeccion tecnologica y nuevos modelos de negocio para pymes.")
 
 with st.expander("Configurar Perfil de la Empresa a Prospectar", expanded=True):
-    with st.
+    with st.form("form_radar"):
+        col1, col2 = st.columns(2)
+        with col1:
+            nombre_empresa = st.text_input("Nombre de la Empresa", value="Actiuform Design S.L.")
+            sector_nicho = st.text_input("Sector y Nicho Especifico", value="Diseno, fabricacion y distribucion de mobiliario de oficina y espacios contract")
+            modelo_actual = st.text_input("Propuesta Actual y Clientes", value="Venta B2B de mobiliario estandar y a medida a traves de distribuidores, arquitectos y licitaciones")
+        with col2:
+            fortaleza = st.text_input("Principal Activo / Fortaleza Actual", value="Fabrica flexible propia, control de calidad y red consolidada de arquitectos prescriptores")
+            ambicion = st.selectbox("Nivel de Ambicion Innovadora", [
+                "Disruptiva: Nuevos modelos de negocio, servicios por suscripcion e IA aplicada",
+                "Adyacente: Nuevos canales digitales, personalizacion bajo demanda y sostenibilidad circular",
+                "Incremental: Digitalizacion de procesos y ampliacion de catalogo de productos"
+            ])
+            amenaza = st.text_input("Mayor Desafio o Amenaza Percibida", value="Comoditizacion de precios por importaciones y reduccion de metros de oficina tradicional por teletrabajo")
+
+        submit_btn = st.form_submit_button("Ejecutar Analisis de Mercado y Prospeccion")
+
+if submit_btn:
+    perfil = {
+        "nombre_empresa": nombre_empresa,
+        "sector_nicho": sector_nicho,
+        "modelo_actual": modelo_actual,
+        "fortaleza": fortaleza,
+        "ambicion": ambicion,
+        "amenaza": amenaza
+    }
+    with st.spinner("Analizando macrotendencias globales, aplicaciones tecnologicas y modelos de negocio..."):
+        st.session_state["radar_resultado"] = generar_radar_innovacion(perfil)
+        st.session_state["perfil_activo"] = perfil
+
+# ==============================================================================
+# 5. VISUALIZACION DIRECTA EN PANTALLA
+# ==============================================================================
+if "radar_resultado" in st.session_state:
+    radar = st.session_state["radar_resultado"]
+    perfil = st.session_state["perfil_activo"]
+
+    if "error" in radar:
+        st.error(radar["error"])
+    else:
+        st.markdown("---")
+        
+        st.subheader("Vision Estrategica de Direccion (Horizonte 3 Anos)")
+        st.info(radar.get("resumen_vision", ""))
+
+        tab_tend, tab_tech, tab_biz, tab_matrix, tab_road = st.tabs([
+            "Radar de Tendencias",
+            "Scouting Tecnologico e IA",
+            "Modelos de Ingresos",
+            "Matriz de Priorizacion",
+            "Hoja de Ruta de Pilotos"
+        ])
+
+        with tab_tend:
+            st.markdown("#### Fuerzas Estructurales de Mercado")
+            for t in radar.get("macrotendencias", []):
+                with st.container():
+                    st.markdown(f"##### {t.get('nombre')} — Horizonte: {t.get('horizonte')}")
+                    c_a, c_b = st.columns(2)
+                    c_a.write(f"**Impacto Sectorial:**\n{t.get('impacto_sector')}")
+                    c_b.success(f"**Oportunidad Concreta:**\n{t.get('oportunidad_pyme')}")
+                    st.divider()
+
+        with tab_tech:
+            st.markdown("#### Tecnologias Emergentes y Aplicaciones de IA")
+            for tc in radar.get("tecnologias_aplicadas", []):
+                with st.container():
+                    st.markdown(f"##### {tc.get('tecnologia')} — Estado de Madurez: {tc.get('madurez')}")
+                    st.write(f"**Caso de Aplicacion Directa:** {tc.get('caso_uso_real')}")
+                    st.caption(f"Referencia Global: {tc.get('ejemplo_mercado')}")
+                    st.divider()
+
+        with tab_biz:
+            st.markdown("#### Vias de Monetizacion y Nuevos Modelos de Negocio")
+            for mb in radar.get("nuevos_modelos_negocio", []):
+                with st.container():
+                    st.markdown(f"##### {mb.get('concepto')}")
+                    st.write(f"**Mecanismo de Ingresos:** {mb.get('mecanismo_ingreso')}")
+                    st.write(f"**Barrera Defensiva:** {mb.get('ventaja_defensiva')}")
+                    st.divider()
+
+        with tab_matrix:
+            st.markdown("#### Matriz de Iniciativas: Impacto vs Complejidad")
+            df_mat = pd.DataFrame(radar.get("matriz_priorizacion", []))
+            if not df_mat.empty:
+                st.dataframe(df_mat, use_container_width=True)
+
+        with tab_road:
+            st.markdown("#### Plan de Experimentacion y Pilotos")
+            for pl in radar.get("pilotos_accion", []):
+                st.markdown(f"**{pl.get('plazo')}**")
+                st.write(pl.get('accion'))
+                st.info(f"Indicador Clave de Validacion (KPI): {pl.get('kpi_exito')}")
+
+        st.markdown("---")
+        pdf_bytes = generar_pdf_trendradar(perfil, radar)
+        st.download_button(
+            label="Descargar Documento PDF de Respaldo",
+            data=pdf_bytes,
+            file_name=f"KROMA_TrendRadar_{perfil['nombre_empresa'].replace(' ', '_')}.pdf",
+            mime="application/pdf"
+        )
