@@ -7,7 +7,7 @@ import json
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.pdfgen import canvas
@@ -35,7 +35,6 @@ else:
 # 2. MOTOR MATEMÁTICO CUANTITATIVO DE ALTA PRECISIÓN (RESIDUO CERO)
 # ==============================================================================
 def calcular_auditoria_avanzada(d: dict) -> dict:
-    # 1. Parámetros Económicos Base
     ventas = float(d["ventas"])
     compras = float(d["compras"])
     subcontratas = float(d["subcontratas"])
@@ -55,36 +54,35 @@ def calcular_auditoria_avanzada(d: dict) -> dict:
 
     ebit = ebitda - amortizaciones
     ebt = ebit - gastos_financieros
-    beneficio_neto_est = ebt * 0.75  # Estimación fiscal estándar 25% IS
+    beneficio_neto_est = ebt * 0.75
 
-    # Verificación estricta de residuo cero contable
     residuo_contable = round(ventas - (costes_directos + coste_personal + gastos_estructura) - ebitda, 4)
 
-    # 2. Análisis Quirúrgico de Mano de Obra y Coste Horario
+    # Mano de obra y coste horario
     horas_anuales_convenio = float(d["horas_anuales_empleado"])
     horas_totales_disponibles = plantilla * horas_anuales_convenio
-    coste_hora_cargada = coste_personal / horas_totales_disponibles if horas_totales_disponibles > 0 else 25.0
+    coste_hora_cargada = (coste_personal / horas_totales_disponibles) if horas_totales_disponibles > 0 else 25.0
 
     pct_tiempo_facturable = float(d["pct_tiempo_facturable"]) / 100.0
     horas_facturables_reales = horas_totales_disponibles * pct_tiempo_facturable
     horas_no_facturables = horas_totales_disponibles - horas_facturables_reales
     coste_horas_improductivas = horas_no_facturables * coste_hora_cargada
-    precio_medio_hora_vendida = ventas / horas_facturables_reales if horas_facturables_reales > 0 else 0.0
+    precio_medio_hora_vendida = (ventas / horas_facturables_reales) if horas_facturables_reales > 0 else 0.0
 
-    # 3. Fuga Cuantificada por Retrabajo / Errores
+    # Fuga por retrabajo
     num_entregas = max(1, int(d["num_operaciones_anuales"]))
     pct_retrabajo = float(d["pct_retrabajo"]) / 100.0
     coste_unit_retrabajo = float(d["coste_unit_retrabajo"])
     fuga_retrabajo_anual = num_entregas * pct_retrabajo * coste_unit_retrabajo
 
-    # 4. Fuga por Fricción Administrativa y Duplicidad
+    # Fuga por fricción administrativa y duplicidad
     duplicidad = max(1, int(d["veces_duplicidad_dato"]))
     operaciones_dia = float(d["gestiones_diarias"])
     minutos_perdidos_dia = operaciones_dia * (duplicidad - 1) * 7.5
     horas_admin_perdidas_anual = (minutos_perdidos_dia / 60.0) * 220.0
     fuga_administrativa_anual = horas_admin_perdidas_anual * coste_hora_cargada
 
-    # 5. Circulante, Tesorería y Ciclo de Caja (CCC)
+    # Circulante y ciclo de conversión de efectivo
     saldo_clientes = float(d["saldo_clientes"])
     saldo_proveedores = float(d["saldo_proveedores"])
     stock_medio = float(d["stock_medio"])
@@ -102,19 +100,15 @@ def calcular_auditoria_avanzada(d: dict) -> dict:
     caja_atrapada_stock = max(0.0, (dio - 30.0) * (coste_ventas_base / 365.0))
     caja_total_liberable = caja_atrapada_exceso_cobro + caja_atrapada_stock
 
-    # 6. Desglose Monetizado KROMA: Vectores DR / C / ES / HC
-    # [DR] Retorno Directo: Retrabajos contenidos + reducción de fugas directas
+    # Vectores DR / C / ES / HC
     dr_retorno_directo = (fuga_retrabajo_anual * 0.75) + (caja_atrapada_exceso_cobro * 0.10)
-    # [C] Capacidad Liberada: Transformar el 35% de horas muertas en horas facturables al margen bruto
     c_capacidad_liberada = (horas_no_facturables * 0.35) * (precio_medio_hora_vendida * (margen_bruto_pct / 100.0))
-    # [ES] Eficiencia Estructural: Erradicar duplicidades de software y procesos manuales
     es_eficiencia_estructura = fuga_administrativa_anual * 0.85
-    # [HC] Optimización de Headcount: Crecimiento soportado sin contratar plantilla adicional
     hc_optimizacion = (coste_personal / plantilla) * 1.5
 
     total_oportunidad_anual = dr_retorno_directo + c_capacidad_liberada + es_eficiencia_estructura
 
-    # 7. Plan Proforma a 3 Años con Inversión
+    # Proforma a 3 años
     inversion_modernizacion = min(40000.0, max(6000.0, ventas * 0.022))
     mejora_ao1 = total_oportunidad_anual * 0.55
     mejora_ao2 = total_oportunidad_anual * 0.85
@@ -127,7 +121,7 @@ def calcular_auditoria_avanzada(d: dict) -> dict:
     payback_meses = (inversion_modernizacion / mejora_ao1 * 12.0) if mejora_ao1 > 0 else 0.0
     roi_3y = (((mejora_ao1 + mejora_ao2 + mejora_ao3) - inversion_modernizacion) / inversion_modernizacion * 100.0) if inversion_modernizacion > 0 else 0.0
 
-    # 8. Matriz Cuantitativa de los 8 Índices KROMA (0.0 a 10.0)
+    # 8 Índices KROMA
     idx_rentabilidad = min(10.0, max(0.0, (ebitda_pct / 18.0) * 10.0))
     idx_productividad = min(10.0, max(0.0, (pct_tiempo_facturable / 0.80) * 10.0))
     idx_liquidez = 10.0 if ccc <= 30 else max(0.0, 10.0 - ((ccc - 30.0) / 10.0))
@@ -138,13 +132,21 @@ def calcular_auditoria_avanzada(d: dict) -> dict:
     idx_comercial = min(10.0, max(0.0, (conversion_comercial / 35.0) * 10.0))
     idx_operaciones = max(0.0, 10.0 - (pct_retrabajo * 70.0))
     
-    dict_dig = {"Baja / Papel y hojas aisladas": 2.0, "Media / Software fragmentado": 5.0, "Integrada / ERP central": 8.0, "Avanzada / Automatizada": 10.0}
+    dict_dig = {
+        "Baja / Papel y hojas aisladas": 2.0,
+        "Media / Software fragmentado": 5.0,
+        "Integrada / ERP central": 8.0,
+        "Avanzada / Automatizada": 10.0
+    }
     idx_digitalizacion = dict_dig.get(d["pila_software"], 5.0)
 
     riesgo = 10.0
-    if float(d["concentracion_top5"]) > 45.0: riesgo -= 2.5
-    if d["dependencia_gerente"] == "Crítica: La empresa se detiene en 48-72h": riesgo -= 3.5
-    if deuda_total > (ebitda * 3.0) and ebitda > 0: riesgo -= 2.0
+    if float(d["concentracion_top5"]) > 45.0:
+        riesgo -= 2.5
+    if d["dependencia_gerente"] == "Crítica: La empresa se detiene en 48-72h":
+        riesgo -= 3.5
+    if deuda_total > (ebitda * 3.0) and ebitda > 0:
+        riesgo -= 2.0
     idx_riesgo = max(1.0, riesgo)
 
     cap_adicional = float(d["capacidad_adicional_pct"])
@@ -186,36 +188,36 @@ def calcular_auditoria_avanzada(d: dict) -> dict:
 def generar_dictamen_consultoria(datos: dict, calc: dict) -> dict:
     if not ai_model:
         return {
-            "dictamen_ejecutivo": "Diagnóstico numérico verificado a residuo cero. El negocio presenta una oportunidad cuantificada de mejora sustancial mediante la reorganización de horas improductivas.",
-            "analisis_cuello_botella": f"Fricción crítica en {datos.get('colapso_ventas')}. La infraestructura actual satura el tiempo disponible del personal clave.",
-            "analisis_gobernanza_riesgo": f"La concentración del {datos.get('concentracion_top5')}% en 5 clientes y la dependencia directa de gerencia comprometen la valoración de la compañía.",
+            "dictamen_ejecutivo": "Diagnóstico verificado a residuo cero. El negocio presenta una oportunidad cuantificada de mejora mediante la optimización de capacidad y tiempos improductivos.",
+            "analisis_cuello_botella": f"Fricción crítica identificada en {datos.get('colapso_ventas')}. El equipo técnico absorbe tareas no computables como facturación.",
+            "analisis_gobernanza_riesgo": f"La concentración del {datos.get('concentracion_top5')}% en cinco cuentas y la dependencia directa de la dirección incrementan el riesgo operativo.",
             "hoja_ruta_directiva": {
-                "inmediato_30d": "Contención de fugas en retrabajos y regularización de saldos de clientes pendientes.",
-                "medio_plazo_90d": "Implantación de flujos unificados para erradicar las duplicidades de información.",
-                "estrategico_12m": f"Estandarización de procesos para alcanzar el objetivo directivo: {datos.get('objetivo_estrategico')}"
+                "inmediato_30d": "Contención del retrabajo y aceleración de cobros con vencimiento superior a 45 días.",
+                "medio_plazo_90d": "Unificación de la pila de herramientas para suprimir duplicidades administrativas.",
+                "estrategico_12m": f"Estandarización de la gestión para apoyar el objetivo de: {datos.get('objetivo_estrategico')}"
             }
         }
 
     prompt = f"""
     Eres el Socio Principal de una firma de consultoría estratégica y auditoría corporativa (KROMA Ops).
-    Tu objetivo es emitir un dictamen de dirección implacable, cuantitativo, sin lenguaje publicitario ni relleno generalista.
+    Emite un dictamen cuantitativo, directo y riguroso sin clichés comerciales ni rodeos introductorios.
 
     DATOS DE LA EMPRESA:
     - Entidad: {datos.get('nombre_empresa')} | Sector: {datos.get('sector')} | Modelo: {datos.get('tipo_negocio')}
-    - Plantilla: {calc['plantilla']} personas | Horas convenio/año: {datos.get('horas_anuales_empleado')} h
+    - Plantilla: {calc['plantilla']} personas | Horas convenio: {datos.get('horas_anuales_empleado')} h
     - Objetivo de la Dirección: {datos.get('objetivo_estrategico')}
     - Cuello de Botella Declarado: {datos.get('cuello_botella_gerente')}
-    - Punto de Colapso si Ventas suben 20%: {datos.get('colapso_ventas')}
+    - Punto de Colapso (+20% Ventas): {datos.get('colapso_ventas')}
     - Dependencia del Gerente: {datos.get('dependencia_gerente')}
     - Concentración Top 5 Clientes: {datos.get('concentracion_top5')}%
 
-    MÉTRICAS MATEMÁTICAS VERIFICADAS:
+    MÉTRICAS MATEMÁTICAS CALCULADAS:
     - Ventas: {calc['ventas']:,.2f} € | Margen Bruto: {calc['margen_bruto']:,.2f} € ({calc['margen_bruto_pct']:.1f}%)
     - EBITDA Normalizado: {calc['ebitda']:,.2f} € ({calc['ebitda_pct']:.1f}%)
-    - Coste por Hora Cargada (Total Empresa): {calc['coste_hora_cargada']:.2f} €/hora
-    - Horas No Facturables (Muertas/Gestión): {calc['horas_no_facturables']:,.0f} h/año (Coste: {calc['coste_horas_improductivas']:,.2f} €)
-    - Fuga Anual por Retrabajo / Errores: {calc['fuga_retrabajo_anual']:,.2f} €/año
-    - Fuga por Reintroducción de Datos: {calc['fuga_administrativa_anual']:,.2f} €/año ({calc['horas_admin_perdidas_anual']:.0f} h/año)
+    - Coste por Hora Cargada: {calc['coste_hora_cargada']:.2f} €/h
+    - Horas No Facturables: {calc['horas_no_facturables']:,.0f} h/año (Coste: {calc['coste_horas_improductivas']:,.2f} €)
+    - Fuga Retrabajo/Errores: {calc['fuga_retrabajo_anual']:,.2f} €/año
+    - Fuga Duplicidad Administrativa: {calc['fuga_administrativa_anual']:,.2f} €/año
     - Ciclo de Conversión de Efectivo (CCC): {calc['ccc']:.1f} días (DSO: {calc['dso']:.1f}d | Caja atrapada: {calc['caja_atrapada_exceso_cobro']:,.2f} €)
     
     OPORTUNIDAD MONETIZADA (DR / C / ES / HC):
@@ -225,13 +227,13 @@ def generar_dictamen_consultoria(datos: dict, calc: dict) -> dict:
     - Impacto Consolidado: {calc['total_oportunidad_anual']:,.2f} €/año
     - Inversión Modernización: {calc['inversion_modernizacion']:,.2f} € | Payback: {calc['payback_meses']:.1f} meses | ROI 3 Años: {calc['roi_3y']:.0f}%
 
-    INSTRUCCIONES DIRECTIVAS:
-    1. Redacta el DICTAMEN EJECUTIVO evaluando si el modelo actual soporta el objetivo de "{datos.get('objetivo_estrategico')}".
-    2. Analiza la CAUSA RAÍZ de su cuello de botella operativo ({datos.get('colapso_ventas')}).
-    3. Evalúa el RIESGO DE GOBERNANZA (dependencia del gerente y concentración de clientes).
-    4. Diseña una HOJA DE RUTA DIRECTIVA en 3 fases (30 días, 90 días, 12 meses).
+    INSTRUCCIONES:
+    1. Dictamen ejecutivo directo sobre la viabilidad del modelo frente al objetivo declarado.
+    2. Análisis de causa raíz de su cuello de botella operativo.
+    3. Evaluación del riesgo organizativo y de concentración de clientes.
+    4. Hoja de ruta directiva en tres horizontes (30 días, 90 días, 12 meses).
 
-    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO (sin markdown ni bloques de código):
+    RESPONDE EXCLUSIVAMENTE CON UN OBJETO JSON VÁLIDO (sin bloques ```json ni texto extra):
     {{
         "dictamen_ejecutivo": "...",
         "analisis_cuello_botella": "...",
@@ -246,19 +248,22 @@ def generar_dictamen_consultoria(datos: dict, calc: dict) -> dict:
     try:
         res = ai_model.generate_content(prompt)
         t = res.text.strip()
-        if t.startswith("```json"): t = t[7:]
-        if t.startswith("```"): t = t[3:]
-        if t.endswith("```"): t = t[:-3]
+        if t.startswith("```json"):
+            t = t[7:]
+        if t.startswith("```"):
+            t = t[3:]
+        if t.endswith("```"):
+            t = t[:-3]
         return json.loads(t.strip())
     except Exception:
         return {
             "dictamen_ejecutivo": f"La entidad genera un EBITDA del {calc['ebitda_pct']:.1f}%, pero sufre una fuga de capacidad equivalente a {calc['horas_no_facturables']:,.0f} horas improductivas. El plan estratégico debe canalizarse hacia la recuperación de margen directo.",
-            "analisis_cuello_botella": f"El colapso señalado en '{datos.get('colapso_ventas')}' demuestra una absorción desmedida del tiempo del equipo cualificado en tareas manuales.",
-            "analisis_gobernanza_riesgo": f"Concentración en cartera de clientes ({datos.get('concentracion_top5')}%) y nivel de dependencia de dirección calificado como prioritario.",
+            "analisis_cuello_botella": f"El colapso señalado en '{datos.get('colapso_ventas')}' demuestra una absorción del tiempo del equipo en gestiones no computables.",
+            "analisis_gobernanza_riesgo": f"Concentración en cartera ({datos.get('concentracion_top5')}%) y nivel de dependencia de gerencia categorizado como crítico.",
             "hoja_ruta_directiva": {
-                "inmediato_30d": "Acelerar la cartera de cobros pendientes y protocolizar las entregas para suprimir el retrabajo.",
-                "medio_plazo_90d": "Centralización de herramientas operativas para liberar las horas perdidas en tareas administrativas.",
-                "estrategico_12m": "Estandarización de la gestión de proyectos para permitir el crecimiento sin sobrecargar la dirección."
+                "inmediato_30d": "Acelerar la cartera de cobros pendientes y fijar criterios de control de entregas.",
+                "medio_plazo_90d": "Integración de flujos de datos para recuperar las horas perdidas en tareas administrativas.",
+                "estrategico_12m": "Estandarización de procesos de entrega para habilitar el crecimiento sin requerir nuevas contrataciones."
             }
         }
 
@@ -350,15 +355,15 @@ def generar_pdf_editorial(d: dict, c: dict, ia: dict) -> bytes:
     story.append(t_idx)
     story.append(Spacer(1, 6))
 
-    # 3. Monetización de Fugas (DR / C / ES / HC)
+    # 3. Monetización de Fugas
     story.append(Paragraph("3. CUANTIFICACIÓN DE FUGAS Y € DE OPORTUNIDAD ANUAL", h1))
     opp_data = [
         ["Vector de Oportunidad", "Impacto Monetizado", "Descripción Operativa"],
-        ["[DR] Retorno Directo", f"{c['dr_retorno_directo']:,.2f} €", f"Contención de retrabajo/fallos y optimización de tesorería"],
+        ["[DR] Retorno Directo", f"{c['dr_retorno_directo']:,.2f} €", "Contención de retrabajo/fallos y optimización de tesorería"],
         ["[C] Capacidad Liberada", f"{c['c_capacidad_liberada']:,.2f} €", f"Monetización del 35% de horas muertas ({c['horas_no_facturables']:,.0f} h) a margen bruto"],
         ["[ES] Eficiencia de Estructura", f"{c['es_eficiencia_estructura']:,.2f} €", f"Supresión de reintroducción de datos ({c['horas_admin_perdidas_anual']:.0f} h/año recuperadas)"],
-        ["TOTAL OPORTUNIDAD ANUAL", f"{c['total_oportunidad_anual']:,.2f} €", f"Margen neto anual adicional tras modernización"],
-        ["[HC] Amortiguación Headcount", f"{c['hc_optimizacion']:,.2f} €", f"Ahorro estimado en nuevas contrataciones para absorber crecimiento"]
+        ["TOTAL OPORTUNIDAD ANUAL", f"{c['total_oportunidad_anual']:,.2f} €", "Margen neto anual adicional tras modernización"],
+        ["[HC] Amortiguación Headcount", f"{c['hc_optimizacion']:,.2f} €", "Ahorro estimado en nuevas contrataciones para absorber crecimiento"]
     ]
     t_opp = Table(opp_data, colWidths=[140, 115, 250])
     t_opp.setStyle(TableStyle([
@@ -394,14 +399,14 @@ def generar_pdf_editorial(d: dict, c: dict, ia: dict) -> bytes:
     story.append(t_fin)
     story.append(Spacer(1, 6))
 
-    # 5. Plan Proforma y Retorno
+    # 5. Plan Proforma
     story.append(Paragraph("5. CUENTA PROFORMA A 3 AÑOS Y RETORNO DE INVERSIÓN (ROI)", h1))
     prof_data = [
         ["Horizonte", "EBITDA Proforma", "Margen %", "Generación Acumulada", "Métricas de Inversión"],
         ["Año 0 (Base Actual)", f"{c['ebitda']:,.2f} €", f"{c['ebitda_pct']:.1f} %", "Base Referencia", f"Inversión Estimada: {c['inversion_modernizacion']:,.2f} €"],
         ["Año 1 (Fase Inmediata)", f"{c['ebitda_ao1']:,.2f} €", f"{c['ebitda_ao1']/c['ventas']*100:.1f} %", f"+{c['mejora_ao1']:,.2f} €", f"Payback: {c['payback_meses']:.1f} meses"],
         ["Año 2 (Consolidación)", f"{c['ebitda_ao2']:,.2f} €", f"{c['ebitda_ao2']/c['ventas']*100:.1f} %", f"+{c['mejora_ao2']:,.2f} €", f"ROI a 3 Años: {c['roi_3y']:.0f} %"],
-        ["Año 3 (Madurez Operativa)", f"{c['ebitda_ao3']:,.2f} €", f"{c['ebitda_ao3']/c['ventas']*100:.1f} %", f"+{c['mejora_ao3']:,.2f} €", "Valoración empresa maximizada"]
+        ["Año 3 (Madurez Operativa)", f"{c['ebitda_ao3']:,.2f} €", f"{c['ebitda_ao3']/c['ventas']*100:.1f} %", f"+{c['mejora_ao3']:,.2f} €", "Valoración de empresa maximizada"]
     ]
     t_prof = Table(prof_data, colWidths=[115, 95, 65, 110, 120])
     t_prof.setStyle(TableStyle([
@@ -428,7 +433,7 @@ def generar_pdf_editorial(d: dict, c: dict, ia: dict) -> bytes:
     return buffer.getvalue()
 
 # ==============================================================================
-# 5. ENTRADA DE DATOS CON CASO REAL PRECARGADO (EMPRESA B2B DIGITAL)
+# 5. ENTRADA DE DATOS CON CASO REAL PRECARGADO (AGENCIA DIGITAL B2B)
 # ==============================================================================
 st.title("KROMA Ops — Auditoría Operativa y Financiera de Dirección")
 st.caption("Diagnóstico matemático sin sesgo, conciliación contable estricta y monetización de oportunidades.")
@@ -533,4 +538,136 @@ calc = calcular_auditoria_avanzada(datos_actuales)
 st.markdown("---")
 st.subheader("🎯 Panel de Control Ejecutivo: Situación Actual")
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("EBITDA Normalizado", f"{calc['ebitda']:,.2f} €", f"{calc['ebitda_pct']:.1f}% s/
+m1.metric("EBITDA Normalizado", f"{calc['ebitda']:,.2f} €", f"{calc['ebitda_pct']:.1f}% s/Ventas")
+m2.metric("€ de Oportunidad Total", f"{calc['total_oportunidad_anual']:,.2f} €", "Recuperable/año", delta_color="normal")
+m3.metric("Fuga Horas Improductivas", f"{calc['coste_horas_improductivas']:,.2f} €", f"{calc['horas_no_facturables']:,.0f} h no facturadas", delta_color="inverse")
+m4.metric("Caja Atrapada en Clientes", f"{calc['caja_atrapada_exceso_cobro']:,.2f} €", f"DSO: {calc['dso']:.0f} días", delta_color="inverse")
+
+# Secciones de Inspección Visual
+st.markdown("### 1. Desglose de Fugas Monetizadas (€ de Oportunidad)")
+st.write("Cuantificación del capital que se drena en la operativa por ineficiencias de proceso y horas improductivas:")
+c_opp1, c_opp2 = st.columns([3, 2])
+with c_opp1:
+    df_vectores = pd.DataFrame([
+        {
+            "Vector KROMA": "[DR] Retorno Directo",
+            "Impacto Anual (€)": calc["dr_retorno_directo"],
+            "Concepto Operativo": f"Contención de los {calc['fuga_retrabajo_anual']:,.2f} € perdidos en rehacer proyectos y subsanar fallos."
+        },
+        {
+            "Vector KROMA": "[C] Capacidad Liberada",
+            "Impacto Anual (€)": calc["c_capacidad_liberada"],
+            "Concepto Operativo": f"Monetización del 35% de las {calc['horas_no_facturables']:,.0f} h improductivas al margen bruto actual ({calc['margen_bruto_pct']:.1f}%)."
+        },
+        {
+            "Vector KROMA": "[ES] Eficiencia Estructural",
+            "Impacto Anual (€)": calc["es_eficiencia_estructura"],
+            "Concepto Operativo": f"Ahorro de las {calc['horas_admin_perdidas_anual']:.0f} h/año perdidas en reintroducir datos ({calc['fuga_administrativa_anual']:,.2f} €)."
+        },
+        {
+            "Vector KROMA": "IMPACTO CONSOLIDADO",
+            "Impacto Anual (€)": calc["total_oportunidad_anual"],
+            "Concepto Operativo": "Margen neto anual recuperable al culminar la optimización de procesos."
+        },
+        {
+            "Vector KROMA": "[HC] Amortiguación Headcount",
+            "Impacto Anual (€)": calc["hc_optimizacion"],
+            "Concepto Operativo": "Ahorro de contratar 1,5 empleados adicionales al absorber más volumen con la estructura actual."
+        }
+    ])
+    st.dataframe(df_vectores.style.format({"Impacto Anual (€)": "{:,.2f} €"}), use_container_width=True)
+
+with c_opp2:
+    st.info(f"""
+    **Parámetros Horarios Clave:**
+    * **Coste por Hora Cargada:** `{calc['coste_hora_cargada']:.2f} €/h`
+    * **Precio Medio Facturado:** `{calc['precio_medio_hora_vendida']:.2f} €/h`
+    * **Horas Disponibles:** `{calc['horas_totales_disponibles']:,.0f} h`
+    * **Horas Facturadas:** `{calc['horas_facturables_reales']:,.0f} h ({pct_tiempo_facturable}%)`
+    * **Horas Pérdida/Gestión:** `{calc['horas_no_facturables']:,.0f} h ({100-pct_tiempo_facturable}%)`
+    """)
+
+st.markdown("### 2. Matriz Cuantitativa de Salud Operativa (8 Índices)")
+cols_idx = st.columns(4)
+i = 0
+for nombre_idx, valor_idx in calc["indices"].items():
+    with cols_idx[i % 4]:
+        color = "normal" if valor_idx >= 7.0 else ("off" if valor_idx >= 5.0 else "inverse")
+        estado = "Sólido" if valor_idx >= 7.0 else ("Precaución" if valor_idx >= 5.0 else "Crítico")
+        st.metric(nombre_idx, f"{valor_idx:.1f} / 10", estado)
+    i += 1
+
+st.markdown("### 3. Cascada P&L Conciliada a Residuo Cero y Ciclo de Caja")
+col_pl, col_caja = st.columns(2)
+with col_pl:
+    st.write("##### Cascada de la Cuenta de Explotación")
+    df_pl_show = pd.DataFrame([
+        {"Partida": "Facturación Bruta", "Importe (€)": calc["ventas"], "% s/Ventas": 100.0},
+        {"Partida": "(-) Costes Directos / Servidores", "Importe (€)": -calc["costes_directos"], "% s/Ventas": (calc["costes_directos"]/calc["ventas"])*100},
+        {"Partida": "(=) Margen de Contribución Bruto", "Importe (€)": calc["margen_bruto"], "% s/Ventas": calc["margen_bruto_pct"]},
+        {"Partida": "(-) Masa Salarial Total", "Importe (€)": -calc["coste_personal"], "% s/Ventas": (calc["coste_personal"]/calc["ventas"])*100},
+        {"Partida": "(-) Gastos Estructura (Opex)", "Importe (€)": -calc["gastos_estructura"], "% s/Ventas": (calc["gastos_estructura"]/calc["ventas"])*100},
+        {"Partida": "(=) EBITDA Normalizado", "Importe (€)": calc["ebitda"], "% s/Ventas": calc["ebitda_pct"]},
+        {"Partida": "(-) Amortizaciones y Financieros", "Importe (€)": -(amortizaciones + gastos_financieros), "% s/Ventas": ((amortizaciones + gastos_financieros)/calc["ventas"])*100},
+        {"Partida": "(=) EBT (Resultado Antes Impuestos)", "Importe (€)": calc["ebt"], "% s/Ventas": (calc["ebt"]/calc["ventas"])*100}
+    ])
+    st.dataframe(df_pl_show.style.format({"Importe (€)": "{:,.2f} €", "% s/Ventas": "{:.1f} %"}), use_container_width=True)
+
+with col_caja:
+    st.write("##### Ciclo de Conversión de Efectivo (CCC)")
+    st.metric("Días de Ciclo de Efectivo (CCC)", f"{calc['ccc']:.1f} días", f"DSO: {calc['dso']:.1f}d | DPO: {calc['dpo']:.1f}d")
+    st.write(f"""
+    * **Plazo Medio de Cobro (DSO):** `{calc['dso']:.1f} días` *(Caja inmovilizada por superar 45 días: **{calc['caja_atrapada_exceso_cobro']:,.2f} €**)*.
+    * **Plazo Medio de Pago (DPO):** `{calc['dpo']:.1f} días`.
+    * **Permanencia de Stock / Anticipos (DIO):** `{calc['dio']:.1f} días`.
+    * **Deuda Financiera Total:** `{deuda_total:,.2f} €` *(Ratio Deuda / EBITDA: `{deuda_total/calc['ebitda']:.2f}x`)*.
+    """)
+
+st.markdown("### 4. Cuenta Proforma a 3 Años y Retorno de Inversión")
+c_prof1, c_prof2 = st.columns([3, 1])
+with c_prof1:
+    df_proforma = pd.DataFrame([
+        {"Horizonte": "Año 0 (Situación Actual)", "EBITDA Proforma": calc["ebitda"], "Margen %": calc["ebitda_pct"], "Generación Neta": 0.0},
+        {"Horizonte": "Año 1 (Captura 55% Fugas)", "EBITDA Proforma": calc["ebitda_ao1"], "Margen %": (calc["ebitda_ao1"]/calc["ventas"])*100, "Generación Neta": calc["mejora_ao1"]},
+        {"Horizonte": "Año 2 (Captura 85% Fugas)", "EBITDA Proforma": calc["ebitda_ao2"], "Margen %": (calc["ebitda_ao2"]/calc["ventas"])*100, "Generación Neta": calc["mejora_ao2"]},
+        {"Horizonte": "Año 3 (Madurez y Escala)", "EBITDA Proforma": calc["ebitda_ao3"], "Margen %": (calc["ebitda_ao3"]/calc["ventas"])*100, "Generación Neta": calc["mejora_ao3"]},
+    ])
+    st.dataframe(df_proforma.style.format({"EBITDA Proforma": "{:,.2f} €", "Margen %": "{:.1f} %", "Generación Neta": "+{:,.2f} €"}), use_container_width=True)
+
+with c_prof2:
+    st.success(f"""
+    **Métricas de Inversión:**
+    * **Inversión Requerida:** `{calc['inversion_modernizacion']:,.2f} €`
+    * **Plazo de Retorno (Payback):** `{calc['payback_meses']:.1f} meses`
+    * **ROI a 3 Años:** `+{calc['roi_3y']:.0f} %`
+    """)
+
+# Consulta de IA bajo demanda
+st.markdown("### 5. Dictamen Estratégico y Hoja de Ruta (IA Gemini)")
+with st.spinner("Sintetizando dictamen de gobernanza y hoja de ruta con IA..."):
+    ia_analisis = generar_dictamen_consultoria(datos_actuales, calc)
+
+col_ia1, col_ia2 = st.columns(2)
+with col_ia1:
+    st.write("##### Dictamen de Dirección")
+    st.info(ia_analisis.get("dictamen_ejecutivo", ""))
+    st.write("##### Causa Raíz de Cuellos de Botella")
+    st.write(ia_analisis.get("analisis_cuello_botella", ""))
+
+with col_ia2:
+    st.write("##### Riesgo de Gobernanza y Concentración")
+    st.warning(ia_analisis.get("analisis_gobernanza_riesgo", ""))
+    st.write("##### Hoja de Ruta de Modernización")
+    hr = ia_analisis.get("hoja_ruta_directiva", {})
+    st.markdown(f"* **Inmediato (30 días):** {hr.get('inmediato_30d', '')}")
+    st.markdown(f"* **Consolidación (90 días):** {hr.get('medio_plazo_90d', '')}")
+    st.markdown(f"* **Estratégico (12 meses):** {hr.get('estrategico_12m', '')}")
+
+st.markdown("---")
+pdf_bytes = generar_pdf_editorial(datos_actuales, calc, ia_analisis)
+st.download_button(
+    label="📄 Descargar Dossier de Dirección en PDF",
+    data=pdf_bytes,
+    file_name=f"Auditoria_KROMA_{datos_actuales['nombre_empresa'].replace(' ', '_')}.pdf",
+    mime="application/pdf"
+)
