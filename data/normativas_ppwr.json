@@ -1,1 +1,42 @@
-
+[
+  {
+    "id": "PPWR-ART-5",
+    "titulo": "Restricción de Sustancias Persistentes (PFAS / Sustancias 'Forever')",
+    "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR) - Art. 5",
+    "fecha_limite": "2026-09-01",
+    "impacto_tecnico": "Prohibición total del uso de sustancias perfluoroalquiladas y polifluoroalquiladas (PFAS) por encima de 25 ppb en envases de papel y cartón en contacto directo con alimentos.",
+    "catalogo_afectado": "Envases antigrasa para fast food, cajas de pizza con recubrimiento fluorado y barquetas de celulosa moldeada sin barrera acuosa certificada.",
+    "sancion_consecuencia": "Retirada inmediata del mercado, bloqueo de licitaciones públicas y sanciones de hasta 50.000 € por partida o 4% de la facturación en infracciones muy graves.",
+    "solucion_homologada": "Barrera de dispersión acuosa hidrófoba base silanos o ceras vegetales biodegradables certificadas bajo norma UNE-EN 13432."
+  },
+  {
+    "id": "PPWR-ART-9",
+    "titulo": "Minimización de Espacio Vacío y Ratio de Sobreenvasado",
+    "marco_legal": "Reglamento Europeo de Envases (PPWR) - Art. 9 y Anexo IV",
+    "fecha_limite": "2027-01-01",
+    "impacto_tecnico": "El espacio vacío en embalajes de transporte y e-commerce no podrá exceder del 50%. En envases de retail primario se prohíbe el doble fondo o aire no justificado.",
+    "catalogo_afectado": "Cajas troqueladas estándar sobredimensionadas, bandejas con alveolos huecos y formatos genéricos multipropósito.",
+    "sancion_consecuencia": "Pérdida de homologación de embalaje en plataformas logísticas de gran consumo (Mercadona, Amazon, El Corte Inglés).",
+    "solucion_homologada": "Rediseño de línea de troquelado con cálculo de optimización topológica y empaquetado a medida on-demand."
+  },
+  {
+    "id": "PPWR-ART-26",
+    "titulo": "Objetivos Obligatorios de Reutilización en HORECA",
+    "marco_legal": "Reglamento Europeo de Envases (PPWR) - Art. 26",
+    "fecha_limite": "2027-06-30",
+    "impacto_tecnico": "Obligación para establecimientos de restauración de servir bebidas y alimentos para consumo inmediato en envases reutilizables dentro de un sistema de depósito y retorno (SDDR).",
+    "catalogo_afectado": "Vasos y barquetas de un solo uso para consumo en salón o terrazas de restauración colectiva (colegios, hospitales, caterings corporativos).",
+    "sancion_consecuencia": "Caída del 40% de volumen de venta en distribuidores exclusivos de HORECA que no ofrezcan líneas de circuito cerrado.",
+    "solucion_homologada": "Modelos de Packaging-as-a-Service (PaaS): cajas y barquetas de polipropileno reciclable de alta densidad con chip RFID/Datamatrix para pooling de lavado."
+  },
+  {
+    "id": "ESP-LEY-7-2022",
+    "titulo": "Impuesto Especial sobre Envases de Plástico No Reutilizables",
+    "marco_legal": "Ley 7/2022 de Residuos y Suelos Contaminados para una Economía Circular (España)",
+    "fecha_limite": "En vigor (0,45 €/kg)",
+    "impacto_tecnico": "Gravamen fiscal de 450 € por tonelada sobre todo film plástico virgen adherido o termoformado en envases compuestos de cartón/plástico.",
+    "catalogo_afectado": "Complejos cartón-polietileno (PE) y cartón-PET donde el film supera el 5% del peso total del envase.",
+    "sancion_consecuencia": "Pérdida de 1,8 a 2,5 puntos de margen bruto por absorción del impuesto o rechazo comercial por incremento de tarifa.",
+    "solucion_homologada": "Certificación AENOR de material reciclado posconsumo conforme a UNE-EN 15343 o supresión total del film plástico mediante termosellado directo."
+  }
+]
