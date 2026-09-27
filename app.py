@@ -2,89 +2,52 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import sys
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import google.generativeai as genai
-
 from engine.financial_engine import FinancialEngine
-from engine.generator import DossierGenerator
 
-# ==============================================================================
-# CONFIGURACIÓN DEL SISTEMA
-# ==============================================================================
 st.set_page_config(
-    page_title="KROMA Enterprise | Packaging & Industrial Intelligence",
+    page_title="KROMA Enterprise | Outside-In Intelligence Scan",
     layout="wide"
 )
 
-# Carga de API Key
 default_key = os.environ.get("GEMINI_API_KEY", "")
 if not default_key and "GEMINI_API_KEY" in st.secrets:
     default_key = st.secrets["GEMINI_API_KEY"]
 
 with st.sidebar:
-    st.header("Configuracion de Acceso")
+    st.header("Configuracion del Sistema")
     api_key_input = st.text_input(
         "Clave API Gemini:",
         value=default_key,
         type="password",
-        help="Clave de acceso de Google AI Studio"
+        help="Clave de acceso a modelos analiticos"
     )
-    st.caption("Vertical Activo: Envases, Embalajes y Termoformado (CNAE 1721 / 2222)")
+    st.caption("Protocolo Activo: Outside-In Intelligence Scan")
     st.divider()
-    st.markdown("**Bases de Datos Estructuradas:**")
-    st.markdown("- Registro Mercantil / SABI (50 Balances auditados)")
-    st.markdown("- Normativa UE (PPWR, Ley 7/2022, Directiva SUP)")
-    st.markdown("- Catalogo Tecnologias COTS (TRL 8-9)")
-    st.markdown("- Motor Matematico Determinista Activo")
+    st.markdown("**Taxonomia de Evidencia:**")
+    st.markdown("- `[DATO REGISTRAL]` Cuentas publicas oficiales (SABI / RM)")
+    st.markdown("- `[CÁLCULO KROMA]` Modelizacion determinista y percentiles")
+    st.markdown("- `[HIPÓTESIS]` Inferencia de catalogo y exposicion exterior")
+    st.markdown("- `[A VALIDAR EN PLANTA]` Requiere contraste documental interno")
 
-if api_key_input:
-    genai.configure(api_key=api_key_input)
-
-def obtener_modelo():
-    preferidos = [
-        "models/gemini-3.6-flash",
-        "gemini-3.6-flash",
-        "models/gemini-1.5-pro",
-        "gemini-1.5-pro",
-        "models/gemini-1.5-flash",
-        "gemini-1.5-flash"
-    ]
-    for p in preferidos:
-        try:
-            return genai.GenerativeModel(p)
-        except Exception:
-            continue
-
-    try:
-        modelos_disponibles = genai.list_models()
-        for mod in modelos_disponibles:
-            if "generateContent" in mod.supported_generation_methods:
-                return genai.GenerativeModel(mod.name)
-    except Exception:
-        pass
-
-    return genai.GenerativeModel("gemini-3.6-flash")
-
-# ==============================================================================
-# CARGA DE BASES DE DATOS ESTRUCTURADAS
-# ==============================================================================
 def cargar_base_datos():
     ruta_base = os.path.dirname(__file__)
-    
     with open(os.path.join(ruta_base, "data", "normativas_ppwr.json"), "r", encoding="utf-8") as f:
         normativas = json.load(f)
-        
     with open(os.path.join(ruta_base, "data", "catalogo_tecnologias.json"), "r", encoding="utf-8") as f:
         tecnologias = json.load(f)
-        
     with open(os.path.join(ruta_base, "data", "benchmark_sabi_1721.json"), "r", encoding="utf-8") as f:
         benchmark = json.load(f)
-        
     with open(os.path.join(ruta_base, "data", "subvenciones_bdns.json"), "r", encoding="utf-8") as f:
         subvenciones = json.load(f)
-        
     return normativas, tecnologias, benchmark, subvenciones
 
-# Datos auditados de la entidad de referencia
 EMPRESA_AUDITADA = {
     "cif": "B98765432",
     "razon_social": "BioPack Levantina de Envases S.L.",
@@ -107,179 +70,144 @@ EMPRESA_AUDITADA = {
     }
 }
 
-# ==============================================================================
-# INTERFAZ Y EJECUCIÓN
-# ==============================================================================
-st.title("KROMA Enterprise — Intelligence Dossier: Packaging Industrial")
-st.caption("Auditoria estrategica, comparativa ciega con 50 balances SABI y plan de ejecucion financiera de planta.")
+st.title("KROMA Enterprise — Outside-In Intelligence Scan")
+st.caption("Dossier de Inteligencia Estrategica y Vulnerabilidad Operativa | Sector Packaging (CNAE 1721)")
 
 col_cif, col_btn = st.columns([3, 1])
 with col_cif:
-    cif_ingresado = st.text_input("Introduzca el CIF de la empresa para iniciar la auditoria:", value="B98765432")
+    cif_ingresado = st.text_input("Identificador Fiscal (CIF) de la Entidad:", value="B98765432")
 with col_btn:
     st.write("")
     st.write("")
-    btn_ejecutar = st.button("Ejecutar Auditoria Integral")
+    btn_ejecutar = st.button("Generar Dossier Estrategico")
 
-if btn_ejecutar or "informe_generado" in st.session_state:
+if btn_ejecutar or "scan_ejecutado" in st.session_state:
     try:
         normativas, tecnologias, benchmark, subvenciones = cargar_base_datos()
     except Exception as e:
-        st.error(f"Error al cargar las bases de datos de data/: {str(e)}")
+        st.error(f"Error en lectura de repositorio: {str(e)}")
         st.stop()
 
-    # 1. Calculo matematico determinista
     fin_data = FinancialEngine.calcular_diagnostico_completo(EMPRESA_AUDITADA["balance_actual"], benchmark)
-    
-    # 2. Seleccion de Tecnologia y Simulacion Vendor Finance
-    tech_sel = tecnologias[0]
-    subv_sel = subvenciones[0]
-    fin_sim = FinancialEngine.simular_vendor_finance(
-        capex_bruto=tech_sel["capex_llave_en_mano"],
-        ahorro_anual=tech_sel["ahorro_anual_estimado_pyme"],
-        pct_subvencion=subv_sel["porcentaje_fondo_perdido"]
-    )
-
     ratios = fin_data["ratios_empresa"]
-    caja = fin_data["caja_inmovilizada"]
+    peer = fin_data["benchmark_peer"]
+    circ = fin_data["potencial_circulante"]
 
     st.markdown("---")
 
-    # --------------------------------------------------------------------------
-    # BLOQUE 1: RADIOGRAFÍA CONTABLE OFICIAL FRENTE A 50 RIVALES
-    # --------------------------------------------------------------------------
-    st.subheader(f"1. Radiografia de Cuentas Anuales Oficiales: {EMPRESA_AUDITADA['razon_social']}")
-    st.caption(f"CNAE: {EMPRESA_AUDITADA['cnae']} | Muestra de cotejo: 50 empresas auditadas del mismo segmento de facturacion.")
+    # SECCION 1: ANÁLISIS DE BALANCES Y COMPARATIVA CON EL PEER GROUP
+    st.subheader(f"1. Radiografia de Estados Financieros: {EMPRESA_AUDITADA['razon_social']}")
+    st.caption("Cuentas Anuales Oficiales depositadas en el Registro Mercantil frente a 50 peers del sector.")
 
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Facturacion 2024", f"{ratios['ventas']:,.0f} EUR", "+9.3% interanual")
-    m2.metric("Margen EBITDA Real", f"{ratios['ebitda_pct']}%", f"Sector medio: {benchmark['indicadores']['margen_ebitda']['mediana']}%", delta_color="inverse")
-    m3.metric("Plazo Medio de Cobro (DSO)", f"{ratios['dso']} dias", f"Sector medio: {benchmark['indicadores']['dso_dias_cobro']['mediana']} dias", delta_color="inverse")
-    m4.metric("Caja Atrapada s/Sector", f"{caja['total_caja_liberable']:,.0f} EUR", "Clientes + Stock inmovilizado", delta_color="inverse")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("[DATO REGISTRAL] Cifra de Negocios", f"{ratios['ventas']:,.0f} EUR", "Ejercicio 2024")
+    c2.metric("[DATO REGISTRAL] EBITDA Contable", f"{ratios['ebitda']:,.0f} EUR", f"Margen: {ratios['ebitda_pct']}%")
+    c3.metric("[CÁLCULO KROMA] Plazo Cobro (DSO)", f"{ratios['dso']} dias", f"Mediana sector: {peer['dso_mediana']} d", delta_color="inverse")
+    c4.metric("[CÁLCULO KROMA] Rotacion Stock (DIO)", f"{ratios['dio']} dias", f"Mediana sector: {peer['dio_mediana']} d", delta_color="inverse")
 
-    st.markdown("##### Comparativa Estructural frente a los 50 Mayores Rivales del Mismo CNAE")
-    df_comp = pd.DataFrame([
+    st.markdown("##### Posicionamiento en la Distribucion de 50 Empresas Comparables (CNAE 1721)")
+    df_dist = pd.DataFrame([
         {
-            "Metrica Financiera / Operativa": "Margen de Explotacion EBITDA",
-            "BioPack Levantina": f"{ratios['ebitda_pct']:.1f} % ({ratios['ebitda']:,.0f} EUR)",
-            "Mediana 50 Rivales": f"{benchmark['indicadores']['margen_ebitda']['mediana']:.1f} %",
-            "Top 25% (Lideres de Sector)": f"{benchmark['indicadores']['margen_ebitda']['p75_top']:.1f} %",
-            "Diagnostico de Planta": f"Brecha de margen del {benchmark['indicadores']['margen_ebitda']['mediana'] - ratios['ebitda_pct']:.1f}% por exceso de merma"
+            "Indicador Financiero": "Periodo Medio de Cobro (DSO)",
+            "BioPack Levantina": f"{ratios['dso']} dias",
+            "P25 (Top Eficiente)": f"{peer['dso_p25']} dias",
+            "Mediana Sector": f"{peer['dso_mediana']} dias",
+            "P75": f"{peer['dso_p75']} dias",
+            "P90 (Riesgo Alto)": f"{peer['dso_p90']} dias",
+            "Posicion en Cohorte": peer["posicion_dso"]
         },
         {
-            "Metrica Financiera / Operativa": "Periodo Medio de Cobro (DSO)",
-            "BioPack Levantina": f"{ratios['dso']:.1f} dias",
-            "Mediana 50 Rivales": f"{benchmark['indicadores']['dso_dias_cobro']['mediana']:.1f} dias",
-            "Top 25% (Lideres de Sector)": f"{benchmark['indicadores']['dso_dias_cobro']['p25_top_rapido']:.1f} dias",
-            "Diagnostico de Planta": f"{caja['caja_atrapada_clientes']:,.0f} EUR financiando a distribuidores a coste cero"
-        },
-        {
-            "Metrica Financiera / Operativa": "Permanencia de Inventario (DIO)",
-            "BioPack Levantina": f"{ratios['dio']:.1f} dias",
-            "Mediana 50 Rivales": f"{benchmark['indicadores']['dio_dias_inventario']['mediana']:.1f} dias",
-            "Top 25% (Lideres de Sector)": f"{benchmark['indicadores']['dio_dias_inventario']['p25_top_eficiente']:.1f} dias",
-            "Diagnostico de Planta": f"{caja['caja_atrapada_stock']:,.0f} EUR inmovilizados en bobinas de carton"
-        },
-        {
-            "Metrica Financiera / Operativa": "Productividad por Empleado",
-            "BioPack Levantina": f"{ratios['ventas_empleado']:,.0f} EUR/persona",
-            "Mediana 50 Rivales": f"{benchmark['indicadores']['ventas_por_empleado_eur']['mediana']:,.0f} EUR/persona",
-            "Top 25% (Lideres de Sector)": f"{benchmark['indicadores']['ventas_por_empleado_eur']['p75_top']:,.0f} EUR/persona",
-            "Diagnostico de Planta": "Paradas de maquina frecuentes por micro-fallos en sellado"
+            "Indicador Financiero": "Permanencia de Inventario (DIO)",
+            "BioPack Levantina": f"{ratios['dio']} dias",
+            "P25 (Top Eficiente)": f"{peer['dio_p25']} dias",
+            "Mediana Sector": f"{peer['dio_mediana']} dias",
+            "P75": f"{peer['dio_p75']} dias",
+            "P90 (Riesgo Alto)": f"{peer['dio_p90']} dias",
+            "Posicion en Cohorte": peer["posicion_dio"]
         }
     ])
-    st.dataframe(df_comp, use_container_width=True)
+    st.dataframe(df_dist, use_container_width=True)
+
+    with st.expander("Nota Metodologica del Benchmark"):
+        met = benchmark["metodologia"]
+        st.write(f"- Universo de referencia: {met['universo_analizado']}.")
+        st.write(f"- Segmentacion por facturacion: {met['filtro_tamano']}.")
+        st.write(f"- Tratamiento estadistico: {met['depuracion_estadistica']}.")
+        st.write(f"- Formula analitica DSO: {met['formula_dso']}.")
+        st.write(f"- Formula analitica DIO: {met['formula_dio']}.")
 
     st.markdown("---")
 
-    # --------------------------------------------------------------------------
-    # BLOQUE 2: VULNERABILIDAD NORMATIVA Y AMENAZAS DEL CATÁLOGO
-    # --------------------------------------------------------------------------
-    st.subheader("2. Analisis de Vulnerabilidad Normativa y Amenazas del Catalogo")
-    st.caption("Evaluacion de impacto de los Articulos 5, 9 y 26 del Reglamento PPWR y la Ley 7/2022 sobre la cartera actual:")
+    # SECCION 2: ANÁLISIS DE CIRCULANTE Y POTENCIAL DE CAJA
+    st.subheader("2. Intelligence Scan de Circulante: Potencial de Liberacion de Caja")
+    st.caption("Modelizacion mecanica de convergencia hacia la mediana sectorial.")
 
-    if api_key_input:
-        ai_m = obtener_modelo()
-        generator = DossierGenerator(ai_m)
-        with st.spinner("Generando dictamen de vulnerabilidad normativa..."):
-            cap1 = generator.generar_capitulo_vulnerabilidad(EMPRESA_AUDITADA, fin_data, normativas)
-        st.info(cap1)
-    else:
-        st.warning("Configure su GEMINI_API_KEY en la barra lateral para generar los capitulos redactados por la IA.")
+    col_pot1, col_pot2 = st.columns([2, 3])
+    with col_pot1:
+        st.metric(
+            label="Potencial Maximo de Caja Liberable",
+            value=f"Hasta {circ['total_potencial_liberable']:,.0f} EUR",
+            help="Calculo teorico de convergencia hacia la mediana. No presupone recuperabilidad operativa del 100%."
+        )
+        st.write(f"- **Clientes (DSO):** Hasta {circ['potencial_clientes']:,.0f} EUR ({circ['dias_brecha_dso']} dias s/mediana)")
+        st.write(f"- **Existencias (DIO):** Hasta {circ['potencial_stock']:,.0f} EUR ({circ['dias_brecha_dio']} dias s/mediana)")
+        st.caption("Aviso de Cautela: La brecha constituye una hipotesis de ineficiencia que debe contrastarse contractualmente con el aging de deudores y la politica de aprovisionamiento.")
 
-    st.markdown("---")
-
-    # --------------------------------------------------------------------------
-    # BLOQUE 3: RADIOGRAFÍA DEL FONDO DE MANIOBRA Y ESTRÉS DE CIRCULANTE
-    # --------------------------------------------------------------------------
-    st.subheader("3. Radiografia del Fondo de Maniobra y Estres de Circulante")
-    st.caption("Impacto de la inmovilizacion de caja por demoras en cobros y existencias no rotadas:")
-
-    if api_key_input:
-        with st.spinner("Generando analisis de estres de circulante..."):
-            cap2 = generator.generar_capitulo_circulante(fin_data, benchmark)
-        st.markdown(cap2)
+    with col_pot2:
+        st.markdown("##### [A VALIDAR EN PLANTA] Requerimientos de Auditoria Interna")
+        st.markdown("""
+        Para contrastar el potencial teorico con la realidad operativa, el Comite debe validar:
+        1. **Aging de Saldos Deudores:** Verificar si el 80% de la demora se concentra en grandes cuentas de distribucion.
+        2. **Estructura de Existencias:** Separar el inventario entre bobina virgen, producto en curso (WIP) y referencias obsoletas.
+        3. **Condiciones de Compra (MOQ):** Identificar si el volumen de stock responde a pedidos minimos impuestos por fabricantes papeleros.
+        """)
 
     st.markdown("---")
 
-    # --------------------------------------------------------------------------
-    # BLOQUE 4: SOLUCIONES COTS Y ESTRUCTURACIÓN DE VENDOR FINANCE
-    # --------------------------------------------------------------------------
-    st.subheader("4. Scouting Tecnologico COTS y Estructuracion de Vendor Finance")
-    st.caption("Adopcion de tecnologia comercial existente sin desarrollo propio, financiada con el ahorro generado:")
+    # SECCION 3: MAPA DE EXPOSICIÓN REGULATORIA PPWR
+    st.subheader("3. Matriz de Exposicion Regulatoria: PPWR y Ley 7/2022")
+    st.caption("Cruce de normativa comunitaria vinculante frente al catalogo comercial observable.")
 
-    c_t1, c_t2 = st.columns([3, 2])
-    with c_t1:
-        st.markdown(f"##### {tech_sel['nombre']}")
-        st.write(f"**Fabricante / Integrador:** `{tech_sel['fabricante']}` | Integrador en Espana: `{tech_sel['integrador_espana']}`")
-        st.write(f"**Tiempo de Puesta en Marcha:** `{tech_sel['tiempo_parada_planta']}`")
-        st.write(f"**Descripcion Tecnica:** {tech_sel['descripcion_tecnica']}")
-        st.success(f"**Ahorro Anual Garantizado en Merma:** +{tech_sel['ahorro_anual_estimado_pyme']:,.0f} EUR/ano (Reduccion del {tech_sel['reduccion_merma_garantizada_pct']}%)")
-
-    with c_t2:
-        st.markdown("##### Estructuracion Financiera (Vendor Finance a 36 Meses)")
-        df_fin = pd.DataFrame([
-            {"Concepto": "Inversion Llave en Mano (Hardware + Integracion)", "Importe": f"{fin_sim['capex_bruto']:,.2f} EUR"},
-            {"Concepto": f"(-) Subvencion {subv_sel['organismo'].split(' ')[0]} ({int(subv_sel['porcentaje_fondo_perdido']*100)}%)", "Importe": f"-{fin_sim['subvencion_estimada']:,.2f} EUR"},
-            {"Concepto": "(=) Coste Neto Final para la Empresa", "Importe": f"{fin_sim['coste_neto_adquisicion']:,.2f} EUR"},
-            {"Concepto": "Cuota Mensual de Renting a 36 Meses (Grenke/DLL)", "Importe": f"{fin_sim['cuota_mensual_renting']:,.2f} EUR/mes"},
-            {"Concepto": "Ahorro Mensual en Compras de Material", "Importe": f"+{fin_sim['ahorro_mensual']:,.2f} EUR/mes"},
-            {"Concepto": "CASH-FLOW NETO MENSUAL GENERADO", "Importe": f"+{fin_sim['cash_flow_neto_mensual']:,.2f} EUR/mes"}
-        ])
-        st.dataframe(df_fin, use_container_width=True)
-        st.info(f"Ratio de Cobertura: El ahorro mensual cubre **{fin_sim['cobertura_servicio_cuota']} veces** la cuota del renting desde el primer mes.")
-
-    st.markdown("---")
-
-    # --------------------------------------------------------------------------
-    # BLOQUE 5: CONVOCATORIAS OFICIALES ACTIVAS (CONEXIÓN BDNS)
-    # --------------------------------------------------------------------------
-    st.subheader("5. Convocatorias de Subvencion Publica Vigentes y Aplicables")
-    st.caption("Lineas de ayuda oficiales cruzadas con el CNAE 1721:")
-
-    for subv in subvenciones:
+    for norm in normativas:
         with st.container():
-            st.markdown(f"**{subv['organismo']} — {subv['programa']}**")
-            st.markdown(f"*{subv['codigo_bdns']}*")
-            c_s1, c_s2 = st.columns(2)
-            c_s1.write(f"**Intensidad:** {int(subv['porcentaje_fondo_perdido']*100)}% a fondo perdido (Tope: {subv['tope_subvencion_eur']:,.0f} EUR)\n\n**Plazo:** {subv['plazo_cierre']}")
-            c_s2.write(f"**Gastos Elegibles:** {subv['tipo_gasto_elegible']}")
-            st.markdown(f"[Acceso a Sede Electronica y Tramitacion Oficial]({subv['enlace_sede']})")
+            st.markdown(f"#### {norm['articulo']}: {norm['titulo']}")
+            st.write(f"**Marco Regulatorio:** {norm['marco_legal']} | **Fecha Limite de Aplicacion:** {norm['fecha_limite']}")
+            
+            c_r1, c_r2 = st.columns(2)
+            with c_r1:
+                st.markdown(f"**[EVIDENCIA PUBLICA] Catalogo Observado:** {norm['familia_catalogo_afectada']}")
+                st.markdown(f"**[HIPOTESIS KROMA]** {norm['hipotesis_kroma']}")
+                st.write("**Escenarios de Exposicion Comercial:**")
+                st.write(f"- *Escenario Conservador:* {norm['escenarios_exposicion']['bajo']}")
+                st.write(f"- *Escenario Base:* {norm['escenarios_exposicion']['medio']}")
+                st.write(f"- *Escenario Severo:* {norm['escenarios_exposicion']['alto']}")
+            with c_r2:
+                st.markdown("**[A VALIDAR EN PLANTA] Diligencia Tecnica Requerida:**")
+                st.markdown(f"> {norm['validacion_requerida_planta']}")
             st.divider()
 
-    # --------------------------------------------------------------------------
-    # BLOQUE 6: HOJA DE RUTA DETALLADA DE EJECUCIÓN (30-60-90-180 DÍAS)
-    # --------------------------------------------------------------------------
-    st.subheader("6. Hoja de Ruta de Ejecucion Tecnica y Comercial (30-60-90-180 Dias)")
-    st.caption("Plan de despliegue operacional para el Comite de Direccion con entregables tangibles:")
+    # SECCION 4: HIPÓTESIS TECNOLÓGICA Y ESTRUCTURACIÓN FINANCIERA
+    st.subheader("4. Hipotesis de Adaptacion Tecnica y Estructuracion Financiera")
+    st.caption("Soluciones comerciales homologadas en Espana (TRL 9) y financiacion fuera de balance.")
 
-    if api_key_input:
-        with st.spinner("Generando plan de operaciones detallado..."):
-            roadmap = generator.generar_hoja_ruta_ejecucion(tech_sel, fin_sim, subv_sel)
-        
-        for paso in roadmap:
-            with st.container():
-                st.markdown(f"##### {paso.get('periodo')}")
-                st.write(f"**Actuacion Operativa:** {paso.get('actuacion_tecnica')}")
-                st.info(f"Entregable Exigible al Comite: {paso.get('entregable_comite')}")
-                st.divider()
+    tech = tecnologias[0]
+    subv = subvenciones[0]
+    sim = FinancialEngine.simular_vendor_finance(
+        capex_bruto=tech["capex_llave_en_mano"],
+        ahorro_anual=tech["ahorro_anual_estimado_pyme"],
+        pct_subvencion=subv["porcentaje_fondo_perdido"]
+    )
+
+    t1, t2 = st.columns(2)
+    with t1:
+        st.markdown(f"##### {tech['nombre']}")
+        st.write(f"- **Fabricante / Integrador:** {tech['fabricante']} ({tech['integrador_espana']})")
+        st.write(f"- **CAPEX Estimado Llave en Mano:** {tech['capex_llave_en_mano']:,.2f} EUR")
+        st.write(f"- **Subvencion Aplicable Estimada ({subv['organismo'].split(' ')[0]}):** -{sim['subvencion_estimada']:,.2f} EUR ({subv['codigo_bdns']})")
+        st.write(f"- **Inversion Neta Resultante:** {sim['coste_neto_adquisicion']:,.2f} EUR")
+    with t2:
+        st.markdown("##### Estructuracion Operativa de Arrendamiento (36 Meses)")
+        st.write(f"- Cuota de renting proyectada: **{sim['cuota_mensual_renting']:,.2f} EUR/mes**")
+        st.write(f"- Ahorro mensual teorico en mermas: **+{sim['ahorro_mensual']:,.2f} EUR/mes**")
+        st.write(f"- Flujo de caja neto proyectado: **+{sim['cash_flow_neto_mensual']:,.2f} EUR/mes**")
+        st.caption("[A VALIDAR EN PLANTA] Auditar tasas reales de merma en turno de noche y verificar compatibilidad fisica con la bancada de sellado existente.")
