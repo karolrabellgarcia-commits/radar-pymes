@@ -4,67 +4,107 @@
     "articulo": "Artículo 5",
     "titulo": "Restricción de Sustancias Peligrosas y Límites PFAS",
     "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR)",
-    "fecha_limite": "2026-08-12",
+    "fecha_aplicacion": "2026-08-12",
     "clasificacion": "HECHO REGULATORIO",
-    "familia_catalogo_afectada": "Barquetas y envases celulósicos en contacto directo con alimentos grasos (Takeaway / Fast Food / Horneados)",
-    "descripcion_normativa": "Límites estrictos a la presencia de sustancias perfluoroalquiladas y polifluoroalquiladas (PFAS) en envases alimentarios por encima de umbrales analíticos mínimos.",
-    "hipotesis_kroma": "Ventas asociadas a barquetas o papeles antigrasa presentan potencial riesgo de exclusión comercial si incorporan química fluorada tradicional.",
-    "validacion_requerida_planta": "Declaración de conformidad de proveedores de papel/cartón, fichas técnicas de bobina y análisis de laboratorio según norma europea.",
+    "familia_catalogo_afectada": "Barquetas y envases celulósicos para contacto directo con alimentos grasos/húmedos",
+    "descripcion_normativa": "Prohibición de puesta en mercado de envases en contacto con alimentos con PFAS por encima de los límites especificados (incluyendo 25 ppb para análisis dirigido y 250 ppb para suma de PFAS, sujeto a condiciones analíticas europeas).",
+    "hipotesis_kroma": "Ventas asociadas a referencias antigrasa presentan potencial riesgo de obsolescencia técnica si la barrera incorpora derivados fluorados.",
+    "validacion_requerida_planta": "Declaración de Conformidad (DoC) de suministradores de cartón/química y, cuando proceda, ensayo analítico adecuado a los límites PFAS aplicables.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
     "escenarios_exposicion": {
-      "bajo": "15% de ventas de la familia requiere cambio de proveedor de papel.",
-      "medio": "40% de la familia expuesta a migración hacia recubrimientos acuosos.",
-      "alto": "100% de la familia requiere reformulación integral de barrera."
+      "conservador": "Afectación acotada al 10-15% del mix de barqueta; sustitución directa por proveedor alternativo homologado.",
+      "base": "Afectación en torno al 30-40% del mix; requiere ensayos de migración y recalibración de termosellabilidad.",
+      "severo": "Reformulación técnica integral del catálogo antigrasa con riesgo de discontinuidad temporal de servicio."
     }
   },
   {
     "id": "PPWR-ART-24",
     "articulo": "Artículo 24",
-    "titulo": "Ratio Máximo de Espacio Vacío (Minimización del Sobreenvasado)",
+    "titulo": "Ratio Máximo de Espacio Vacío",
     "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR)",
-    "fecha_limite": "2030-01-01",
+    "fecha_aplicacion": "2030-01-01",
     "clasificacion": "HECHO REGULATORIO",
-    "familia_catalogo_afectada": "Cajas de embalaje secundario, cajas de agrupación logística y formatos e-commerce",
-    "descripcion_normativa": "Límite máximo del 50% de espacio vacío en envases de transporte y comercio electrónico respecto al volumen del producto embalado.",
-    "hipotesis_kroma": "Los formatos estándar multipropósito sin troquelado ajustado a medida corren el riesgo de ser rechazados por operadores de fulfillment y retail.",
-    "validacion_requerida_planta": "Auditoría dimensional por SKU, porcentaje real de volumen de aire respecto al producto contenido y justificación técnica documental.",
+    "familia_catalogo_afectada": "Embalajes agrupados, de transporte y comercio electrónico",
+    "descripcion_normativa": "Límite máximo del 50% de espacio vacío exigible a operadores de llenado/expedición, condicionado a la metodología técnica de cálculo de la Comisión Europea.",
+    "hipotesis_kroma": "Cajas de agrupación y formatos logísticos estándar multipropósito podrían requerir rediseño dimensional para ajustarse al volumen del producto embalado.",
+    "validacion_requerida_planta": "Medición volumétrica real por SKU frente a productos de clientes; la metodología de cálculo comunitaria será determinante para cerrar la exposición técnica.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
     "escenarios_exposicion": {
-      "bajo": "Ajuste menor de troqueles estándar en formatos de alta rotación.",
-      "medio": "Rediseño de gama intermedia para reducir volumen de aire bajo el 50%.",
-      "alto": "Obsolescencia de moldes estándar para cajas de agrupación no customizadas."
+      "conservador": "Ajuste menor de troqueles estándar en formatos de alta rotación.",
+      "base": "Rediseño de gama intermedia y optimización dimensional bajo especificación del cliente.",
+      "severo": "Obsolescencia de troqueles y moldes estándar no optimizados."
     }
   },
   {
-    "id": "PPWR-ART-26-29-32",
-    "articulo": "Artículos 26, 29 y 32",
-    "titulo": "Sistemas de Reutilización, Objetivos de Retorno y Obligaciones Refill HORECA",
+    "id": "PPWR-ART-26",
+    "articulo": "Artículo 26",
+    "titulo": "Obligaciones Generales Relativas a Envases Reutilizables",
     "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR)",
-    "fecha_limite": "2030-01-01",
+    "fecha_aplicacion": "Exigible según calendario de entrada en vigor de especificaciones técnicas",
     "clasificacion": "HECHO REGULATORIO",
-    "familia_catalogo_afectada": "Envases primarios de servicio inmediato y canal HORECA / Catering colectivo",
-    "descripcion_normativa": "Objetivos progresivos de envases reutilizables y obligación en establecimientos de restauración colectiva de ofrecer alternativas recargables (refill).",
-    "hipotesis_kroma": "Los distribuidores de canal HORECA tenderán a concentrar compras en proveedores que ofrezcan soluciones retornables o integrables en circuitos de pooling.",
-    "validacion_requerida_planta": "Distribución real de cartera entre restauración comercial vs. gran consumo; existencia de acuerdos de retorno con clientes.",
+    "familia_catalogo_afectada": "Envases industriales y comerciales secundarios/terciarios",
+    "descripcion_normativa": "Requisitos de durabilidad, aptitud para rotación múltiple y trazabilidad en envases destinados a sistemas de reutilización.",
+    "hipotesis_kroma": "Cajas de transporte de un solo uso en circuitos cerrados B2B podrían verse desplazadas por formatos de circuito cerrado multiviaje.",
+    "validacion_requerida_planta": "Identificación de flujos logísticos cautivos cliente-proveedor con viabilidad de sistema de retorno/pooling.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
     "escenarios_exposicion": {
-      "bajo": "La demanda se mantiene en delivery externo sin afectación en sala.",
-      "medio": "Pérdida parcial de volumen en clientes institucionales (hospitales/colegios).",
-      "alto": "Migración obligatoria de líneas desechables a sistemas Packaging-as-a-Service (PaaS)."
+      "conservador": "Flujos B2B mantienen cajas de un solo uso por limitaciones de retorno higiénico.",
+      "base": "Demanda progresiva de cajas de alta resistencia para circuitos logísticos cerrados.",
+      "severo": "Migración obligatoria de cuentas B2B hacia soluciones plásticas rígidas de pooling."
+    }
+  },
+  {
+    "id": "PPWR-ART-29",
+    "articulo": "Artículo 29",
+    "titulo": "Objetivos Cuantitativos de Reutilización",
+    "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR)",
+    "fecha_aplicacion": "2030-01-01 (primer hito)",
+    "clasificacion": "HECHO REGULATORIO",
+    "familia_catalogo_afectada": "Embalajes de transporte, paletización y grandes formatos industriales",
+    "descripcion_normativa": "Porcentajes obligatorios de puesta a disposición de envases reutilizables para determinados distribuidores y operadores de transporte.",
+    "hipotesis_kroma": "Grandes operadores logísticos derivarán cuota de compra hacia embalaje compatible con objetivos de rotación.",
+    "validacion_requerida_planta": "Distribución de ventas por tamaño de cliente y verificación de si el cliente final está sujeto a cuota de reutilización.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
+    "escenarios_exposicion": {
+      "conservador": "El cliente final absorbe su cuota mediante elementos de paletización sin alterar cajas primarias/secundarias.",
+      "base": "Presión contractual de clientes industriales para certificar ciclos de vida multiviaje.",
+      "severo": "Sustitución parcial de volumen por alternativas de pooling ajenas a la pyme."
+    }
+  },
+  {
+    "id": "PPWR-ART-32",
+    "articulo": "Artículo 32",
+    "titulo": "Obligaciones Específicas de Rellenado (Refill) en Takeaway HORECA",
+    "marco_legal": "Reglamento Europeo de Envases y Residuos de Envases (PPWR)",
+    "fecha_aplicacion": "2027-02-12",
+    "clasificacion": "HECHO REGULATORIO",
+    "familia_catalogo_afectada": "Envases monouso para comidas y bebidas preparadas de consumo inmediato",
+    "descripcion_normativa": "Obligación para distribuidores finales de hostelería y restauración de permitir y facilitar que el consumidor aporte su propio recipiente higiénico para comida/bebida para llevar.",
+    "hipotesis_kroma": "La adopción de recipientes aportados por el consumidor y sistemas de refill en hostelería puede erosionar volúmenes de envases desechables de rotación rápida.",
+    "validacion_requerida_planta": "Desglose de facturación entre consumo en sala, delivery y takeaway; dependencia del subsegmento de servicio inmediato.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
+    "escenarios_exposicion": {
+      "conservador": "Impacto residual por conveniencia del cliente en packaging desechable de reparto.",
+      "base": "Erosión del 10-15% en volúmenes de vasos y bandejas de comida rápida en sala.",
+      "severo": "Caída severa de demanda en cadenas urbanas con políticas de cero residuo."
     }
   },
   {
     "id": "ESP-LEY-7-2022",
-    "articulo": "Título VII",
-    "titulo": "Impuesto Especial sobre Envases de Plástico No Reutilizables",
-    "marco_legal": "Ley 7/2022 de Residuos y Suelos Contaminados para una Economía Circular (España)",
-    "fecha_limite": "En vigor (0,45 €/kg de plástico virgen)",
+    "articulo": "Título VII / Régimen Territorial",
+    "titulo": "Impuesto sobre Envases de Plástico No Reutilizables",
+    "marco_legal": "Ley 7/2022 (Estatal) y Ley Foral 14/2023 (Navarra)",
+    "fecha_aplicacion": "En vigor (0,45 €/kg sobre plástico no reciclado)",
     "clasificacion": "HECHO REGULATORIO",
-    "familia_catalogo_afectada": "Complejos cartón-plástico, termosellados con film plástico virgen y bandejas plastificadas",
-    "descripcion_normativa": "Gravamen fiscal directo de 0,45 € por cada kilogramo de plástico no reciclado incorporado en el envase primario o secundario.",
-    "hipotesis_kroma": "La empresa o sus clientes asumen una penalización fiscal continua que merma la competitividad frente a alternativas 100% monomaterial o certificadas recicladas.",
-    "validacion_requerida_planta": "Gramaje exacto de plástico virgen por unidad, certificados UNE-EN 15343 de proveedores y contabilidad interna del impuesto repercutido.",
+    "familia_catalogo_afectada": "Complejos cartón-plástico, termosellados con film plástico virgen y laminados multicapa",
+    "descripcion_normativa": "Gravamen fiscal de 0,45 € por kilogramo de plástico no reciclado contenido en envases no reutilizables. Su aplicación económica y condición de contribuyente depende de si la entidad realiza fabricación, importación o adquisición intracomunitaria.",
+    "hipotesis_kroma": "Determinadas operaciones y productos de la cadena pueden quedar sujetos al impuesto; el impacto económico depende del gramaje exacto de plástico no reciclado y de la condición jurídica de contribuyente en cada transacción.",
+    "validacion_requerida_planta": "Gramaje exacto de polímero no reciclado por referencia, certificación UNE-EN 15343 de proveedores y régimen de repercusión o asunción fiscal en facturas.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
     "escenarios_exposicion": {
-      "bajo": "Contenido de film menor al 5% con trazabilidad de plástico reciclado.",
-      "medio": "Coste fiscal indirecto entre 15.000 € y 30.000 €/año repercutido al cliente.",
-      "alto": "Erosión de margen directa de 1,2 puntos porcentuales por imposibilidad de repercusión."
+      "conservador": "Contenido plástico certificado como reciclado posconsumo; repercusión fiscal íntegra al cliente.",
+      "base": "Coste impositivo asumido parcialmente en margen bruto ante resistencia de precios en retail.",
+      "severo": "Erosión de rentabilidad en complejos multicapa frente a competidores que ofrecen monomaterial 100% celulósico exento."
     }
   }
 ]
