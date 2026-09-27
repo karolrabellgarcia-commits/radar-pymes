@@ -1,1 +1,33 @@
-
+{
+  "cnae": "1721",
+  "descripcion_cnae": "Fabricación de papel y cartón ondulado; envases y embalajes",
+  "muestra_empresas": 50,
+  "rango_facturacion": "2.000.000 € a 8.000.000 €",
+  "indicadores": {
+    "margen_ebitda": {
+      "p25_bajo": 6.8,
+      "mediana": 11.4,
+      "p75_top": 15.2
+    },
+    "dso_dias_cobro": {
+      "p25_top_rapido": 44.0,
+      "mediana": 59.0,
+      "p75_lento": 84.0
+    },
+    "dio_dias_inventario": {
+      "p25_top_eficiente": 22.0,
+      "mediana": 34.0,
+      "p75_exceso_stock": 78.0
+    },
+    "ventas_por_empleado_eur": {
+      "p25_bajo": 125000.0,
+      "mediana": 178000.0,
+      "p75_top": 235000.0
+    },
+    "tasa_merma_material_pct": {
+      "lideres_tecnologicos": 1.4,
+      "media_sector": 3.9,
+      "planta_desactualizada": 6.2
+    }
+  }
+}
