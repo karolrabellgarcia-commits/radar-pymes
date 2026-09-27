@@ -7,7 +7,8 @@
     "depuracion_estadistica": "Eliminación de outliers por método IQR (Rango Intercuartílico)",
     "fuente_primaria": "Cuentas Anuales oficiales depositadas en el Registro Mercantil (SABI)",
     "formula_dso": "(Deudores comerciales y otras cuentas a cobrar / Importe neto de la cifra de negocios) * 365",
-    "formula_dio": "(Existencias totales / Consumos de explotación y aprovisionamientos) * 365"
+    "formula_dio": "(Existencias totales / Consumos de explotación y aprovisionamientos) * 365",
+    "cautela_comparabilidad_dio": "La comparabilidad del DIO queda condicionada a la homogeneidad de la partida contable utilizada como aproximación al consumo anual entre las empresas del universo de cotejo."
   },
   "indicadores": {
     "dso_dias_cobro": {
