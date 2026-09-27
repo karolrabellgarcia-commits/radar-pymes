@@ -1,1 +1,24 @@
-
+[
+  {
+    "codigo_bdns": "BDNS 742189 / DOGV 9842",
+    "organismo": "IVACE+i (Generalitat Valenciana) - FEDER",
+    "programa": "INNOVA-CV: Innovación de Pyme en Economía Circular",
+    "cnaes_elegibles": ["1721", "2222", "1729"],
+    "porcentaje_fondo_perdido": 0.40,
+    "tope_subvencion_eur": 75000.0,
+    "plazo_cierre": "2026-10-31",
+    "tipo_gasto_elegible": "Bienes de equipo, sensorización, sistemas de visión, adecuación mecánica de líneas a materiales reciclables.",
+    "enlace_sede": "https://sede.ivace.es/es/tramites/innova-cv-economia-circular"
+  },
+  {
+    "codigo_bdns": "BDNS 789123 / BOE-A-2026",
+    "organismo": "Ministerio de Industria y Turismo - Dirección General de Industria y PYME",
+    "programa": "Activa Industria 4.0 / Transformación Digital Pyme",
+    "cnaes_elegibles": ["1721", "2222", "2562", "28"],
+    "porcentaje_fondo_perdido": 0.35,
+    "tope_subvencion_eur": 50000.0,
+    "plazo_cierre": "2026-12-15",
+    "tipo_gasto_elegible": "Hardware de captura de datos en tiempo real, visión artificial y automatización de procesos.",
+    "enlace_sede": "https://www.industria.gob.es/ayudas/activa-industria"
+  }
+]
