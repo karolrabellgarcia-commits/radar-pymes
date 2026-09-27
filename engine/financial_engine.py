@@ -1,22 +1,22 @@
 """
 Motor analítico financiero determinista para pymes industriales.
-Calcula ratios, percentiles frente al benchmark de 50 rivales y potencial de caja liberable.
+Modela ratios contables, posicionamiento en percentiles y potencial teórico de circulante.
 """
 from typing import Dict, Any
 
 class FinancialEngine:
     @staticmethod
-    def calcular_percentil(valor: float, p25: float, mediana: float, p75: float, p90: float) -> str:
+    def calcular_posicion_distribucion(valor: float, p25: float, mediana: float, p75: float, p90: float) -> str:
         if valor <= p25:
-            return "Percentil <= P25 (Cuartil Superior Eficiente)"
+            return "Tramo <= P25 (Cuartil Superior Eficiente)"
         elif valor <= mediana:
-            return "Entre P25 y Mediana (Rango Medio Alto)"
+            return "Tramo P25 - Mediana"
         elif valor <= p75:
-            return "Entre Mediana y P75 (Rango Medio Bajo)"
+            return "Tramo Mediana - P75"
         elif valor <= p90:
-            return "Entre P75 y P90 (Tercil Crítico)"
+            return "Tramo P75 - P90 (Tercil Superior de Demora)"
         else:
-            return "Percentil > P90 (Extremo Superior de Riesgo)"
+            return "Tramo > P90 (Extremo Superior de la Distribución)"
 
     @staticmethod
     def calcular_diagnostico_completo(balance: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str, Any]:
@@ -47,20 +47,20 @@ class FinancialEngine:
         dio_bench = bench_ind.get("dio_dias_inventario", {})
         ebitda_bench = bench_ind.get("margen_ebitda", {})
 
-        posicion_dso = FinancialEngine.calcular_percentil(
+        posicion_dso = FinancialEngine.calcular_posicion_distribucion(
             dso, dso_bench["p25"], dso_bench["mediana"], dso_bench["p75"], dso_bench["p90"]
         )
-        posicion_dio = FinancialEngine.calcular_percentil(
+        posicion_dio = FinancialEngine.calcular_posicion_distribucion(
             dio, dio_bench["p25"], dio_bench["mediana"], dio_bench["p75"], dio_bench["p90"]
         )
 
-        dias_exceso_dso = max(0.0, dso - dso_bench["mediana"])
-        caja_potencial_clientes = dias_exceso_dso * ventas_dia
+        dias_brecha_dso = max(0.0, dso - dso_bench["mediana"])
+        caja_potencial_dso = dias_brecha_dso * ventas_dia
 
-        dias_exceso_dio = max(0.0, dio - dio_bench["mediana"])
-        caja_potencial_stock = dias_exceso_dio * coste_dia
+        dias_brecha_dio = max(0.0, dio - dio_bench["mediana"])
+        caja_potencial_dio = dias_brecha_dio * coste_dia
 
-        total_potencial_caja = caja_potencial_clientes + caja_potencial_stock
+        potencial_teorico_total = caja_potencial_dso + caja_potencial_dio
 
         return {
             "ratios_empresa": {
@@ -90,34 +90,29 @@ class FinancialEngine:
                 "ebitda_p75": ebitda_bench["p75"]
             },
             "potencial_circulante": {
-                "potencial_clientes": round(caja_potencial_clientes, 2),
-                "potencial_stock": round(caja_potencial_stock, 2),
-                "total_potencial_liberable": round(total_potencial_caja, 2),
-                "dias_brecha_dso": round(dias_exceso_dso, 1),
-                "dias_brecha_dio": round(dias_exceso_dio, 1)
+                "potencial_dso_eur": round(caja_potencial_dso, 2),
+                "potencial_dio_eur": round(caja_potencial_dio, 2),
+                "potencial_teorico_total": round(potencial_teorico_total, 2),
+                "dias_brecha_dso": round(dias_brecha_dso, 1),
+                "dias_brecha_dio": round(dias_brecha_dio, 1)
             }
         }
 
     @staticmethod
-    def simular_vendor_finance(capex_bruto: float, ahorro_anual: float, pct_subvencion: float, plazo_meses: int = 36) -> Dict[str, Any]:
-        subvencion_estimada = capex_bruto * pct_subvencion
-        coste_neto_adquisicion = capex_bruto - subvencion_estimada
+    def simular_escenario_tecnologico(capex_bruto: float, ahorro_anual_estimado: float, pct_subvencion: float, plazo_meses: int = 36) -> Dict[str, Any]:
+        subvencion_proyectada = capex_bruto * pct_subvencion
+        inversion_neta_proyectada = capex_bruto - subvencion_proyectada
         
-        coeficiente = 0.0315 if plazo_meses == 36 else 0.0245
-        cuota_mensual = capex_bruto * coeficiente
-        ahorro_mensual = ahorro_anual / 12.0
-        cash_flow_neto_mensual = ahorro_mensual - cuota_mensual
-        cobertura_servicio = ahorro_mensual / cuota_mensual if cuota_mensual > 0 else 0.0
-        payback_meses = (capex_bruto / ahorro_anual) * 12.0 if ahorro_anual > 0 else 999.0
+        coeficiente_renting = 0.0315 if plazo_meses == 36 else 0.0245
+        cuota_mensual_estimada = capex_bruto * coeficiente_renting
+        ahorro_mensual_teorico = ahorro_anual_estimado / 12.0
+        diferencial_mensual_proyectado = ahorro_mensual_teorico - cuota_mensual_estimada
 
         return {
             "capex_bruto": capex_bruto,
-            "subvencion_estimada": round(subvencion_estimada, 2),
-            "coste_neto_adquisicion": round(coste_neto_adquisicion, 2),
-            "cuota_mensual_renting": round(cuota_mensual, 2),
-            "ahorro_mensual": round(ahorro_mensual, 2),
-            "cash_flow_neto_mensual": round(cash_flow_neto_mensual, 2),
-            "cobertura_servicio_cuota": round(cobertura_servicio, 2),
-            "payback_meses": round(payback_meses, 1),
-            "cash_flow_positivo_inmediato": cash_flow_neto_mensual > 0
+            "subvencion_proyectada": round(subvencion_proyectada, 2),
+            "inversion_neta_proyectada": round(inversion_neta_proyectada, 2),
+            "cuota_mensual_estimada": round(cuota_mensual_estimada, 2),
+            "ahorro_mensual_teorico": round(ahorro_mensual_teorico, 2),
+            "diferencial_mensual_proyectado": round(diferencial_mensual_proyectado, 2)
         }
