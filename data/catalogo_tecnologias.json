@@ -1,1 +1,53 @@
-
+[
+  {
+    "id": "COTS-01",
+    "nombre": "Inspección Óptica de Sellado Multiespectral SWIR (Infrarrojo de Onda Corta)",
+    "fabricante": "Basler Boost / Pekat Vision",
+    "integrador_espana": "Canal Integración Visión Ibérica (Valencia / Barcelona)",
+    "categoria": "Automatización y Control de Calidad",
+    "trl": 9,
+    "tipo_adquisicion": "Hardware comercial estándar llave en mano",
+    "tiempo_parada_planta": "48 horas (fin de semana técnico)",
+    "capex_llave_en_mano": 26800.0,
+    "opex_anual_mantenimiento": 1200.0,
+    "reduccion_merma_garantizada_pct": 2.2,
+    "ahorro_anual_estimado_pyme": 34760.0,
+    "scoring_vendor_finance": true,
+    "cuota_renting_36m": 844.20,
+    "descripcion_tecnica": "Cámara con sensor InGaAs refrigerado (900-1700 nm) que penetra la celulosa y detecta burbujas de aire, partículas de grasa o fallos de soldadura en el perímetro de sellado a velocidades de hasta 140 envases/minuto."
+  },
+  {
+    "id": "COTS-02",
+    "nombre": "Módulos de Sellado por Ultrasonidos en Frío para Celulosa Monomaterial",
+    "fabricante": "Herrmann Ultraschall Ibérica",
+    "integrador_espana": "Delegación directa Herrmann España (Sant Cugat del Vallès)",
+    "categoria": "Adaptación de Maquinaria / Modificación de Línea",
+    "trl": 9,
+    "tipo_adquisicion": "Kit de retrofit adaptable a termoselladoras existentes (Mecapack, Multivac, Ilpra)",
+    "tiempo_parada_planta": "72 horas de puesta a punto mecánica",
+    "capex_llave_en_mano": 38500.0,
+    "opex_anual_mantenimiento": 1800.0,
+    "reduccion_merma_garantizada_pct": 1.6,
+    "ahorro_anual_estimado_pyme": 25280.0,
+    "scoring_vendor_finance": true,
+    "cuota_renting_36m": 1212.75,
+    "descripcion_tecnica": "Sonotrodos de titanio con generador digital de 20 kHz que funden la micro-barrera acuosa sin aplicar calor externo, reduciendo el consumo eléctrico térmico un 75% y eliminando el alabeo de bandejas de cartón."
+  },
+  {
+    "id": "COTS-03",
+    "nombre": "Estación Automática de Desapilado y Encajonado de Envases Ligeros",
+    "fabricante": "Fanuc Robótica / Integrador OnRobot",
+    "integrador_espana": "Mecánicas Robóticas Levantinas S.L.",
+    "categoria": "Productividad y Cuello de Botella de Mano de Obra",
+    "trl": 9,
+    "tipo_adquisicion": "Célula compacta plug-and-play con cobot certificado CE",
+    "tiempo_parada_planta": "24 horas",
+    "capex_llave_en_mano": 42000.0,
+    "opex_anual_mantenimiento": 2100.0,
+    "reduccion_merma_garantizada_pct": 0.8,
+    "ahorro_anual_estimado_pyme": 28600.0,
+    "scoring_vendor_finance": true,
+    "cuota_renting_36m": 1323.00,
+    "descripcion_tecnica": "Brazo colaborativo con garra de vacío y soplado por venturis de bajo consumo para desapilar y meter en caja de expedición a 80 unidades/minuto, liberando 1 operario por turno para tareas de control técnico."
+  }
+]
