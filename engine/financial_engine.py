@@ -1,6 +1,23 @@
+"""
+Motor analítico financiero determinista para pymes industriales.
+Calcula ratios, percentiles frente al benchmark de 50 rivales y potencial de caja liberable.
+"""
 from typing import Dict, Any
 
 class FinancialEngine:
+    @staticmethod
+    def calcular_percentil(valor: float, p25: float, mediana: float, p75: float, p90: float) -> str:
+        if valor <= p25:
+            return "Percentil <= P25 (Cuartil Superior Eficiente)"
+        elif valor <= mediana:
+            return "Entre P25 y Mediana (Rango Medio Alto)"
+        elif valor <= p75:
+            return "Entre Mediana y P75 (Rango Medio Bajo)"
+        elif valor <= p90:
+            return "Entre P75 y P90 (Tercil Crítico)"
+        else:
+            return "Percentil > P90 (Extremo Superior de Riesgo)"
+
     @staticmethod
     def calcular_diagnostico_completo(balance: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str, Any]:
         ventas = float(balance.get("ventas", 0.0))
@@ -26,20 +43,24 @@ class FinancialEngine:
         ratio_deuda_ebitda = deuda / ebitda if ebitda > 0 else 99.0
 
         bench_ind = benchmark.get("indicadores", {})
-        dso_objetivo = float(bench_ind.get("dso_dias_cobro", {}).get("mediana", 58.0))
-        dio_objetivo = float(bench_ind.get("dio_dias_inventario", {}).get("mediana", 32.0))
-        ebitda_objetivo = float(bench_ind.get("margen_ebitda", {}).get("mediana", 12.0))
-        ebitda_top25 = float(bench_ind.get("margen_ebitda", {}).get("p75_top", 15.0))
+        dso_bench = bench_ind.get("dso_dias_cobro", {})
+        dio_bench = bench_ind.get("dio_dias_inventario", {})
+        ebitda_bench = bench_ind.get("margen_ebitda", {})
 
-        dias_exceso_dso = max(0.0, dso - dso_objetivo)
-        caja_atrapada_clientes = dias_exceso_dso * ventas_dia
+        posicion_dso = FinancialEngine.calcular_percentil(
+            dso, dso_bench["p25"], dso_bench["mediana"], dso_bench["p75"], dso_bench["p90"]
+        )
+        posicion_dio = FinancialEngine.calcular_percentil(
+            dio, dio_bench["p25"], dio_bench["mediana"], dio_bench["p75"], dio_bench["p90"]
+        )
 
-        dias_exceso_dio = max(0.0, dio - dio_objetivo)
-        caja_atrapada_stock = dias_exceso_dio * coste_dia
+        dias_exceso_dso = max(0.0, dso - dso_bench["mediana"])
+        caja_potencial_clientes = dias_exceso_dso * ventas_dia
 
-        caja_total_liberable = caja_atrapada_clientes + caja_atrapada_stock
-        brecha_ebitda_pct = ebitda_objetivo - ebitda_pct
-        ebitda_no_capturado_anual = max(0.0, (brecha_ebitda_pct / 100.0) * ventas)
+        dias_exceso_dio = max(0.0, dio - dio_bench["mediana"])
+        caja_potencial_stock = dias_exceso_dio * coste_dia
+
+        total_potencial_caja = caja_potencial_clientes + caja_potencial_stock
 
         return {
             "ratios_empresa": {
@@ -54,19 +75,26 @@ class FinancialEngine:
                 "deuda_ebitda": round(ratio_deuda_ebitda, 2),
                 "tesoreria": caja
             },
-            "comparativa_benchmark": {
-                "dso_sector_mediana": dso_objetivo,
-                "dio_sector_mediana": dio_objetivo,
-                "ebitda_sector_mediana": ebitda_objetivo,
-                "ebitda_sector_top25": ebitda_top25
+            "benchmark_peer": {
+                "dso_p25": dso_bench["p25"],
+                "dso_mediana": dso_bench["mediana"],
+                "dso_p75": dso_bench["p75"],
+                "dso_p90": dso_bench["p90"],
+                "posicion_dso": posicion_dso,
+                "dio_p25": dio_bench["p25"],
+                "dio_mediana": dio_bench["mediana"],
+                "dio_p75": dio_bench["p75"],
+                "dio_p90": dio_bench["p90"],
+                "posicion_dio": posicion_dio,
+                "ebitda_mediana": ebitda_bench["mediana"],
+                "ebitda_p75": ebitda_bench["p75"]
             },
-            "caja_inmovilizada": {
-                "caja_atrapada_clientes": round(caja_atrapada_clientes, 2),
-                "caja_atrapada_stock": round(caja_atrapada_stock, 2),
-                "total_caja_liberable": round(caja_total_liberable, 2),
-                "dias_exceso_cobro": round(dias_exceso_dso, 1),
-                "dias_exceso_inventario": round(dias_exceso_dio, 1),
-                "ebitda_no_capturado_anual": round(ebitda_no_capturado_anual, 2)
+            "potencial_circulante": {
+                "potencial_clientes": round(caja_potencial_clientes, 2),
+                "potencial_stock": round(caja_potencial_stock, 2),
+                "total_potencial_liberable": round(total_potencial_caja, 2),
+                "dias_brecha_dso": round(dias_exceso_dso, 1),
+                "dias_brecha_dio": round(dias_exceso_dio, 1)
             }
         }
 
