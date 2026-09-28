@@ -34,7 +34,7 @@ class FinancialEngine:
         ventas_dia = ventas / 365.0 if ventas > 0 else 0.0
         coste_dia = coste_materiales / 365.0 if coste_materiales > 0 else 0.0
 
-        # Ratios estándar de rotación
+        # Ratios de rotación del circulante
         dso = (clientes / ventas) * 365.0 if ventas > 0 else 0.0
         dio = (stock / coste_materiales) * 365.0 if coste_materiales > 0 else 0.0
         dpo = (proveedores / coste_materiales) * 365.0 if coste_materiales > 0 else 0.0
