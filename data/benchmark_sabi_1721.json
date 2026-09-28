@@ -1,39 +1,38 @@
 {
-  "cnae": "1721",
-  "descripcion_cnae": "Fabricación de papel y cartón ondulado; envases y embalajes",
   "metodologia": {
-    "universo_analizado": "50 empresas activas en territorio español",
-    "filtro_tamano": "Facturación acotada entre 2,0 M€ y 8,0 M€ (segmento pyme industrial)",
-    "depuracion_estadistica": "Eliminación de outliers por método IQR (Rango Intercuartílico)",
-    "fuente_primaria": "Cuentas Anuales oficiales depositadas en el Registro Mercantil (SABI)",
-    "formula_dso": "(Deudores comerciales y otras cuentas a cobrar / Importe neto de la cifra de negocios) * 365",
-    "formula_dio": "(Existencias totales / Consumos de explotación y aprovisionamientos) * 365",
-    "cautela_comparabilidad_dio": "La comparabilidad del DIO queda condicionada a la homogeneidad de la partida contable utilizada como aproximación al consumo anual entre las empresas del universo de cotejo."
+    "universo_analizado": "Cohorte depurada de 50 pymes españolas del sector de fabricación de papel y cartón ondulado (CNAE 1721) con datos oficiales depositados en el Registro Mercantil (SABI)",
+    "filtro_tamano": "Cifra neta de negocios entre 2,0 M€ y 10,0 M€, con plantilla de 10 a 50 trabajadores",
+    "depuracion_estadistica": "Exclusión de entidades en concurso, registros anómalos y outliers contables mediante rango intercuartílico",
+    "formula_dso": "(Deudores Comerciales / Cifra de Negocios) * 365",
+    "formula_dio": "(Existencias / Consumos y Aprovisionamientos) * 365",
+    "formula_dpo": "(Acreedores Comerciales / Consumos y Aprovisionamientos) * 365",
+    "cautela_iva_dso": "El DSO registral se calcula sobre la cifra de negocios neta sin deflactar el IVA devengado en cuentas a cobrar (21%), lo que genera un sesgo mecánico al alza de entre 12 y 16 días respecto al plazo de crédito pactado.",
+    "cautela_comparabilidad_dio": "La rotación de inventarios (DIO) en plantas de packaging está condicionada por los lotes mínimos de compra (MOQ) y lead times impuestos por los fabricantes de bobina virgen y papel kraftliner."
   },
   "indicadores": {
     "dso_dias_cobro": {
-      "p25": 44.0,
+      "p25": 48.0,
       "mediana": 59.0,
-      "p75": 74.0,
-      "p90": 85.0
+      "p75": 78.0,
+      "p90": 95.0
     },
     "dio_dias_inventario": {
-      "p25": 22.0,
+      "p25": 24.0,
       "mediana": 34.0,
-      "p75": 58.0,
-      "p90": 88.0
+      "p75": 56.0,
+      "p90": 85.0
+    },
+    "dpo_dias_pago": {
+      "p25": 45.0,
+      "mediana": 60.0,
+      "p75": 75.0,
+      "p90": 90.0
     },
     "margen_ebitda": {
-      "p25": 6.8,
-      "mediana": 11.4,
-      "p75": 14.8,
-      "p90": 17.2
-    },
-    "ventas_por_empleado_eur": {
-      "p25": 125000.0,
-      "mediana": 178000.0,
-      "p75": 225000.0,
-      "p90": 260000.0
+      "p25": 5.2,
+      "mediana": 7.8,
+      "p75": 11.4,
+      "p90": 14.8
     }
   }
 }
