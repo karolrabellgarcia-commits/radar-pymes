@@ -1,6 +1,7 @@
 """
-Motor analítico financiero determinista para pymes del sector packaging (CNAE 1721 / 2222).
-Modela ratios contables, percentiles sobre peer groups y simulación de ingeniería económica.
+KROMA Enterprise Analytics
+Motor determinista de cálculo cuantitativo, estrés financiero y exposición regulatoria.
+Sector Packaging y Fabricación de Cartón Ondulado (CNAE 1721 / 2222).
 """
 from typing import Dict, Any
 
@@ -62,6 +63,19 @@ class FinancialEngine:
 
         potencial_teorico_total = caja_potencial_dso + caja_potencial_dio
 
+        # Estimación cuantitativa industrial del consumo de materia prima
+        # En packaging celulósico, precio medio ponderado bobina virgen/reciclada ~1.300 €/t
+        toneladas_procesadas = coste_materiales / 1300.0 if coste_materiales > 0 else 0.0
+        tarifa_scrap_tonelada = 120.0  # Cuota media de ecotasa industrial SCRAP (Envalora / Pro Circular)
+        impacto_anual_scrap = toneladas_procesadas * tarifa_scrap_tonelada
+
+        # Impuesto al plástico (Ley 7/2022 o Ley Foral a 0,45 €/kg): estimado en un 2,5% de polímero virgen en mix
+        toneladas_plastico_virgen = toneladas_procesadas * 0.025
+        impacto_impuesto_plastico = toneladas_plastico_virgen * 1000.0 * 0.45
+
+        # Mix en riesgo por PFAS (Reglamento UE 2025/40 Art. 5): estimado en un 30% del catálogo alimentario
+        volumen_ventas_riesgo_pfas = ventas * 0.30
+
         return {
             "ratios_empresa": {
                 "ventas": ventas,
@@ -96,6 +110,13 @@ class FinancialEngine:
                 "potencial_teorico_total": round(potencial_teorico_total, 2),
                 "dias_brecha_dso": round(dias_brecha_dso, 1),
                 "dias_brecha_dio": round(dias_brecha_dio, 1)
+            },
+            "cuantificacion_regulatoria": {
+                "toneladas_procesadas": round(toneladas_procesadas, 1),
+                "impacto_anual_scrap": round(impacto_anual_scrap, 2),
+                "impacto_impuesto_plastico": round(impacto_impuesto_plastico, 2),
+                "volumen_ventas_riesgo_pfas": round(volumen_ventas_riesgo_pfas, 2),
+                "coste_regulatorio_directo_anual": round(impacto_anual_scrap + impacto_impuesto_plastico, 2)
             }
         }
 
@@ -107,16 +128,12 @@ class FinancialEngine:
         pct_subvencion: float = 0.40, 
         plazo_meses: int = 36
     ) -> Dict[str, Any]:
-        """
-        Calcula el ahorro tecnológico en función directa del consumo de materiales anual de la empresa auditada.
-        """
         subvencion_proyectada = capex_bruto * pct_subvencion
         inversion_neta_proyectada = capex_bruto - subvencion_proyectada
         
         coeficiente_renting = 0.0315 if plazo_meses == 36 else 0.0245
         cuota_mensual_estimada = capex_bruto * coeficiente_renting
         
-        # Ahorro modelizado vinculado al consumo real de la fábrica
         ahorro_anual_estimado = coste_materiales_anual * tasa_recuperacion_merma
         ahorro_mensual_teorico = ahorro_anual_estimado / 12.0
         diferencial_mensual_proyectado = ahorro_mensual_teorico - cuota_mensual_estimada
