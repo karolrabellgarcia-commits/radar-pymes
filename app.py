@@ -1,14 +1,13 @@
-import streamlit as st
-import pandas as pd
-import json
 import os
 import sys
+import json
+import streamlit as st
+import pandas as pd
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-import google.generativeai as genai
 from engine.financial_engine import FinancialEngine
 
 st.set_page_config(
@@ -16,18 +15,8 @@ st.set_page_config(
     layout="wide"
 )
 
-default_key = os.environ.get("GEMINI_API_KEY", "")
-if not default_key and "GEMINI_API_KEY" in st.secrets:
-    default_key = st.secrets["GEMINI_API_KEY"]
-
 with st.sidebar:
     st.header("Configuracion del Sistema")
-    api_key_input = st.text_input(
-        "Clave API Gemini:",
-        value=default_key,
-        type="password",
-        help="Clave de acceso a modelos analiticos"
-    )
     st.caption("Protocolo Activo: Outside-In Intelligence Scan")
     st.divider()
     st.markdown("**Taxonomia Metodologica:**")
@@ -73,7 +62,6 @@ EMPRESA_AUDITADA = {
 st.title("KROMA Enterprise — Outside-In Intelligence Scan")
 st.caption("Dossier de Inteligencia Estrategica y Diagnostico de Vulnerabilidad | Sector Packaging Industrial (CNAE 1721)")
 
-# Declaración explícita de la regla de evidencia
 st.info("""
 **REGLA DE EVIDENCIA KROMA:** Ninguna inferencia técnica, regulatoria o económica se presenta como hecho sin una evidencia primaria que cierre la inferencia. 
 Cuando la evidencia no existe desde fuentes públicas, KROMA cuantifica la hipótesis, declara el nivel de incertidumbre y especifica la diligencia de validación requerida para el Comité de Dirección.
@@ -182,7 +170,6 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     st.subheader("3. Matriz de Exposicion Regulatoria: PPWR y Fiscalidad de Envases")
     st.caption("Cruce de normativa comunitaria vinculante frente al catalogo comercial observable.")
 
-    # Matriz resumen de SKU / Familia con nivel de confianza
     df_reg_resumen = pd.DataFrame([
         {
             "Familia / Catalogo Observado": "Barquetas celulosa alimentaria",
