@@ -1,5 +1,23 @@
 [
   {
+    "id": "ESP-RD-1055-2022-RAP",
+    "articulo": "Sección RAP Industrial",
+    "titulo": "Responsabilidad Ampliada del Productor (RAP) para Envases Comerciales e Industriales",
+    "marco_legal": "Real Decreto 1055/2022 de Envases y Residuos de Envases",
+    "fecha_aplicacion": "Plena exigibilidad operativa en vigor (2025-2026)",
+    "clasificacion": "HECHO REGULATORIO",
+    "familia_catalogo_afectada": "Todo el embalaje secundario, terciario y cajas de transporte industrial puestas en el mercado nacional",
+    "descripcion_normativa": "Obligación de adhesión a un Sistema Colectivo de Responsabilidad Ampliada del Productor (SCRAP como Envalora, Pro Circular, Recyclia) para financiar la gestión y reciclado de envases comerciales/industriales. Financiación vía ecomodulación y cuota de ecodiseño.",
+    "hipotesis_kroma": "Impacto directo en la cuenta de resultados si la empresa asume la condición de envasador/primer comercializador o presión contractual de clientes para certificar la exención o repercusión de la tarifa SCRAP.",
+    "validacion_requerida_planta": "Certificado de inscripción en el Registro de Productores de Producto (Sección Envases - MITERD) y clarificación de si la tarifa se repercute explícitamente en factura al cliente o se absorbe en margen bruto.",
+    "nivel_confianza": "🟡 HIPÓTESIS",
+    "escenarios_exposicion": {
+      "conservador": "Repercusión íntegra y transparente del coste de la ecotasa al cliente final en factura desagregada.",
+      "base": "Asunción parcial (15-25% de la tarifa) ante presiones de precio de cuentas clave de gran consumo.",
+      "severo": "Erosión de margen del 1,2% al 2,0% del EBITDA en referencias con alto gramaje o cartón complejo no monomaterial."
+    }
+  },
+  {
     "id": "PPWR-ART-5",
     "articulo": "Artículo 5",
     "titulo": "Restricción de Sustancias Peligrosas y Límites PFAS",
@@ -97,7 +115,7 @@
     "fecha_aplicacion": "En vigor (0,45 €/kg sobre plástico no reciclado)",
     "clasificacion": "HECHO REGULATORIO",
     "familia_catalogo_afectada": "Complejos cartón-plástico, termosellados con film plástico virgen y laminados multicapa",
-    "descripcion_normativa": "Gravamen fiscal de 0,45 € por kilogramo de plástico no reciclado contenido en envases no reutilizables. Su aplicación económica y condición de contribuyente depende de si la entidad realiza fabricación, importación o adquisición intracomunitaria.",
+    "descripcion_normativa": "Gravamen fiscal de 0,45 € por kilogramo de plástico no reciclado contenido en envases no reutilizables. Su aplicación económica y condición de contribuyente depende de si la entidad realiza fabricación, importación o adquisición intracomunitaria. Incluye exención para adquisiciones menores a 5 kg/mes.",
     "hipotesis_kroma": "Determinadas operaciones y productos de la cadena pueden quedar sujetos al impuesto; el impacto económico depende del gramaje exacto de plástico no reciclado y de la condición jurídica de contribuyente en cada transacción.",
     "validacion_requerida_planta": "Gramaje exacto de polímero no reciclado por referencia, certificación UNE-EN 15343 de proveedores y régimen de repercusión o asunción fiscal en facturas.",
     "nivel_confianza": "🟡 HIPÓTESIS",
