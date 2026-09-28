@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from datetime import datetime
 import streamlit as st
 import pandas as pd
 
@@ -32,14 +33,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header("Configuracion de Entidad")
+    st.header("Configuración de Entidad")
     st.caption("Protocolo Activo: Outside-In Intelligence Scan (CNAE 1721 / 2222)")
     st.divider()
-    st.markdown("**Taxonomia Metodologica:**")
+    st.markdown("**Taxonomía Metodológica:**")
     st.markdown("- `[DATO REGISTRAL]` Cuentas anuales depositadas")
-    st.markdown("- `[CÁLCULO KROMA]` Modelizacion determinista s/balance")
+    st.markdown("- `[CÁLCULO KROMA]` Modelización determinista s/balance")
     st.markdown("- `[HIPÓTESIS]` Inferencia sectorial exterior")
-    st.markdown("- `[A VALIDAR EN PLANTA]` Auditoria y contraste interno")
+    st.markdown("- `[A VALIDAR EN PLANTA]` Auditoría y contraste interno")
 
 def cargar_base_datos():
     ruta_base = os.path.dirname(__file__)
@@ -53,7 +54,6 @@ def cargar_base_datos():
         subvenciones = json.load(f)
     return normativas, tecnologias, benchmark, subvenciones
 
-# Base de datos extensible multientidad para packaging
 EMPRESAS_REGISTRADAS = {
     "B98765432": {
         "cif": "B98765432",
@@ -142,7 +142,6 @@ with col_modo:
     else:
         st.warning("CIF no pre-registrado. Introduce los datos del Registro Mercantil a continuación:")
 
-# Formulario universal para cualquier empresa no indexada
 if not empresa_detectada:
     with st.expander("Parametros Contables Registrales (Modo Cualquier CIF)", expanded=True):
         col_f1, col_f2, col_f3 = st.columns(3)
@@ -222,7 +221,7 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     st.markdown("---")
 
     # =========================================================================
-    # PREGUNTA 1: ¿DÓNDE SE LE ESTÁ FUGANDO EL DINERO?
+    # 1. FUGA CONSOLIDADA DE CAJA Y MARGEN
     # =========================================================================
     st.subheader(f"1. Fuga Consolidada de Caja y Margen: {empresa_activa['razon_social']}")
     
@@ -233,10 +232,10 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     fuga_total_anual_consolidada = fuga_caja_circulante + coste_factoring_dso + merma_sellado_estimada
 
     col_fg1, col_fg2, col_fg3, col_fg4 = st.columns(4)
-    col_fg1.metric("Fuga Consolidada de Liquidez", f"~{fuga_total_anual_consolidada:,.0f} EUR", "Impacto Identificado")
-    col_fg2.metric("Caja Atrapada en Circulante", f"{fuga_caja_circulante:,.0f} EUR", f"Ciclo Caja: {ratios['ciclo_caja_dias']} d")
-    col_fg3.metric("Merma Materia Prima (65% mix)", f"~{merma_sellado_estimada:,.0f} EUR/año", "2.2% en sellado/merma")
-    col_fg4.metric("Sobrecoste Financiero Cobro", f"~{coste_factoring_dso:,.0f} EUR/año", "Anticipo de papel a 3.5%")
+    col_fg1.metric("Fuga Consolidada de Liquidez", f"~{fuga_total_anual_consolidada:,.0f} EUR", "Impacto Identificado", delta_color="off")
+    col_fg2.metric("Caja Atrapada en Circulante", f"{fuga_caja_circulante:,.0f} EUR", f"Ciclo Caja: {ratios['ciclo_caja_dias']} d", delta_color="off")
+    col_fg3.metric("Merma Materia Prima (65% mix)", f"~{merma_sellado_estimada:,.0f} EUR/año", "2.2% en sellado/merma", delta_color="off")
+    col_fg4.metric("Sobrecoste Financiero Cobro", f"~{coste_factoring_dso:,.0f} EUR/año", "Anticipo de papel a 3.5%", delta_color="off")
 
     st.markdown("##### Posicion frente a 50 Empresas Competidoras (Benchmark CNAE 1721)")
     df_dist = pd.DataFrame([
@@ -268,16 +267,16 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
             "Indicador Financiero": "Apalancamiento Neto (DFN/EBITDA)",
             "Entidad Auditada": f"{ratio_dfn_ebitda}x",
             "Mediana Cohorte": "1.80x",
-            "Desviacion": "Saludable (<2.5x)" if ratio_dfn_ebitda < 2.5 else "Tensión de Deuda",
+            "Desviacion": "Saludable (<2.5x)" if ratio_dfn_ebitda < 2.5 else "Tension de Deuda",
             "Caja Retenida": f"Deuda CP: {deuda_cp:,.0f} EUR",
             "Posicion en Sector": f"Vencimiento CP: {cobertura_cp_ebitda}x EBITDA"
         }
     ])
-    st.dataframe(df_dist, use_container_width=True)
+    st.dataframe(df_dist, use_container_width=True, hide_index=True)
 
     with st.expander("Auditoria de Friccion Operativa en Circulante"):
         st.markdown(f"""
-        1. **Friccion de Clientes (DSO {ratios['dso']} dias):** Reducir los {circ['dias_brecha_dso']} dias de exceso frente a grandes cuentas alimentarias no es viable comercialmente. Exigiria cesion de papel comercial (factoring/confirming), lo que supondria un coste bancario explícito de **~{coste_factoring_dso:,.0f} EUR anuales**.
+        1. **Friccion de Clientes (DSO {ratios['dso']} dias):** Reducir los {circ['dias_brecha_dso']} dias de exceso frente a grandes cuentas no es viable por mera negociacion. Exigiria cesion de papel comercial (factoring/confirming), con un coste bancario explícito de **~{coste_factoring_dso:,.0f} EUR anuales**.
         2. **Friccion de Compras de Bobina (DIO {ratios['dio']} dias):** Los {circ['dias_brecha_dio']} dias de stock por encima de la mediana responden a la prima de inmovilizado obligada por los lotes minimos de pedido (MOQ) de los fabricantes papeleros (Saica, Smurfit, DS Smith).
         3. **(*) Cautela de IVA:** El DSO registral ({ratios['dso']} d) incluye un sesgo mecanico al alza de ~14 dias debido al 21% de IVA devengado en cuentas a cobrar sobre ventas netas.
         """)
@@ -293,12 +292,12 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
             {"Escenario Coste Bobina": "Subida Papel +5%", "Sobrecoste Anual": f"+{st_5:,.0f} EUR", "EBITDA Resultante": f"{max(0, ebitda_base - st_5):,.0f} EUR", "Erosion de Margen": f"-{(st_5/ebitda_base)*100:.1f}%"},
             {"Escenario Coste Bobina": "Subida Papel +10%", "Sobrecoste Anual": f"+{st_10:,.0f} EUR", "EBITDA Resultante": f"{max(0, ebitda_base - st_10):,.0f} EUR", "Erosion de Margen": f"-{(st_10/ebitda_base)*100:.1f}%"}
         ])
-        st.dataframe(df_stress, use_container_width=True)
+        st.dataframe(df_stress, use_container_width=True, hide_index=True)
 
     st.markdown("---")
 
     # =========================================================================
-    # PREGUNTA 2: ¿CUÁNTO LE VA A COSTAR EN MULTAS Y ECOTASAS?
+    # 2. CUANTIFICACIÓN DE RIESGO REGULATORIO
     # =========================================================================
     st.subheader(f"2. Matriz de Cuantificacion de Riesgo Regulatorio ({empresa_activa['comunidad_autonoma']})")
     
@@ -309,18 +308,19 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         "Coste Regulatorio Directo Anual",
         f"{reg_quant['coste_regulatorio_directo_anual']:,.0f} EUR/año",
         f"{pct_ebitda_reg:.1f}% del EBITDA Oficial",
-        delta_color="inverse"
+        delta_color="off"
     )
     cr2.metric(
         "Ecotasa RAP Industrial (RD 1055/2022)",
         f"~{reg_quant['impacto_anual_scrap']:,.0f} EUR/año",
-        f"{reg_quant['toneladas_procesadas']:,.0f} t/año a ~120 EUR/t"
+        f"{reg_quant['toneladas_procesadas']:,.0f} t/año a ~120 EUR/t",
+        delta_color="off"
     )
     cr3.metric(
         "Ventas en Riesgo Inmediato PFAS",
         f"~{reg_quant['volumen_ventas_riesgo_pfas']:,.0f} EUR",
         "Reglamento UE 2025/40 (Corte Agosto 2026)",
-        delta_color="inverse"
+        delta_color="off"
     )
 
     df_reg_cuant = pd.DataFrame([
@@ -357,12 +357,12 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
             "Nivel de Urgencia": "🟡 01-Enero-2030"
         }
     ])
-    st.dataframe(df_reg_cuant, use_container_width=True)
+    st.dataframe(df_reg_cuant, use_container_width=True, hide_index=True)
 
     st.markdown("---")
 
     # =========================================================================
-    # SECCIÓN 3: PALANCA TECNOLÓGICA Y FINANCIACIÓN FUERA DE BALANCE
+    # 3. PALANCA TECNOLÓGICA Y FINANCIACIÓN
     # =========================================================================
     st.subheader("3. Hipotesis Tecnologica: Optimizacion de Sellado y Desglose Financiero")
     st.caption("Modelizacion sobre TRL 9 en base al consumo real de materiales de la entidad. No constituye prescripcion de proveedor.")
@@ -378,7 +378,6 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
 
     base_consumo_afectada = balance_activo["coste_materiales_consumos"] * (mix_sellado_pct / 100.0)
     
-    # Subvención regional adaptativa
     if "Comunidad Valenciana" in empresa_activa["comunidad_autonoma"]:
         subv_nombre = "IVACE+i Packaging DOGV 9842"
     elif "Navarra" in empresa_activa["comunidad_autonoma"]:
@@ -418,7 +417,7 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     st.markdown("---")
 
     # =========================================================================
-    # PREGUNTA 3: ORDEN DEL DÍA DEL CONSEJO (100% DINÁMICO PARA ESTA EMPRESA)
+    # 4. ORDEN DEL DÍA DEL CONSEJO (DINÁMICO)
     # =========================================================================
     st.subheader(f"4. Orden del Día Ejecutivo: Propuestas de Acuerdo para el Consejo de {empresa_activa['razon_social']}")
     st.caption("Acuerdos formalizados con justificacion economica personalizada y texto resolutivo para votacion.")
@@ -446,3 +445,97 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         <p><strong>PROPUESTA DE ACUERDO:</strong> <em>«Autorizar a la Dirección de Operaciones la ejecución de un ensayo in-situ sin coste de compromiso con un integrador de visión multiespectral durante un plazo de 15 días en la línea principal de sellado. Dicha autorización queda condicionada a certificar una tasa de falsos rechazos inferior al 0,3%. Cumplido dicho hito, se autoriza la formalización del renting operativo a 36 meses y la solicitud simultánea de la subvención '{subv_nombre}'.»</em></p>
     </div>
     """, unsafe_allow_html=True)
+
+    # =========================================================================
+    # BOTÓN DE DESCARGA: DOSSIER ESTRATÉGICO COMPLETO
+    # =========================================================================
+    st.markdown("---")
+    st.subheader("5. Exportacion Ejecutiva del Dossier")
+    st.caption("Descarga del informe estructurado para el Consejo de Administracion o proceso de auditoria / M&A.")
+
+    fecha_informe = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    documento_markdown = f"""# KROMA ENTERPRISE — OUTSIDE-IN INTELLIGENCE SCAN
+**Protocolo:** Diagnóstico de Vulnerabilidad y Estrategia Industrial (CNAE 1721 / 2222)
+**Fecha de Generación:** {fecha_informe}
+**Entidad Auditada:** {empresa_activa['razon_social']} (CIF: {empresa_activa['cif']})
+**Sede Social / Régimen Fiscal:** {empresa_activa['comunidad_autonoma']} ({'Régimen Foral' if empresa_activa['territorio_foral'] else 'Régimen Común Estatal'})
+**Actividad Observable:** {empresa_activa['subsector']}
+
+---
+
+## 1. RESUMEN EJECUTIVO: FUGA CONSOLIDADA DE CAJA Y MARGEN
+- **Fuga Total Consolidada de Liquidez y Margen:** ~{fuga_total_anual_consolidada:,.0f} EUR
+  * Caja Retenida en Ciclo de Circulante: {fuga_caja_circulante:,.0f} EUR (Ciclo de Conversión de Efectivo: {ratios['ciclo_caja_dias']} días)
+  * Merma Técnica en Líneas de Sellado (65% del mix): ~{merma_sellado_estimada:,.0f} EUR/año (2,2% de defecto)
+  * Sobrecoste Financiero Estimado por Anticipo de Clientes: ~{coste_factoring_dso:,.0f} EUR/año (Factoring s/45% ventas a 3,5%)
+
+### Estados Financieros Oficiales (SABI / Registro Mercantil)
+- Cifra Neta de Negocios: {ratios['ventas']:,.0f} EUR
+- EBITDA Oficial: {ratios['ebitda']:,.0f} EUR (Margen: {ratios['ebitda_pct']}%)
+- Deudores Comerciales (Clientes): {balance_activo['clientes_cobro_pendiente']:,.0f} EUR | DSO Registral: {ratios['dso']} días (Mediana sectorial: {peer['dso_mediana']} d)
+- Existencias en Stock: {balance_activo['existencias_stock']:,.0f} EUR | DIO Registral: {ratios['dio']} días (Mediana sectorial: {peer['dio_mediana']} d)
+- Acreedores Comerciales (Proveedores): {balance_activo['proveedores_deuda']:,.0f} EUR | DPO Registral: {ratios['dpo']} días (Mediana sectorial: 60.0 d)
+- Deuda Financiera Neta: {deuda_neta:,.0f} EUR | Ratio DFN/EBITDA: {ratio_dfn_ebitda}x (Corto Plazo: {deuda_cp:,.0f} EUR / Largo Plazo: {deuda_lp:,.0f} EUR)
+
+### Cautelas de Planta y Circulante
+1. Fricción de Clientes: La brecha de DSO (+{circ['dias_brecha_dso']} días) responde a plazos no negociables de la gran distribución; recortarla exige cesión de papel con coste financiero.
+2. Fricción de Stock: El DIO de {ratios['dio']} días refleja la prima de inmovilizado obligada por lotes mínimos (MOQ) de los fabricantes de papel y cartón virgen.
+3. Cautela de IVA: El DSO registrado sobre ventas netas presenta un sesgo al alza de ~14 días por el 21% de IVA repercutido.
+
+---
+
+## 2. STRESS TEST DE MATERIA PRIMA (CARTÓN Y BOBINA)
+Impacto modelizado sobre la base de aprovisionamiento ({consumo_base:,.0f} EUR):
+- Subida Coste Bobina +3%: Sobrecoste +{st_3:,.0f} EUR | EBITDA resultante: {max(0, ebitda_base - st_3):,.0f} EUR | Erosión de margen: -{(st_3/ebitda_base)*100:.1f}%
+- Subida Coste Bobina +5%: Sobrecoste +{st_5:,.0f} EUR | EBITDA resultante: {max(0, ebitda_base - st_5):,.0f} EUR | Erosión de margen: -{(st_5/ebitda_base)*100:.1f}%
+- Subida Coste Bobina +10%: Sobrecoste +{st_10:,.0f} EUR | EBITDA resultante: {max(0, ebitda_base - st_10):,.0f} EUR | Erosión de margen: -{(st_10/ebitda_base)*100:.1f}%
+
+---
+
+## 3. CUANTIFICACIÓN ECONÓMICA DE RIESGO REGULATORIO
+- **Coste Regulatorio Directo Inmediato:** {reg_quant['coste_regulatorio_directo_anual']:,.0f} EUR/año ({pct_ebitda_reg:.1f}% del EBITDA Oficial)
+- **Ecotasa RAP Industrial (RD 1055/2022 - SCRAP):** ~{reg_quant['impacto_anual_scrap']:,.0f} EUR/año ({reg_quant['toneladas_procesadas']:,.0f} t/año a 120 EUR/t). Exigible operativamente.
+- **Impuesto sobre Envases de Plástico:** {reg_quant['impacto_impuesto_plastico']:,.0f} EUR/año (0,45 EUR/kg de polímero virgen en film de termosellado).
+- **Ventas Expuestas a Restricción PFAS (Reglamento UE 2025/40 Art. 5):** ~{reg_quant['volumen_ventas_riesgo_pfas']:,.0f} EUR (30% de la cifra de negocios). Límite de corte: 12 de agosto de 2026.
+- **Rediseño por Espacio Vacío (Reglamento UE 2025/40 Art. 24):** Máximo 50% de aire. Coste de renovación de troqueles estándar estimado en ~18.000 EUR. Exigible en 2030.
+
+---
+
+## 4. INGENIERÍA TECNOLÓGICA Y FINANCIACIÓN FUERA DE BALANCE
+Evaluación de tecnología de Inspección Óptica Multiespectral SWIR (TRL 9):
+- Base de compras calibrada en líneas de sellado ({mix_sellado_pct}%): {base_consumo_afectada:,.0f} EUR/año.
+- Tasa de recuperación de merma modelizada: 2,2% en defectos de soldadura/poro.
+- Ahorro mensual bruto estimado: ~{sim['ahorro_mensual_teorico']:,.0f} EUR/mes.
+
+### Estructuración Financiera Comparada
+- **Opción A (Compra Directa):** CAPEX 26.800 EUR - Subvención Proyectada 40% ({sim['subvencion_proyectada']:,.0f} EUR vía {subv_nombre}) = Desembolso neto final de {sim['inversion_neta_proyectada']:,.0f} EUR.
+- **Opción B (Renting Operativo 36 meses):** Cuota de {sim['cuota_mensual_estimada']:,.2f} EUR/mes. Cash flow operativo neto mensual: +~{sim['diferencial_mensual_proyectado']:,.0f} EUR/mes. Coste neto a 3 años tras cobro ex-post de ayuda: ~{coste_neto_renting_con_subv:,.2f} EUR.
+
+---
+
+## 5. ORDEN DEL DÍA PARA EL CONSEJO DE ADMINISTRACIÓN
+
+### PUNTO 1: Blindaje de Margen y Repercusión de Ecotasa RAP (RD 1055/2022)
+- **Justificación:** La cuota anual SCRAP asciende a ~{reg_quant['impacto_anual_scrap']:,.0f} EUR, representando el {pct_ebitda_reg:.1f}% del EBITDA.
+- **Propuesta de Acuerdo:** «Aprobar la inclusión obligatoria en todas las tarifas comerciales de {empresa_activa['razon_social']} de la partida 'Ecotasa RAP RD 1055/2022', trasladando íntegramente el coste unitario a clientes desde el próximo ciclo de facturación sin excepciones.»
+
+### PUNTO 2: Requerimiento Notarial a Proveedores por Límites PFAS (Reglamento UE 2025/40)
+- **Justificación:** Se ponen en riesgo ~{reg_quant['volumen_ventas_riesgo_pfas']:,.0f} EUR en catálogo alimentario ante la prohibición comunitaria de agosto de 2026.
+- **Propuesta de Acuerdo:** «Instruir a la Dirección Técnica para requerir en 45 días a proveedores de cartón y barrera Declaraciones de Conformidad (DoC) y ensayos <25 ppb, autorizando la homologación urgente de suministradores alternativos si no se aporta certificación.»
+
+### PUNTO 3: Aprobación Condicionada de Ensayo SWIR Fuera de Balance
+- **Justificación:** Ahorro mensual modelizado de ~{sim['ahorro_mensual_teorico']:,.0f} EUR frente a cuota de {sim['cuota_mensual_estimada']:,.2f} EUR, con retorno neto mensual de +~{sim['diferencial_mensual_proyectado']:,.0f} EUR.
+- **Propuesta de Acuerdo:** «Autorizar un ensayo de 15 días en la línea principal de sellado condicionado a certificar falsos rechazos <0,3% a velocidad de 65 ppm. Cumplido el hito, se autoriza la firma del renting a 36 meses y la solicitud de la subvención '{subv_nombre}'.»
+
+---
+*Dossier generado bajo metodología KROMA Outside-In Intelligence. Prohibida su reproducción total o parcial sin autorización.*
+"""
+
+    st.download_button(
+        label="📥 Descargar Dossier Estratégico Completo (.md / Texto Ejecutivo)",
+        data=documento_markdown,
+        file_name=f"Dossier_KROMA_{empresa_activa['cif']}_{datetime.now().strftime('%Y%m%d')}.md",
+        mime="text/markdown",
+        use_container_width=True
+    )
