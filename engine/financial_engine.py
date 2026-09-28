@@ -1,6 +1,6 @@
 """
-Motor analítico financiero determinista para pymes industriales.
-Modela ratios contables, posicionamiento en percentiles y potencial teórico de circulante.
+Motor analítico financiero determinista para pymes del sector packaging (CNAE 1721 / 2222).
+Modela ratios contables, percentiles sobre peer groups y simulación de ingeniería económica.
 """
 from typing import Dict, Any
 
@@ -34,10 +34,10 @@ class FinancialEngine:
         ventas_dia = ventas / 365.0 if ventas > 0 else 0.0
         coste_dia = coste_materiales / 365.0 if coste_materiales > 0 else 0.0
 
+        # Ratios estándar de rotación
         dso = (clientes / ventas) * 365.0 if ventas > 0 else 0.0
         dio = (stock / coste_materiales) * 365.0 if coste_materiales > 0 else 0.0
         dpo = (proveedores / coste_materiales) * 365.0 if coste_materiales > 0 else 0.0
-        
         ciclo_caja_dias = dso + dio - dpo
         ventas_empleado = ventas / plantilla if plantilla > 0 else 0.0
         ratio_deuda_ebitda = deuda / ebitda if ebitda > 0 else 99.0
@@ -65,6 +65,7 @@ class FinancialEngine:
         return {
             "ratios_empresa": {
                 "ventas": ventas,
+                "coste_materiales": coste_materiales,
                 "ebitda": ebitda,
                 "ebitda_pct": round(ebitda_pct, 2),
                 "dso": round(dso, 1),
@@ -99,12 +100,24 @@ class FinancialEngine:
         }
 
     @staticmethod
-    def simular_escenario_tecnologico(capex_bruto: float, ahorro_anual_estimado: float, pct_subvencion: float, plazo_meses: int = 36) -> Dict[str, Any]:
+    def simular_escenario_tecnologico_dinamico(
+        capex_bruto: float, 
+        coste_materiales_anual: float, 
+        tasa_recuperacion_merma: float = 0.022, 
+        pct_subvencion: float = 0.40, 
+        plazo_meses: int = 36
+    ) -> Dict[str, Any]:
+        """
+        Calcula el ahorro tecnológico en función directa del consumo de materiales anual de la empresa auditada.
+        """
         subvencion_proyectada = capex_bruto * pct_subvencion
         inversion_neta_proyectada = capex_bruto - subvencion_proyectada
         
         coeficiente_renting = 0.0315 if plazo_meses == 36 else 0.0245
         cuota_mensual_estimada = capex_bruto * coeficiente_renting
+        
+        # Ahorro modelizado vinculado al consumo real de la fábrica
+        ahorro_anual_estimado = coste_materiales_anual * tasa_recuperacion_merma
         ahorro_mensual_teorico = ahorro_anual_estimado / 12.0
         diferencial_mensual_proyectado = ahorro_mensual_teorico - cuota_mensual_estimada
 
@@ -114,5 +127,7 @@ class FinancialEngine:
             "inversion_neta_proyectada": round(inversion_neta_proyectada, 2),
             "cuota_mensual_estimada": round(cuota_mensual_estimada, 2),
             "ahorro_mensual_teorico": round(ahorro_mensual_teorico, 2),
-            "diferencial_mensual_proyectado": round(diferencial_mensual_proyectado, 2)
+            "diferencial_mensual_proyectado": round(diferencial_mensual_proyectado, 2),
+            "pct_merma_modelizado": round(tasa_recuperacion_merma * 100, 1),
+            "base_consumo_anual": coste_materiales_anual
         }
