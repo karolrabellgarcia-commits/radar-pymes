@@ -37,7 +37,6 @@ def cargar_base_datos():
         subvenciones = json.load(f)
     return normativas, tecnologias, benchmark, subvenciones
 
-# Base de datos extensible multientidad para packaging
 EMPRESAS_REGISTRADAS = {
     "B98765432": {
         "cif": "B98765432",
@@ -103,7 +102,6 @@ with col_modo:
     else:
         st.warning("CIF no pre-registrado en demo. Introduce los datos registrales a continuación:")
 
-# Formulario para cualquier CIF no indexado previamente
 if not empresa_detectada:
     with st.expander("Parametros Contables Registrales (Modo Cualquier CIF)", expanded=True):
         col_f1, col_f2, col_f3 = st.columns(3)
@@ -164,17 +162,21 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     peer = fin_data["benchmark_peer"]
     circ = fin_data["potencial_circulante"]
 
+    # Ratios de Apalancamiento y Solvencia para CFO / M&A
+    deuda_neta = max(0.0, ratios["deuda_ebitda"] * ratios["ebitda"] - ratios["tesoreria"])
+    ratio_dfn_ebitda = round(deuda_neta / ratios["ebitda"], 2) if ratios["ebitda"] > 0 else 99.0
+
     st.markdown("---")
 
-    # SECCION 1: ANÁLISIS FINANCIERO Y DISTRIBUCIÓN
-    st.subheader(f"1. Radiografia de Estados Financieros: {empresa_activa['razon_social']}")
+    # SECCION 1: RADIOGRAFÍA INTEGRAL Y CICLO DE CAJA
+    st.subheader(f"1. Radiografia de Estados Financieros y Ciclo de Caja: {empresa_activa['razon_social']}")
     st.caption(f"Cuentas Anuales Oficiales depositadas frente a cohorte de 50 empresas de referencia (CNAE 1721).")
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("[DATO REGISTRAL] Cifra de Negocios", f"{ratios['ventas']:,.0f} EUR", "Ejercicio Fiscal")
     c2.metric("[DATO REGISTRAL] EBITDA Oficial", f"{ratios['ebitda']:,.0f} EUR", f"Margen: {ratios['ebitda_pct']}%")
-    c3.metric("[CÁLCULO KROMA] Plazo Cobro (DSO)*", f"{ratios['dso']} dias", f"Mediana: {peer['dso_mediana']} d", delta_color="inverse")
-    c4.metric("[CÁLCULO KROMA] Rotacion Stock (DIO)", f"{ratios['dio']} dias", f"Mediana: {peer['dio_mediana']} d", delta_color="inverse")
+    c3.metric("[CÁLCULO KROMA] Ciclo de Caja Neto (CCC)", f"{ratios['ciclo_caja_dias']} dias", f"DSO+DIO-DPO")
+    c4.metric("[CÁLCULO KROMA] Apalancamiento (DFN/EBITDA)", f"{ratio_dfn_ebitda}x", "Saludable < 2.5x")
 
     st.markdown("##### Posicion de la Entidad frente a la Distribucion de Referencia (50 Peers)")
     df_dist = pd.DataFrame([
@@ -195,6 +197,15 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
             "P75": f"{peer['dio_p75']} dias",
             "P90": f"{peer['dio_p90']} dias",
             "Posicion en Cohorte": peer["posicion_dio"]
+        },
+        {
+            "Indicador Financiero": "Pago a Proveedores (DPO)",
+            "Entidad Auditada": f"{ratios['dpo']} dias",
+            "P25": "45.0 dias",
+            "Mediana": "60.0 dias",
+            "P75": "75.0 dias",
+            "P90": "90.0 dias",
+            "Posicion en Cohorte": "Financiacion Operativa s/Compras"
         }
     ])
     st.dataframe(df_dist, use_container_width=True)
@@ -206,14 +217,15 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         st.write(f"- **Tratamiento estadistico:** {met['depuracion_estadistica']}.")
         st.write(f"- **Formula DSO:** `{met['formula_dso']}`")
         st.write(f"- **Formula DIO:** `{met['formula_dio']}`")
-        st.caption(f"**(*) Cautela de IVA sobre DSO:** Cálculo registral estándar sin deflactar efecto impositivo indirecto devengado en cuentas a cobrar. Dado que la cuenta de clientes incluye IVA devengado (21%) mientras que la cifra de negocios es neta, el ratio registral presenta un sesgo mecánico al alza de entre 12 y 16 días respecto al plazo de crédito contractualmente pactado.")
+        st.write(f"- **Formula Ciclo de Caja:** `CCC = DSO + DIO - DPO` ({ratios['dso']} + {ratios['dio']} - {ratios['dpo']} = {ratios['ciclo_caja_dias']} dias)")
+        st.caption(f"**(*) Cautela de IVA sobre DSO:** Cálculo registral estándar sin deflactar efecto impositivo indirecto devengado en cuentas a cobrar. Dado que la cuenta de clientes incluye IVA devengado (21%) mientras que la cifra de negocios es neta, el ratio registral presenta un sesgo mecánico al alza de entre 12 y 16 días respecto al plazo de crédito pactado.")
         st.caption(f"**Aviso sobre comparabilidad del DIO:** {met['cautela_comparabilidad_dio']}")
 
     st.markdown("---")
 
     # SECCION 2: CIRCULANTE Y POTENCIAL TEÓRICO
     st.subheader("2. Intelligence Scan de Circulante: Potencial Teorico de Liberacion de Caja")
-    st.caption("Modelizacion mecanica de convergencia hacia la mediana del grupo de comparacion.")
+    st.caption("Modelizacion mecanica de convergencia hacia la mediana del grupo de comparacion y fricciones financieras.")
 
     col_pot1, col_pot2 = st.columns([2, 3])
     with col_pot1:
@@ -225,11 +237,12 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         st.write(f"- **Clientes (DSO):** Estimado ~{circ['potencial_dso_eur']:,.0f} EUR ({circ['dias_brecha_dso']} dias s/mediana)")
         st.write(f"- **Existencias (DIO):** Estimado ~{circ['potencial_dio_eur']:,.0f} EUR ({circ['dias_brecha_dio']} dias s/mediana)")
         
-        st.caption("""
-        **Estructura de Realizacion:**
+        coste_factoraje_est = circ['potencial_dso_eur'] * 0.032
+        st.caption(f"""
+        **Estructura de Realizacion y Fricciones de Mercado:**
         - Potencial teorico modelizado: Calculo mecanico sin friccion operativa.
-        - Potencial operacionalmente validable: Ajustado tras ponderar compromisos de servicio y compras minimas.
-        - Potencial economico recuperable: Caja neta liberable mediante renegociacion de plazos y saneamiento de stock.
+        - Friccion de Clientes (Distribucion): Reducir los 22,9 dias de cobro frente a grandes cadenas no es negociable comercialmente; requeriria anticipo via factoring/confirming con un coste financiero proyectado de ~{coste_factoraje_est:,.0f} EUR/año (3,2% anual).
+        - Potencial neto recuperable: Condicionado al balance entre coste de anticipo de cobro y saneamiento de stock obsoleto.
         """)
 
     with col_pot2:
@@ -242,13 +255,41 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         4. **Rotacion por SKU:** Analizar la velocidad de rotacion de familias criticas para separar inventario de rotacion rapida frente a inmovilizado improductivo.
         """)
 
+    # STRESS TEST DE MATERIA PRIMA
+    with st.expander("Stress Test de Vulnerabilidad: Impacto en Margen por Subida de Materia Prima"):
+        st.markdown("""
+        En el sector packaging (CNAE 1721), la partida de aprovisionamientos representa típicamente entre el 45% y el 55% de la cifra de negocios. 
+        Este análisis modeliza el impacto en EBITDA de una variación en los precios del cartón virgen no repercutida de inmediato a clientes:
+        """)
+        consumo_base = balance_activo["coste_materiales_consumos"]
+        ebitda_base = ratios["ebitda"]
+        
+        st_3 = consumo_base * 0.03
+        st_5 = consumo_base * 0.05
+        st_10 = consumo_base * 0.10
+        
+        df_stress = pd.DataFrame([
+            {"Escenario": "Subida Coste Bobina +3%", "Sobrecoste Anual": f"+{st_3:,.0f} EUR", "EBITDA Resultante": f"{max(0, ebitda_base - st_3):,.0f} EUR", "Erosion de Margen": f"-{(st_3/ratios['ventas'])*100:.1f} pts"},
+            {"Escenario": "Subida Coste Bobina +5%", "Sobrecoste Anual": f"+{st_5:,.0f} EUR", "EBITDA Resultante": f"{max(0, ebitda_base - st_5):,.0f} EUR", "Erosion de Margen": f"-{(st_5/ratios['ventas'])*100:.1f} pts"},
+            {"Escenario": "Subida Coste Bobina +10%", "Sobrecoste Anual": f"+{st_10:,.0f} EUR", "EBITDA Resultante": f"{max(0, ebitda_base - st_10):,.0f} EUR", "Erosion de Margen": f"-{(st_10/ratios['ventas'])*100:.1f} pts"}
+        ])
+        st.dataframe(df_stress, use_container_width=True)
+
     st.markdown("---")
 
-    # SECCION 3: MAPA DE EXPOSICIÓN REGULATORIA PPWR Y LEY 7/2022
-    st.subheader("3. Matriz de Exposicion Regulatoria: PPWR y Fiscalidad de Envases")
-    st.caption(f"Cruce de normativa comunitaria vinculante frente al catalogo comercial observable en {empresa_activa['comunidad_autonoma']}.")
+    # SECCION 3: MAPA DE EXPOSICIÓN REGULATORIA (PPWR, LEY 7/2022 Y RD 1055/2022)
+    st.subheader("3. Matriz de Exposicion Regulatoria: PPWR, Fiscalidad y RAP Comercial")
+    st.caption(f"Cruce de directivas europeas y normativa estatal/autonomica en {empresa_activa['comunidad_autonoma']}.")
 
     df_reg_resumen = pd.DataFrame([
+        {
+            "Familia / Catalogo Observado": "Embalajes comerciales y palets",
+            "Evidencia Publica": "[REGISTRAL / WEB]",
+            "Regulacion Aplicable": "RD 1055/2022 (RAP Industrial / SCRAP)",
+            "Hipotesis KROMA": "Ecotasa y adhesion a SCRAP (Envalora/Pro Circular)",
+            "Validacion Documental Requerida": "Registro MITERD y certificado SCRAP",
+            "Nivel Confianza": "🟡 HIPOTESIS"
+        },
         {
             "Familia / Catalogo Observado": "Barquetas celulosa alimentaria",
             "Evidencia Publica": "[REGISTRAL / WEB]",
@@ -285,7 +326,7 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
             "Familia / Catalogo Observado": "Complejos carton-plastico / film",
             "Evidencia Publica": "[REGISTRAL / WEB]",
             "Regulacion Aplicable": "Ley Foral 14/2023" if empresa_activa["territorio_foral"] else "Ley 7/2022 (0,45 EUR/kg)",
-            "Hipotesis KROMA": "Sujecion segun condicion de contribuyente",
+            "Hipotesis KROMA": "Sujecion segun condicion de contribuyente (exencion <5kg/m)",
             "Validacion Documental Requerida": "Gramaje plastico no reciclado por SKU",
             "Nivel Confianza": "🟡 HIPOTESIS"
         }
@@ -293,7 +334,6 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     st.dataframe(df_reg_resumen, use_container_width=True)
 
     for norm in normativas:
-        # Adaptación territorial estricta de la fiscalidad de plástico
         marco_legal = norm['marco_legal']
         titulo_norma = norm['titulo']
         if norm['id'] == "ESP-LEY-7-2022":
@@ -321,14 +361,12 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
                 st.info(norm['validacion_requerida_planta'])
             st.divider()
 
-    # SECCION 4: HIPÓTESIS TECNOLÓGICA Y FINANCIACIÓN
+    # SECCION 4: HIPÓTESIS TECNOLÓGICA CON SENSIBILIDAD DE LÍNEA
     st.subheader("4. Escenario de Hipotesis Tecnologica y Financiacion Fuera de Balance")
-    st.caption("Modelizacion sobre TRL 9 en base al consumo real de materiales. No constituye prescripcion vinculante de proveedor.")
+    st.caption("Modelizacion sobre TRL 9 calibrada segun el mix productivo de planta. No constituye prescripcion vinculante de proveedor.")
 
     tech = tecnologias[0]
     
-    # Subvención regional adaptativa según la comunidad de la empresa
-    subv_seleccionada = subvenciones[0]
     if "Comunidad Valenciana" in empresa_activa["comunidad_autonoma"]:
         subv_nombre = "IVACE+i Innovacion Packaging - DOGV 9842"
     elif "Navarra" in empresa_activa["comunidad_autonoma"]:
@@ -336,10 +374,19 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
     else:
         subv_nombre = "CDTI / Fondos Europeos FEDER Regional"
 
-    # Simulación ligada al consumo real de materiales de la entidad auditada
+    col_s1, col_s2 = st.columns([2, 2])
+    with col_s1:
+        mix_sellado_pct = st.slider(
+            "Estimacion de Materia Prima destinada a lineas de sellado/termoformado (% del total de compras):",
+            min_value=30, max_value=100, value=65, step=5,
+            help="Permite aislar las compras que realmente pasan por la termoselladora de aquellas destinadas a troquelado simple de carton."
+        )
+
+    base_consumo_afectada = balance_activo["coste_materiales_consumos"] * (mix_sellado_pct / 100.0)
+
     sim = FinancialEngine.simular_escenario_tecnologico_dinamico(
         capex_bruto=tech["capex_llave_en_mano"],
-        coste_materiales_anual=balance_activo["coste_materiales_consumos"],
+        coste_materiales_anual=base_consumo_afectada,
         tasa_recuperacion_merma=0.022,
         pct_subvencion=0.40,
         plazo_meses=36
@@ -352,13 +399,13 @@ if btn_ejecutar or "scan_ejecutado" in st.session_state:
         st.write(f"- **CAPEX Estimativo Llave en Mano:** {tech['capex_llave_en_mano']:,.2f} EUR")
         st.write(f"- **Subvencion Potencial Proyectada (40%):** -{sim['subvencion_proyectada']:,.2f} EUR (`{subv_nombre}`)")
         st.write(f"- **Inversion Neta Resultante:** {sim['inversion_neta_proyectada']:,.2f} EUR")
-        st.caption("Nota Financiera: La subvención a fondo perdido opera ex-post mediante abono directo del organismo convocante; el contrato de renting financiero computa sobre el valor bruto del activo.")
+        st.caption("Nota Financiera: La subvención opera ex-post mediante abono directo del organismo convocante; el contrato de renting computa sobre el valor bruto del activo.")
     with t2:
         st.markdown("##### Estructuracion Fuera de Balance (Renting 36m)")
         st.write(f"- Cuota de renting proyectada: **{sim['cuota_mensual_estimada']:,.2f} EUR/mes**")
-        st.write(f"- Ahorro mensual modelizado ({sim['pct_merma_modelizado']}% s/consumos): **~{sim['ahorro_mensual_teorico']:,.0f} EUR/mes**")
+        st.write(f"- Ahorro mensual modelizado ({sim['pct_merma_modelizado']}% s/base calibrada): **~{sim['ahorro_mensual_teorico']:,.0f} EUR/mes**")
         st.write(f"- Diferencial mensual neto proyectado: **~{sim['diferencial_mensual_proyectado']:,.0f} EUR/mes**")
-        st.caption(f"Base de cálculo: Modelizado sobre la partida registrada de aprovisionamientos ({sim['base_consumo_anual']:,.0f} EUR/año). Asume una reduccion potencial de defectos de sellado del {sim['pct_merma_modelizado']}%.")
+        st.caption(f"Base de cálculo calibrada: {base_consumo_afectada:,.0f} EUR/año ({mix_sellado_pct}% del aprovisionamiento total). Evita sobreestimar ahorros en líneas de troquelado plano.")
 
     with st.expander("[A VALIDAR EN PLANTA] Variables Criticas de Integracion Tecnica"):
         st.markdown("""
